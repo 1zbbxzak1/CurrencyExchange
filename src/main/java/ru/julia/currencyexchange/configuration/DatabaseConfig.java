@@ -6,14 +6,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import ru.julia.currencyexchange.dto.CurrencyConversion;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Configuration
 public class DatabaseConfig {
     @Bean
     @Scope(BeanDefinition.SCOPE_SINGLETON)
-    public List<CurrencyConversion> conversionHistory() {
-        return new ArrayList<>();
+    public Map<Long, CurrencyConversion> conversionHistory() {
+        return new ConcurrentHashMap<Long, CurrencyConversion>();
     }
 }

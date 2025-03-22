@@ -14,6 +14,8 @@ public class CurrencyExchangeConfig {
 
     @PostConstruct
     public void init() {
-        System.out.println(appName + " " + appVersion);
+        System.out.println(
+                "Приложение: " + appName + System.lineSeparator() +
+                        "Версия: " + appVersion);
     }
 }
