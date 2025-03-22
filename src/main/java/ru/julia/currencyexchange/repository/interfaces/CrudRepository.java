@@ -8,4 +8,8 @@ public interface CrudRepository<T, ID> {
     T read(ID id);
 
     List<T> readAll();
+
+    void delete(ID id);
+
+    void update(T entity);
 }
