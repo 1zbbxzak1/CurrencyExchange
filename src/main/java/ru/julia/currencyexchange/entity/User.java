@@ -1,14 +1,14 @@
 package ru.julia.currencyexchange.entity;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
 public class User {
-
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
@@ -19,26 +19,22 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @ManyToOne
-    @JoinColumn(name = "role_id", nullable = false)
-    private Role role;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private final Set<UserRole> roles = new HashSet<>();
 
-    @JsonManagedReference
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Settings settings;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<CurrencyConversion> conversions;
+    @Column(nullable = false, updatable = false)
+    private final LocalDateTime createdAt = LocalDateTime.now();
 
     public User() {
     }
 
-    public User(String username, String password, Role role) {
+    public User(String username, String password) {
         this.username = username;
         this.password = password;
-        this.role = role;
     }
-
 
     public String getId() {
         return id;
@@ -64,20 +60,19 @@ public class User {
         this.password = password;
     }
 
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
     public Settings getSettings() {
         return settings;
     }
 
     public void setSettings(Settings settings) {
         this.settings = settings;
-        settings.setUser(this);
+    }
+
+    public Set<UserRole> getRoles() {
+        return roles;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 }

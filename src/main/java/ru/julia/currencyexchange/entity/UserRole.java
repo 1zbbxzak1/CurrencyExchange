@@ -4,28 +4,27 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "settings")
-public class Settings {
-
+@Table(name = "user_roles")
+public class UserRole {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
     @JsonBackReference
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "preferred_currency_id", nullable = false)
-    private Currency preferredCurrency;
+    @JoinColumn(name = "role_id", nullable = false)
+    private Role role;
 
-    public Settings() {
+    public UserRole() {
     }
 
-    public Settings(User user, Currency preferredCurrency) {
+    public UserRole(User user, Role role) {
         this.user = user;
-        this.preferredCurrency = preferredCurrency;
+        this.role = role;
     }
 
     public String getId() {
@@ -44,11 +43,11 @@ public class Settings {
         this.user = user;
     }
 
-    public Currency getPreferredCurrency() {
-        return preferredCurrency;
+    public Role getRole() {
+        return role;
     }
 
-    public void setPreferredCurrency(Currency preferredCurrency) {
-        this.preferredCurrency = preferredCurrency;
+    public void setRole(Role role) {
+        this.role = role;
     }
 }

@@ -2,36 +2,35 @@ package ru.julia.currencyexchange.entity;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "currencies")
 public class Currency {
-
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 10)
     private String code;
 
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
-    private double exchangeRate;
+    @Column(nullable = false, precision = 10, scale = 6)
+    private BigDecimal exchangeRate;
 
     @Column(nullable = false)
-    private LocalDateTime date;
+    private final LocalDateTime lastUpdated = LocalDateTime.now();
 
     public Currency() {
     }
 
-    public Currency(String code, String name, double exchangeRate, LocalDateTime date) {
+    public Currency(String code, String name, BigDecimal exchangeRate) {
         this.code = code;
         this.name = name;
         this.exchangeRate = exchangeRate;
-        this.date = date;
     }
 
     public String getId() {
@@ -58,19 +57,15 @@ public class Currency {
         this.name = name;
     }
 
-    public double getExchangeRate() {
+    public BigDecimal getExchangeRate() {
         return exchangeRate;
     }
 
-    public void setExchangeRate(double exchangeRate) {
+    public void setExchangeRate(BigDecimal exchangeRate) {
         this.exchangeRate = exchangeRate;
     }
 
-    public LocalDateTime getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDateTime date) {
-        this.date = date;
+    public LocalDateTime getLastUpdated() {
+        return lastUpdated;
     }
 }
