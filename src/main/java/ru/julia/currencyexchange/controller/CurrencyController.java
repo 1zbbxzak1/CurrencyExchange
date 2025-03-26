@@ -8,11 +8,12 @@ import ru.julia.currencyexchange.entity.Currency;
 import ru.julia.currencyexchange.entity.CurrencyConversion;
 import ru.julia.currencyexchange.service.CurrencyExchangeService;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/currency")
+@RequestMapping("/currency")
 public class CurrencyController {
     private final CurrencyExchangeService converterService;
 
@@ -30,7 +31,7 @@ public class CurrencyController {
             @RequestParam String userId,
             @RequestParam String from,
             @RequestParam String to,
-            @RequestParam double amount) {
+            @RequestParam BigDecimal amount) {
         return converterService.convert(userId, from.toUpperCase(), to.toUpperCase(), amount);
     }
 
@@ -39,11 +40,11 @@ public class CurrencyController {
         return converterService.getUserHistory(userId);
     }
 
-    @GetMapping("/find")
-    public Optional<CurrencyConversion> findBySourceCurrencyAndTimestamp(
-            @RequestParam String sourceCurrency,
+    @GetMapping("/history/find")
+    public List<CurrencyConversion> findByCurrencyCodeAndDate(
+            @RequestParam String currencyCode,
             @RequestParam String timestamp) {
-        return converterService.findBySourceCurrencyAndTimestamp(sourceCurrency.toUpperCase(), timestamp);
+        return converterService.findByCurrencyCodeAndDate(currencyCode.toUpperCase(), timestamp);
     }
 
     @GetMapping("/conversion-range")
