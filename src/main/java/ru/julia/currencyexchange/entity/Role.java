@@ -3,6 +3,8 @@ package ru.julia.currencyexchange.entity;
 import jakarta.persistence.*;
 import ru.julia.currencyexchange.entity.enums.RoleEnum;
 
+import java.util.List;
+
 @Entity
 @Table(name = "roles")
 public class Role {
@@ -13,16 +15,18 @@ public class Role {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, unique = true)
-    private RoleEnum role;
+    private RoleEnum roleName;
+
+    @OneToMany(mappedBy = "role")
+    private List<UserRole> userRoles;
 
     public Role() {
     }
 
-    public Role(RoleEnum role) {
-        this.role = role;
+    public Role(RoleEnum roleName) {
+        this.roleName = roleName;
     }
-
-
+    
     public String getId() {
         return id;
     }
@@ -31,11 +35,11 @@ public class Role {
         this.id = id;
     }
 
-    public RoleEnum getRole() {
-        return role;
+    public String getRoleName() {
+        return roleName.getRoleName();
     }
 
-    public void setRole(RoleEnum role) {
-        this.role = role;
+    public void setRoleName(RoleEnum roleName) {
+        this.roleName = roleName;
     }
 }
