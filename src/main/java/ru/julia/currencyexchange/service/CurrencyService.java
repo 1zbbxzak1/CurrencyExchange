@@ -10,7 +10,8 @@ import ru.julia.currencyexchange.dto.CurrencyRatesList;
 import ru.julia.currencyexchange.entity.Currency;
 import ru.julia.currencyexchange.repository.CurrencyRepository;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +29,7 @@ public class CurrencyService {
     }
 
     @Transactional
-    public List<Currency> getExchangeRates() {
+    public List<Currency> updateExchangeRates() {
         try {
             // Получаем XML-ответ
             String xmlResponse = restTemplate.getForObject(CBR_URL, String.class);
@@ -37,43 +38,27 @@ public class CurrencyService {
 
             // Создаем мапу с курсами
             Map<String, CurrencyRate> rates = new HashMap<>();
-            rates.put("RUB", new CurrencyRate("RUB", 1, "Российский рубль", "1.0")); // Рубль добавляем вручную
+            rates.put("RUB", new CurrencyRate("RUB", 1, "Российский рубль", "1.0"));
 
             for (CurrencyRate rate : ratesList.getValute()) {
                 rates.put(rate.getCharCode(), rate);
             }
 
-            Map<String, Currency> existingCurrencies = new HashMap<>();
-            currencyRepository.findAll().forEach(currency ->
-                    existingCurrencies.put(currency.getCode(), currency)
-            );
-
             for (Map.Entry<String, CurrencyRate> entry : rates.entrySet()) {
                 String code = entry.getKey();
                 CurrencyRate rate = entry.getValue();
-                double exchangeRate = rate.getValue() / rate.getNominal();
+                BigDecimal exchangeRate = BigDecimal.valueOf(rate.getValue()).divide(BigDecimal.valueOf(rate.getNominal()), 6, RoundingMode.HALF_UP);
                 String currencyName = rate.getName();
 
-                Currency currency = existingCurrencies.get(code);
+                Currency currency = currencyRepository.findByCode(code)
+                        .orElse(new Currency(code, currencyName, exchangeRate));
 
-                if (currency != null) {
-                    // Проверяем, изменился ли курс или имя валюты
-                    if (currency.getExchangeRate() != exchangeRate || !currency.getName().equals(currencyName)) {
-                        currency.setExchangeRate(exchangeRate);
-                        currency.setName(currencyName); // Обновляем имя валюты
-                        currency.setDate(LocalDateTime.now());
-                        currencyRepository.save(currency);
-                    }
-                } else {
-                    // Создаем новую запись, если её нет в БД
-                    currency = new Currency(code, currencyName, exchangeRate, LocalDateTime.now());
-                    currencyRepository.save(currency);
-                }
+                currency.setExchangeRate(exchangeRate);
+                currency.setName(currencyName);
+                currencyRepository.save(currency);
             }
 
-            // Возвращаем все валюты из базы данных, приведенные к List
             return (List<Currency>) currencyRepository.findAll();
-
         } catch (Exception e) {
             throw new RuntimeException("Ошибка получения и сохранения курсов валют: " + e.getMessage(), e);
         }

@@ -2,42 +2,49 @@ package ru.julia.currencyexchange.service;
 
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-import ru.julia.currencyexchange.entity.Role;
-import ru.julia.currencyexchange.entity.Settings;
-import ru.julia.currencyexchange.entity.User;
+import ru.julia.currencyexchange.entity.*;
 import ru.julia.currencyexchange.entity.enums.RoleEnum;
-import ru.julia.currencyexchange.repository.RoleRepository;
-import ru.julia.currencyexchange.repository.SettingsRepository;
-import ru.julia.currencyexchange.repository.UserRepository;
+import ru.julia.currencyexchange.repository.*;
+
+import java.util.List;
 
 @Service
 public class TransactionalUserService {
     private final UserRepository userRepository;
     private final SettingsRepository settingsRepository;
     private final RoleRepository roleRepository;
+    private final UserRoleRepository userRoleRepository;
+    private final CurrencyRepository currencyRepository;
 
-    public TransactionalUserService(UserRepository userRepository, SettingsRepository settingsRepository, RoleRepository roleRepository) {
+    public TransactionalUserService(UserRepository userRepository,
+                                    SettingsRepository settingsRepository,
+                                    RoleRepository roleRepository,
+                                    UserRoleRepository userRoleRepository,
+                                    CurrencyRepository currencyRepository) {
         this.userRepository = userRepository;
         this.settingsRepository = settingsRepository;
         this.roleRepository = roleRepository;
+        this.userRoleRepository = userRoleRepository;
+        this.currencyRepository = currencyRepository;
     }
 
     @Transactional(rollbackOn = Exception.class)
-    public User createUserWithSettings(String username, String password, String preferredCurrency) {
-        try {
-            Role role = roleRepository.findByRole(RoleEnum.USER)
-                    .orElseGet(() -> roleRepository.save(new Role(RoleEnum.USER)));
+    public User createUserWithSettings(String username, String password, String preferredCurrencyCode) {
+        User user = new User(username, password);
+        userRepository.save(user);
 
-            User user = new User(username, password, role);
-            userRepository.save(user);
+        Role role = roleRepository.findByRoleName(RoleEnum.USER)
+                .orElseGet(() -> roleRepository.save(new Role(RoleEnum.USER)));
 
-            Settings settings = new Settings(user, preferredCurrency.toUpperCase());
-            settingsRepository.save(settings);
+        userRoleRepository.save(new UserRole(user, role));
 
-            return user;
-        } catch (Exception e) {
-            throw new RuntimeException("Error creating user with settings" + e.getMessage());
-        }
+        Currency preferredCurrency = currencyRepository.findByCode(preferredCurrencyCode)
+                .orElseThrow(() -> new IllegalArgumentException("Currency " + preferredCurrencyCode + " not found"));
+
+        settingsRepository.save(new Settings(user, preferredCurrency));
+
+        return userRepository.findById(user.getId())
+                .orElseThrow(() -> new RuntimeException("User not found after creation"));
     }
 
     @Transactional
@@ -46,16 +53,16 @@ public class TransactionalUserService {
     }
 
     @Transactional
-    public User deleteUser(String userId) {
-        try {
-            User user = userRepository.findById(userId).orElse(null);
-            if (user != null) {
-                userRepository.delete(user);
-            }
-
-            return user;
-        } catch (Exception e) {
-            throw new RuntimeException("Error deleting user with id" + userId);
+    public User deleteUserById(String userId) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user != null) {
+            userRepository.delete(user);
         }
+        return user;
+    }
+
+    @Transactional
+    public List<User> findAllUsers() {
+        return (List<User>) userRepository.findAll();
     }
 }
