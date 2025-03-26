@@ -10,6 +10,10 @@
 - **Фреймворк**: Spring Boot 3.4.3
 - **База данных**: PostgreSQL 17
 
+## ER-Диаграмма
+
+[ER-Диаграмма](https://dbdiagram.io/d/67e462b44f7afba18458c26f)
+
 # Установка
 
 ```bash
