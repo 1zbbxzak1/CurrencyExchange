@@ -1,21 +1,44 @@
-package ru.julia.currencyexchange.dto;
+package ru.julia.currencyexchange.entity;
+
+import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+@Entity
+@Table(name = "currency_conversions")
 public class CurrencyConversion {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
-    private Long id;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Column(nullable = false)
     private String sourceCurrency;
+
+    @Column(nullable = false)
     private String targetCurrency;
+
+    @Column(nullable = false)
     private double amount;
+
+    @Column(nullable = false)
     private double convertedAmount;
+
+    @Column(nullable = false)
     private double conversionRate;
+
+    @Column(nullable = false)
     private LocalDateTime timestamp;
 
-    public CurrencyConversion(Long id, String sourceCurrency, String targetCurrency,
+    public CurrencyConversion(User user, String sourceCurrency, String targetCurrency,
                               double amount, double convertedAmount, double conversionRate) {
-        this.id = id;
+        this.user = user;
         this.sourceCurrency = sourceCurrency;
         this.targetCurrency = targetCurrency;
         this.amount = amount;
@@ -24,11 +47,15 @@ public class CurrencyConversion {
         this.timestamp = LocalDateTime.now();
     }
 
-    public Long getId() {
+    public CurrencyConversion() {
+
+    }
+
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
