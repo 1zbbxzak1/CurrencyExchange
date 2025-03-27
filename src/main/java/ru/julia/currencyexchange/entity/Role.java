@@ -1,5 +1,6 @@
 package ru.julia.currencyexchange.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import ru.julia.currencyexchange.entity.enums.RoleEnum;
 
@@ -18,6 +19,7 @@ public class Role {
     private RoleEnum roleName;
 
     @OneToMany(mappedBy = "role")
+    @JsonBackReference
     private List<UserRole> userRoles;
 
     public Role() {
