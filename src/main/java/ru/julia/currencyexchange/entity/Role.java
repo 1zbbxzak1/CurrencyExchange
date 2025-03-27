@@ -26,7 +26,7 @@ public class Role {
     public Role(RoleEnum roleName) {
         this.roleName = roleName;
     }
-    
+
     public String getId() {
         return id;
     }
@@ -41,5 +41,14 @@ public class Role {
 
     public void setRoleName(RoleEnum roleName) {
         this.roleName = roleName;
+    }
+
+
+    public List<UserRole> getUserRoles() {
+        return userRoles;
+    }
+
+    public void setUserRoles(List<UserRole> userRoles) {
+        this.userRoles = userRoles;
     }
 }
