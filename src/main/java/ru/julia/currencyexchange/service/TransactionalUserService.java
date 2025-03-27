@@ -1,7 +1,7 @@
 package ru.julia.currencyexchange.service;
 
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.julia.currencyexchange.entity.*;
 import ru.julia.currencyexchange.entity.enums.RoleEnum;
 import ru.julia.currencyexchange.repository.*;
@@ -31,7 +31,7 @@ public class TransactionalUserService {
         this.currencyRepository = currencyRepository;
     }
 
-    @Transactional(rollbackOn = Exception.class)
+    @Transactional(rollbackFor = UserCreationException.class)
     public User createUserWithSettings(String username, String password, String preferredCurrencyCode) {
         try {
             User user = new User(username, password);
