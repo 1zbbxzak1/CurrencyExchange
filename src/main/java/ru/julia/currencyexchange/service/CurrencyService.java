@@ -2,14 +2,19 @@ package ru.julia.currencyexchange.service;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import ru.julia.currencyexchange.dto.CurrencyRate;
 import ru.julia.currencyexchange.dto.CurrencyRatesList;
 import ru.julia.currencyexchange.entity.Currency;
 import ru.julia.currencyexchange.repository.CurrencyRepository;
+import ru.julia.currencyexchange.service.exceptions.CurrencyRateFetchException;
+import ru.julia.currencyexchange.service.exceptions.CurrencyRateParsingException;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.HashMap;
@@ -31,12 +36,28 @@ public class CurrencyService {
     @Transactional
     public List<Currency> updateExchangeRates() {
         try {
-            // Получаем XML-ответ
-            String xmlResponse = restTemplate.getForObject(CBR_URL, String.class);
+            String xmlResponse = fetchCurrencyRatesXml();
+            Map<String, CurrencyRate> rates = parseCurrencyRates(xmlResponse);
+            saveCurrencyRates(rates);
+            return (List<Currency>) currencyRepository.findAll();
+        } catch (Exception e) {
+            throw new RuntimeException("Ошибка получения и сохранения курсов валют: " + e.getMessage(), e);
+        }
+    }
+
+    private String fetchCurrencyRatesXml() {
+        try {
+            return restTemplate.getForObject(CBR_URL, String.class);
+        } catch (RestClientException e) {
+            throw new CurrencyRateFetchException("Ошибка при получении курсов валют от ЦБ РФ: " + e.getMessage());
+        }
+    }
+
+    private Map<String, CurrencyRate> parseCurrencyRates(String xmlResponse) {
+        try {
             XmlMapper xmlMapper = new XmlMapper();
             CurrencyRatesList ratesList = xmlMapper.readValue(xmlResponse, CurrencyRatesList.class);
 
-            // Создаем мапу с курсами
             Map<String, CurrencyRate> rates = new HashMap<>();
             rates.put("RUB", new CurrencyRate("RUB", 1, "Российский рубль", "1.0"));
 
@@ -44,23 +65,40 @@ public class CurrencyService {
                 rates.put(rate.getCharCode(), rate);
             }
 
-            for (Map.Entry<String, CurrencyRate> entry : rates.entrySet()) {
-                String code = entry.getKey();
-                CurrencyRate rate = entry.getValue();
-                BigDecimal exchangeRate = BigDecimal.valueOf(rate.getValue()).divide(BigDecimal.valueOf(rate.getNominal()), 6, RoundingMode.HALF_UP);
-                String currencyName = rate.getName();
+            return rates;
+        } catch (IOException e) {
+            throw new CurrencyRateParsingException("Ошибка парсинга XML с курсами валют: " + e.getMessage());
+        }
+    }
 
-                Currency currency = currencyRepository.findByCode(code)
-                        .orElse(new Currency(code, currencyName, exchangeRate));
+    private void saveCurrencyRates(Map<String, CurrencyRate> rates) {
+        for (Map.Entry<String, CurrencyRate> entry : rates.entrySet()) {
+            String code = entry.getKey();
+            CurrencyRate rate = entry.getValue();
+            String currencyName = rate.getName();
 
-                currency.setExchangeRate(exchangeRate);
-                currency.setName(currencyName);
-                currencyRepository.save(currency);
+            if (rate.getNominal() == 0) {
+                throw new ArithmeticException("Номинал валюты " + rate.getCharCode() + " равен 0, деление невозможно.");
             }
 
-            return (List<Currency>) currencyRepository.findAll();
-        } catch (Exception e) {
-            throw new RuntimeException("Ошибка получения и сохранения курсов валют: " + e.getMessage(), e);
+            BigDecimal exchangeRate = calculateExchangeRate(rate);
+
+            Currency currency = currencyRepository.findByCode(code)
+                    .orElse(new Currency(code, currencyName, exchangeRate));
+
+            currency.setExchangeRate(exchangeRate);
+            currency.setName(currencyName);
+
+            try {
+                currencyRepository.save(currency);
+            } catch (DataIntegrityViolationException e) {
+                throw new RuntimeException("Ошибка сохранения валюты в БД: " + e.getMessage(), e);
+            }
         }
+    }
+
+    private BigDecimal calculateExchangeRate(CurrencyRate rate) {
+        return BigDecimal.valueOf(rate.getValue())
+                .divide(BigDecimal.valueOf(rate.getNominal()), 6, RoundingMode.HALF_UP);
     }
 }
