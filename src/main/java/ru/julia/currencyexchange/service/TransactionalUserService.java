@@ -5,6 +5,9 @@ import org.springframework.stereotype.Service;
 import ru.julia.currencyexchange.entity.*;
 import ru.julia.currencyexchange.entity.enums.RoleEnum;
 import ru.julia.currencyexchange.repository.*;
+import ru.julia.currencyexchange.service.exceptions.CurrencyNotFoundException;
+import ru.julia.currencyexchange.service.exceptions.UserCreationException;
+import ru.julia.currencyexchange.service.exceptions.UserNotFoundException;
 
 import java.util.List;
 
@@ -30,38 +33,41 @@ public class TransactionalUserService {
 
     @Transactional(rollbackOn = Exception.class)
     public User createUserWithSettings(String username, String password, String preferredCurrencyCode) {
-        User user = new User(username, password);
-        userRepository.save(user);
+        try {
+            User user = new User(username, password);
+            userRepository.save(user);
 
-        Role role = roleRepository.findByRoleName(RoleEnum.USER)
-                .orElseGet(() -> roleRepository.save(new Role(RoleEnum.USER)));
+            Role role = roleRepository.findByRoleName(RoleEnum.USER)
+                    .orElseGet(() -> roleRepository.save(new Role(RoleEnum.USER)));
 
-        userRoleRepository.save(new UserRole(user, role));
+            userRoleRepository.save(new UserRole(user, role));
 
-        Currency preferredCurrency = currencyRepository.findByCode(preferredCurrencyCode)
-                .orElseThrow(() -> new IllegalArgumentException("Currency " + preferredCurrencyCode + " not found"));
+            Currency preferredCurrency = currencyRepository.findByCode(preferredCurrencyCode)
+                    .orElseThrow(() -> new CurrencyNotFoundException("Currency " + preferredCurrencyCode + " not found"));
 
-        settingsRepository.save(new Settings(user, preferredCurrency));
+            settingsRepository.save(new Settings(user, preferredCurrency));
 
-        return userRepository.findById(user.getId())
-                .orElseThrow(() -> new RuntimeException("User not found after creation"));
+            return userRepository.findById(user.getId())
+                    .orElseThrow(() -> new UserCreationException("User not found after creation"));
+        } catch (Exception e) {
+            throw new UserCreationException("Error creating user: " + e.getMessage());
+        }
     }
 
-    @Transactional
     public User findUserById(String id) {
-        return userRepository.findById(id).orElse(null);
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User with ID " + id + " not found"));
     }
 
     @Transactional
     public User deleteUserById(String userId) {
-        User user = userRepository.findById(userId).orElse(null);
-        if (user != null) {
-            userRepository.delete(user);
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));
+
+        userRepository.delete(user);
         return user;
     }
 
-    @Transactional
     public List<User> findAllUsers() {
         return (List<User>) userRepository.findAll();
     }

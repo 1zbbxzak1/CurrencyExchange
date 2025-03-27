@@ -7,11 +7,15 @@ import ru.julia.currencyexchange.entity.User;
 import ru.julia.currencyexchange.repository.ConversionRepository;
 import ru.julia.currencyexchange.repository.CurrencyRepository;
 import ru.julia.currencyexchange.repository.UserRepository;
+import ru.julia.currencyexchange.service.exceptions.CurrencyNotFoundException;
+import ru.julia.currencyexchange.service.exceptions.InvalidDateFormatException;
+import ru.julia.currencyexchange.service.exceptions.UserNotFoundException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,7 +26,10 @@ public class CurrencyExchangeService {
     private final ConversionRepository conversionRepository;
     private final UserRepository userRepository;
 
-    public CurrencyExchangeService(CurrencyService currencyService, CurrencyRepository currencyRepository, ConversionRepository conversionRepository, UserRepository userRepository) {
+    public CurrencyExchangeService(CurrencyService currencyService,
+                                   CurrencyRepository currencyRepository,
+                                   ConversionRepository conversionRepository,
+                                   UserRepository userRepository) {
         this.currencyService = currencyService;
         this.currencyRepository = currencyRepository;
         this.conversionRepository = conversionRepository;
@@ -33,19 +40,31 @@ public class CurrencyExchangeService {
         currencyService.updateExchangeRates();
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));
 
 
         Currency fromCurrency = currencyRepository.findByCode(from)
-                .orElseThrow(() -> new IllegalArgumentException("Currency " + from + " not found"));
+                .orElseThrow(() -> new CurrencyNotFoundException("Currency " + from + " not found"));
 
         Currency toCurrency = currencyRepository.findByCode(to)
-                .orElseThrow(() -> new IllegalArgumentException("Currency " + to + " not found"));
+                .orElseThrow(() -> new CurrencyNotFoundException("Currency " + to + " not found"));
 
-        BigDecimal rate = fromCurrency.getExchangeRate().divide(toCurrency.getExchangeRate(), 6, RoundingMode.HALF_UP);
+        if (toCurrency.getExchangeRate().compareTo(BigDecimal.ZERO) == 0) {
+            throw new ArithmeticException("Exchange rate for currency " + to + " is zero, cannot divide");
+        }
+
+        BigDecimal rate = fromCurrency.getExchangeRate()
+                .divide(toCurrency.getExchangeRate(), 6, RoundingMode.HALF_UP);
+
+
         BigDecimal convertedAmount = amount.multiply(rate);
 
-        CurrencyConversion conversion = new CurrencyConversion(user, fromCurrency, toCurrency, amount, convertedAmount, rate);
+        CurrencyConversion conversion = new CurrencyConversion(user,
+                fromCurrency,
+                toCurrency,
+                amount,
+                convertedAmount,
+                rate);
         return conversionRepository.save(conversion);
     }
 
@@ -60,12 +79,16 @@ public class CurrencyExchangeService {
     public List<CurrencyConversion> findByCurrencyCodeAndDate(String currencyCode, String timestamp) {
         DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
 
-        LocalDate parsedTimestamp = LocalDate.parse(timestamp, formatter);
+        try {
+            LocalDate parsedTimestamp = LocalDate.parse(timestamp, formatter);
 
-        Currency currency = currencyRepository.findByCode(currencyCode)
-                .orElseThrow(() -> new IllegalArgumentException("Currency " + currencyCode + " not found"));
+            Currency currency = currencyRepository.findByCode(currencyCode)
+                    .orElseThrow(() -> new CurrencyNotFoundException("Currency " + currencyCode + " not found"));
 
-        return conversionRepository.findByCurrencyCodeAndDate(currency, parsedTimestamp);
+            return conversionRepository.findByCurrencyCodeAndDate(currency, parsedTimestamp);
+        } catch (DateTimeParseException e) {
+            throw new InvalidDateFormatException("Invalid date format: " + timestamp);
+        }
     }
 
     // Метод для обновления курсов валют
