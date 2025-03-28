@@ -1,11 +1,11 @@
 package ru.julia.currencyexchange.repository.custom;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import ru.julia.currencyexchange.entity.CurrencyConversion;
 
@@ -14,8 +14,12 @@ import java.util.Optional;
 
 @Repository
 public class CustomConversionRepositoryImpl implements CustomConversionRepository {
-    @PersistenceContext
-    private EntityManager entityManager;
+    EntityManager entityManager;
+
+    @Autowired
+    public CustomConversionRepositoryImpl(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
 
     @Override
     public List<CurrencyConversion> findConversionByUserId(String userId) {
