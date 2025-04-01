@@ -11,8 +11,21 @@ public class CurrencyRate {
     @JacksonXmlProperty(localName = "Nominal")
     private int nominal;
 
+    @JacksonXmlProperty(localName = "Name")
+    private String name;
+
     @JacksonXmlProperty(localName = "Value")
-    private String value; // ЦБ РФ передает значение в виде строки с запятой
+    private String value;
+
+    public CurrencyRate() {
+    }
+
+    public CurrencyRate(String charCode, int nominal, String name, String value) {
+        this.charCode = charCode;
+        this.nominal = nominal;
+        this.name = name;
+        this.value = value;
+    }
 
     public String getCharCode() {
         return charCode;
@@ -22,7 +35,14 @@ public class CurrencyRate {
         return nominal;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public double getValue() {
-        return Double.parseDouble(value.replace(",", ".")); // Преобразуем в число
+        if (value == null || value.isEmpty()) {
+            return 0.0; // или выбросить исключение, если `Value` обязателен
+        }
+        return Double.parseDouble(value.replace(",", "."));
     }
 }
