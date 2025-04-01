@@ -66,14 +66,14 @@ class ConversionRepositoryTest {
         CurrencyConversion conversion2 = new CurrencyConversion();
 
         // Мокируем поведение репозитория
-        when(conversionRepository.findConversionsByUserId(userId)).thenReturn(List.of(conversion1, conversion2));
+        when(conversionRepository.findConversionByUserId(userId)).thenReturn(List.of(conversion1, conversion2));
 
         // Вызываем метод и проверяем результат
-        List<CurrencyConversion> result = conversionRepository.findConversionsByUserId(userId);
+        List<CurrencyConversion> result = conversionRepository.findConversionByUserId(userId);
         assertEquals(2, result.size());
 
         // Проверяем, что метод был вызван
-        verify(conversionRepository, times(1)).findConversionsByUserId(userId);
+        verify(conversionRepository, times(1)).findConversionByUserId(userId);
     }
 
     @Test
@@ -81,13 +81,13 @@ class ConversionRepositoryTest {
         String userId = "non-existing-user";
 
         // Мокируем поведение репозитория (пустой список)
-        when(conversionRepository.findConversionsByUserId(userId)).thenReturn(Collections.emptyList());
+        when(conversionRepository.findConversionByUserId(userId)).thenReturn(Collections.emptyList());
 
         // Вызываем метод и проверяем, что список пуст
-        List<CurrencyConversion> result = conversionRepository.findConversionsByUserId(userId);
+        List<CurrencyConversion> result = conversionRepository.findConversionByUserId(userId);
         assertTrue(result.isEmpty());
 
         // Проверяем вызов метода
-        verify(conversionRepository, times(1)).findConversionsByUserId(userId);
+        verify(conversionRepository, times(1)).findConversionByUserId(userId);
     }
 }

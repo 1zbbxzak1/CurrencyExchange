@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Currency Rates List</title>
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body>
+<h1>Currency Rates List</h1>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Код</th>
+        <th>Название</th>
+        <th>Курс валюты (₽)</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="currency : ${currencies}">
+        <td th:text="${currency.code}"></td>
+        <td th:text="${currency.name}"></td>
+        <td th:text="${currency.exchangeRate + ' ₽'}"></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
