@@ -2,6 +2,7 @@ package ru.julia.currencyexchange.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.List;
 @JacksonXmlRootElement(localName = "ValCurs")
 public class CurrencyRatesList {
     @JacksonXmlElementWrapper(useWrapping = false)
+    @JacksonXmlProperty(localName = "Valute")
     private List<CurrencyRate> Valute;
 
     public List<CurrencyRate> getValute() {
