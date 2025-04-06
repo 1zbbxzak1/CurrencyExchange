@@ -69,7 +69,7 @@ public class CurrencyExchangeService {
     }
 
     public List<CurrencyConversion> getUserHistory(String userId) {
-        return conversionRepository.findConversionsByUserId(userId);
+        return conversionRepository.findConversionByUserId(userId);
     }
 
     public Optional<List<CurrencyConversion>> getConversionByAmountRange(Double minAmount, Double maxAmount) {
