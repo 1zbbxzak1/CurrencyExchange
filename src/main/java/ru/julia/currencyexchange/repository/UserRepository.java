@@ -1,12 +1,12 @@
 package ru.julia.currencyexchange.repository;
 
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import ru.julia.currencyexchange.entity.User;
 
 import java.util.Optional;
 
-@Repository
+@RepositoryRestResource(path = "users")
 public interface UserRepository extends CrudRepository<User, String> {
     Optional<User> findByUsername(String username);
 }

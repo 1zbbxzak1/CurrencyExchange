@@ -3,7 +3,7 @@ package ru.julia.currencyexchange.repository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import ru.julia.currencyexchange.entity.Currency;
 import ru.julia.currencyexchange.entity.CurrencyConversion;
 import ru.julia.currencyexchange.repository.custom.CustomConversionRepository;
@@ -11,13 +11,9 @@ import ru.julia.currencyexchange.repository.custom.CustomConversionRepository;
 import java.time.LocalDate;
 import java.util.List;
 
-@Repository
+@RepositoryRestResource(path = "currency_conversions")
 public interface ConversionRepository extends CrudRepository<CurrencyConversion, String>, CustomConversionRepository {
     // Поиск по имени и роли
     @Query("SELECT c FROM CurrencyConversion c WHERE c.sourceCurrency = :currency AND FUNCTION('DATE', c.timestamp) = :date")
     List<CurrencyConversion> findByCurrencyCodeAndDate(@Param("currency") Currency sourceCurrency, @Param("date") LocalDate date);
-
-    // Поиск всех конверсий по userId
-    @Query("SELECT c FROM CurrencyConversion c WHERE c.user.id = :userId")
-    List<CurrencyConversion> findConversionsByUserId(String userId);
 }

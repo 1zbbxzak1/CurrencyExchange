@@ -13,6 +13,7 @@ import ru.julia.currencyexchange.entity.Currency;
 import ru.julia.currencyexchange.repository.CurrencyRepository;
 import ru.julia.currencyexchange.service.exceptions.CurrencyRateFetchException;
 import ru.julia.currencyexchange.service.exceptions.CurrencyRateParsingException;
+import ru.julia.currencyexchange.service.exceptions.CurrencyRateSaveException;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -41,7 +42,7 @@ public class CurrencyService {
             saveCurrencyRates(rates);
             return (List<Currency>) currencyRepository.findAll();
         } catch (Exception e) {
-            throw new RuntimeException("Ошибка получения и сохранения курсов валют: " + e.getMessage(), e);
+            throw new CurrencyRateSaveException("Не удалось обновить курсы валют: " + e.getMessage(), e);
         }
     }
 
@@ -92,7 +93,7 @@ public class CurrencyService {
             try {
                 currencyRepository.save(currency);
             } catch (DataIntegrityViolationException e) {
-                throw new RuntimeException("Ошибка сохранения валюты в БД: " + e.getMessage(), e);
+                throw new DataIntegrityViolationException("Ошибка сохранения валюты в БД: " + e.getMessage(), e);
             }
         }
     }
