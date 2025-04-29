@@ -9,7 +9,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import ru.julia.currencyexchange.application.service.AppUserDetailsService;
-import ru.julia.currencyexchange.domain.model.enums.RoleEnum;
+import ru.julia.currencyexchange.domain.enums.RoleEnum;
 
 @Configuration
 @EnableMethodSecurity
