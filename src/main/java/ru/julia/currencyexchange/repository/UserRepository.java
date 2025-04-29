@@ -9,6 +9,8 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends CrudRepository<User, String> {
+    Boolean existsByUsername(String username);
+
     @Query("""
             SELECT u FROM User u 
             LEFT JOIN FETCH u.roles r 
