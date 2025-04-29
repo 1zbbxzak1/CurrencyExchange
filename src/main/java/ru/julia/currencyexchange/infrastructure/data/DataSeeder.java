@@ -1,13 +1,13 @@
-package ru.julia.currencyexchange.domain.data;
+package ru.julia.currencyexchange.infrastructure.data;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import ru.julia.currencyexchange.domain.enums.RoleEnum;
 import ru.julia.currencyexchange.domain.model.Role;
 import ru.julia.currencyexchange.domain.model.User;
 import ru.julia.currencyexchange.domain.model.UserRole;
-import ru.julia.currencyexchange.domain.model.enums.RoleEnum;
 import ru.julia.currencyexchange.infrastructure.repository.jpa.RoleRepository;
 import ru.julia.currencyexchange.infrastructure.repository.jpa.UserRepository;
 
