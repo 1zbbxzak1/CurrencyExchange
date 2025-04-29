@@ -4,8 +4,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.julia.currencyexchange.entity.User;
-import ru.julia.currencyexchange.service.AuthService;
+import ru.julia.currencyexchange.application.service.AuthService;
+import ru.julia.currencyexchange.domain.model.User;
 
 @RestController
 @RequestMapping("/api/auth")

@@ -1,8 +1,8 @@
 package ru.julia.currencyexchange.controller;
 
 import org.springframework.web.bind.annotation.*;
-import ru.julia.currencyexchange.entity.User;
-import ru.julia.currencyexchange.service.UserService;
+import ru.julia.currencyexchange.application.service.UserService;
+import ru.julia.currencyexchange.domain.model.User;
 
 import java.util.List;
 

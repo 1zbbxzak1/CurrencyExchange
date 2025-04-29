@@ -4,9 +4,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.julia.currencyexchange.entity.Currency;
-import ru.julia.currencyexchange.entity.CurrencyConversion;
-import ru.julia.currencyexchange.service.CurrencyExchangeService;
+import ru.julia.currencyexchange.application.service.CurrencyExchangeService;
+import ru.julia.currencyexchange.domain.model.Currency;
+import ru.julia.currencyexchange.domain.model.CurrencyConversion;
 
 import java.math.BigDecimal;
 import java.util.List;
