@@ -9,7 +9,7 @@ import ru.julia.currencyexchange.entity.Currency;
 import ru.julia.currencyexchange.repository.CurrencyRepository;
 
 @Controller
-@RequestMapping("/view/currency/rates")
+@RequestMapping("/currency-rates")
 public class CurrencyViewController {
 
     @Autowired
@@ -20,6 +20,6 @@ public class CurrencyViewController {
         Iterable<Currency> rates = currencyRepository.findAll();
         model.addAttribute("currencies", rates);
 
-        return "index";
+        return "list";
     }
 }
