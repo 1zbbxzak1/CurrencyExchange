@@ -1,5 +1,6 @@
 package ru.julia.currencyexchange.service;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.julia.currencyexchange.entity.*;
@@ -16,16 +17,22 @@ public class AuthService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final CurrencyRepository currencyRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public AuthService(UserRepository userRepository, RoleRepository roleRepository, CurrencyRepository currencyRepository) {
+    public AuthService(UserRepository userRepository,
+                       RoleRepository roleRepository,
+                       CurrencyRepository currencyRepository,
+                       PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.currencyRepository = currencyRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional(rollbackFor = UserCreationException.class)
     public User createUserWithSettings(String username, String password, String preferredCurrencyCode) {
-        User user = new User(username, password);
+        String encodedPassword = passwordEncoder.encode(password);
+        User user = new User(username, encodedPassword);
 
         Currency preferredCurrency = currencyRepository.findByCode(preferredCurrencyCode)
                 .orElseThrow(() -> new CurrencyNotFoundException("Currency " + preferredCurrencyCode + " not found"));
