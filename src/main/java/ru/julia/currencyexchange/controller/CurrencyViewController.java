@@ -9,7 +9,7 @@ import ru.julia.currencyexchange.entity.Currency;
 import ru.julia.currencyexchange.repository.CurrencyRepository;
 
 @Controller
-@RequestMapping("/custom/currency/rates/view")
+@RequestMapping("/view/currency/rates")
 public class CurrencyViewController {
 
     @Autowired

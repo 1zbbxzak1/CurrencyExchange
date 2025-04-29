@@ -32,10 +32,6 @@ public class Settings {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public User getUser() {
         return user;
     }

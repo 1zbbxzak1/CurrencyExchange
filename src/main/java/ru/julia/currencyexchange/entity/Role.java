@@ -33,10 +33,6 @@ public class Role {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public String getRoleName() {
         return roleName.getRoleName();
     }

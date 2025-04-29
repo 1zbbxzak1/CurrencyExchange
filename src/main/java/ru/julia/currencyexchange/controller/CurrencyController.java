@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/currency")
+@RequestMapping("/api/currency")
 public class CurrencyController {
     private final CurrencyExchangeService converterService;
 

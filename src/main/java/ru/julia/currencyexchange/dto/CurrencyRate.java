@@ -41,7 +41,7 @@ public class CurrencyRate {
 
     public double getValue() {
         if (value == null || value.isEmpty()) {
-            return 0.0; // или выбросить исключение, если `Value` обязателен
+            return 0.0;
         }
         return Double.parseDouble(value.replace(",", "."));
     }
