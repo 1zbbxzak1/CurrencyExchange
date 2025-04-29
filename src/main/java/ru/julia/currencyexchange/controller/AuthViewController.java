@@ -9,4 +9,9 @@ public class AuthViewController {
     public String register() {
         return "register";
     }
+
+    @GetMapping("/auth")
+    public String auth() {
+        return "auth";
+    }
 }
