@@ -33,8 +33,8 @@ public class AuthService {
         Settings settings = new Settings(user, preferredCurrency);
         user.setSettings(settings);
 
-        Role userRole = roleRepository.findByRoleName(RoleEnum.USER)
-                .orElseGet(() -> roleRepository.save(new Role(RoleEnum.USER)));
+        Role userRole = roleRepository.findByRoleName("ROLE_" + RoleEnum.USER)
+                .orElseGet(() -> roleRepository.save(new Role("ROLE_" + RoleEnum.USER.name())));
 
         user.getRoles().add(new UserRole(user, userRole));
 

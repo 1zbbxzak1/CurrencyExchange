@@ -2,7 +2,6 @@ package ru.julia.currencyexchange.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import ru.julia.currencyexchange.entity.enums.RoleEnum;
 
 import java.util.List;
 
@@ -14,18 +13,17 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, unique = true)
-    private RoleEnum roleName;
+    @Column(name = "role_name", nullable = false, unique = true)
+    private String roleName;
 
-    @OneToMany(mappedBy = "role")
+    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonBackReference
     private List<UserRole> userRoles;
 
     public Role() {
     }
 
-    public Role(RoleEnum roleName) {
+    public Role(String roleName) {
         this.roleName = roleName;
     }
 
@@ -34,13 +32,12 @@ public class Role {
     }
 
     public String getRoleName() {
-        return roleName.getRoleName();
+        return roleName;
     }
 
-    public void setRoleName(RoleEnum roleName) {
+    public void setRoleName(String roleName) {
         this.roleName = roleName;
     }
-
 
     public List<UserRole> getUserRoles() {
         return userRoles;
