@@ -7,9 +7,22 @@ body {
 
 .header {
     display: flex;
-    justify-content: end;
+    justify-content: space-between;
     align-items: center;
     padding: 12px;
+}
+
+.latest-button {
+    padding: 0.5rem 1rem;
+    background-color: #f4f4f4;
+    color: black;
+    border: 1px solid #cdcdcd;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.latest-button:hover {
+    background-color: #eaeaea;
 }
 
 .logout-button {
