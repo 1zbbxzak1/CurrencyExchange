@@ -27,8 +27,10 @@ VALUES ('d84b7d8a-d142-11e9-b151-0800200c9a68', 'USD', 'US Dollar', 1.0, CURRENT
 
 -- Вставка пользователей
 INSERT INTO users (id, username, password, created_at)
-VALUES ('5fa1fa40-d142-11e9-b151-0800200c9a70', 'testuser', 'encoded-password', CURRENT_TIMESTAMP),
-       ('5fa1fa40-d142-11e9-b151-0800200c9a71', 'deleteuser', 'encoded-password', CURRENT_TIMESTAMP);
+VALUES ('5fa1fa40-d142-11e9-b151-0800200c9a70', 'testuser',
+        '$2a$10$kw7sNWvoh28c4jac0ExlkuoIT.NGyv2zuGKqRVLyEm8s4CK3d4C5K', CURRENT_TIMESTAMP),
+       ('5fa1fa40-d142-11e9-b151-0800200c9a71', 'deleteuser',
+        '$2a$10$kw7sNWvoh28c4jac0ExlkuoIT.NGyv2zuGKqRVLyEm8s4CK3d4C5K', CURRENT_TIMESTAMP);
 
 -- Вставка настроек пользователя
 INSERT INTO settings (id, user_id, preferred_currency_id)
