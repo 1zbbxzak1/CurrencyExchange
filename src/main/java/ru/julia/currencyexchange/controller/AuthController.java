@@ -1,5 +1,7 @@
 package ru.julia.currencyexchange.controller;
 
+import jakarta.validation.constraints.NotBlank;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -9,6 +11,7 @@ import ru.julia.currencyexchange.domain.model.User;
 
 @RestController
 @RequestMapping("/api/auth")
+@Validated
 public class AuthController {
     private final AuthService authService;
 
@@ -18,9 +21,9 @@ public class AuthController {
 
     @PostMapping("/register")
     public User createUserWithSettings(
-            @RequestParam String username,
-            @RequestParam String password,
-            @RequestParam String preferredCurrency) {
+            @RequestParam @NotBlank(message = "Username is required") String username,
+            @RequestParam @NotBlank(message = "Password is required") String password,
+            @RequestParam @NotBlank(message = "Preferred currency is required") String preferredCurrency) {
         return authService.createUserWithSettings(username, password, preferredCurrency);
     }
 }
