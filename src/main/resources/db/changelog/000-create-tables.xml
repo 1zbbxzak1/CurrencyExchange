@@ -7,9 +7,9 @@
         https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
 
     <!-- Enable uuid_generate_v4() -->
-    <changeSet id="enable-uuid-ossp" author="julia">
+    <changeSet id="enable-uuid-ossp" author="julia" dbms="postgresql">
         <sql>CREATE
-        EXTENSION IF NOT EXISTS "uuid-ossp";</sql>
+            EXTENSION IF NOT EXISTS "uuid-ossp";</sql>
     </changeSet>
 
     <!-- Create roles table -->

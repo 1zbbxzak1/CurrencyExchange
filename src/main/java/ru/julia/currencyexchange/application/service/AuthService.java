@@ -31,6 +31,10 @@ public class AuthService {
 
     @Transactional(rollbackFor = UserCreationException.class)
     public User createUserWithSettings(String username, String password, String preferredCurrencyCode) {
+        if (userRepository.findByUsername(username).isPresent()) {
+            throw new UserCreationException("User with username " + username + " already exists");
+        }
+
         String encodedPassword = passwordEncoder.encode(password);
         User user = new User(username, encodedPassword);
 
