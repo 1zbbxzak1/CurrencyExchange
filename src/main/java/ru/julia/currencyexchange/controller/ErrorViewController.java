@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 public class ErrorViewController implements ErrorController {
-    @RequestMapping("/error")
+    @RequestMapping("/view/error")
     public String handleError() {
         return "error";
     }
