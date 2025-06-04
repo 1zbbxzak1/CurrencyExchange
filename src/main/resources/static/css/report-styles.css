@@ -9,10 +9,12 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px;
+
+    padding-top: 12px;
+    padding-bottom: 12px;
 }
 
-.latest-button {
+.list-button {
     padding: 0.5rem 1rem;
     background-color: #f4f4f4;
     color: black;
@@ -21,7 +23,7 @@ body {
     cursor: pointer;
 }
 
-.latest-button:hover {
+.list-button:hover {
     background-color: #eaeaea;
 }
 
@@ -35,12 +37,22 @@ body {
 }
 
 .logout-button:hover {
-    background-color: #d32f2f;
+    background-color: #f6544c;
 }
 
 h1 {
-    color: #d20303;
+    color: #000000;
     text-align: center;
+
+    padding-bottom: 28px;
+}
+
+p {
+    padding-bottom: 16px;
+}
+
+h2 {
+    margin-bottom: 20px;
 }
 
 table {
@@ -65,4 +77,9 @@ tbody tr:nth-child(even) {
 
 tbody tr:hover {
     background-color: #e0e0e0;
+}
+
+.another-reports {
+    margin-top: 40px;
+    margin-bottom: 40px;
 }

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Отчет</title>
+    <link href="/css/report-styles.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="header">
+    <form method="get" th:action="@{/currency-rates/list}">
+        <button class="list-button" type="submit">Назад</button>
+    </form>
+
+    <form id="create-report-form" onsubmit="return false;">
+        <button class="logout-button" onclick="createAndRedirect()">Создать новый отчет</button>
+    </form>
+</div>
+
+<h1>Статистика</h1>
+
+<div th:if="${status == 'CREATED'}">
+    <p>Отчет еще формируется...</p>
+</div>
+<div th:if="${status == 'FAILED'}">
+    <p>Произошла ошибка при формировании отчета.</p>
+</div>
+<div th:if="${status == 'COMPLETED'}" th:utext="${htmlContent}">
+    <!-- Отчет будет вставлен сюда как HTML -->
+</div>
+
+<div class="another-reports" th:if="${allReports != null}">
+    <h3>Другие отчеты</h3>
+    <ul>
+        <li th:each="rep : ${allReports}">
+            <a th:href="@{/report/{id}(id=${rep.id})}">
+                Отчет [[${rep.id}]] (статус: [[${rep.status.getStatus()}]])
+            </a>
+        </li>
+    </ul>
+</div>
+
+<script>
+    function createAndRedirect() {
+        fetch('/api/reports', {
+            method: 'POST'
+        })
+            .then(response => response.json())
+            .then(data => {
+                const reportId = data.reportId;
+                window.location.href = '/report/' + reportId;
+            })
+            .catch(error => {
+                alert('Ошибка при создании отчета');
+                console.error(error);
+            });
+    }
+</script>
+
+</body>
+</html>

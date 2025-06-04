@@ -7,6 +7,10 @@
 </head>
 <body>
 <div class="header">
+    <form method="get" th:action="@{/report/latest}">
+        <button class="latest-button" type="submit">Открыть последний отчет</button>
+    </form>
+
     <form method="post" th:action="@{/logout}">
         <button class="logout-button" type="submit">Выйти</button>
     </form>
