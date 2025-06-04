@@ -25,6 +25,10 @@ RUN groupadd -r spring && useradd -r -g spring spring
 # Устанавливаем рабочую директорию
 WORKDIR /app
 
+# Создаем директорию для логов и устанавливаем права
+RUN mkdir -p /app/logs && \
+    chown -R spring:spring /app
+
 # Копируем JAR из этапа сборки
 COPY --from=builder /build/app.jar app.jar
 
