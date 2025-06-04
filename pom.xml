@@ -38,6 +38,7 @@
         <jackson-core.version>2.18.0</jackson-core.version>
         <jackson-databind.version>0.66.0.1</jackson-databind.version>
         <jackson-dataformat-xml.version>2.11.1</jackson-dataformat-xml.version>
+        <logstash-logback-encoder.version>7.4</logstash-logback-encoder.version>
     </properties>
     <dependencies>
         <dependency>
@@ -144,6 +145,11 @@
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>${logstash-logback-encoder.version}</version>
         </dependency>
     </dependencies>
 
