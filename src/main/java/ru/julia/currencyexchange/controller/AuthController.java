@@ -22,8 +22,9 @@ public class AuthController {
     @PostMapping("/register")
     public User createUserWithSettings(
             @RequestParam @NotBlank(message = "Username is required") String username,
+            @RequestParam @NotBlank(message = "Email is required") String email,
             @RequestParam @NotBlank(message = "Password is required") String password,
             @RequestParam @NotBlank(message = "Preferred currency is required") String preferredCurrency) {
-        return authService.createUserWithSettings(username, password, preferredCurrency);
+        return authService.createUserWithSettings(username, email, password, preferredCurrency);
     }
 }

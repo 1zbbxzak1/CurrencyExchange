@@ -13,13 +13,21 @@ import ru.julia.currencyexchange.infrastructure.repository.jpa.UserRepository;
 
 @Component
 public class DataSeeder implements CommandLineRunner {
+    @Value("${admin.chat-id}")
+    private Long adminChatId;
     @Value("${admin.username}")
     private String adminUsername;
+    @Value("${admin.email}")
+    private String adminEmail;
     @Value("${admin.password}")
     private String adminPassword;
 
+    @Value("${user.chat-id}")
+    private Long userChatId;
     @Value("${user.username}")
     private String userUsername;
+    @Value("${user.email}")
+    private String userEmail;
     @Value("${user.password}")
     private String userPassword;
 
@@ -39,7 +47,8 @@ public class DataSeeder implements CommandLineRunner {
             Role adminRole = roleRepository.findByRoleName("ROLE_" + RoleEnum.ADMIN)
                     .orElseGet(() -> roleRepository.save(new Role("ROLE_" + RoleEnum.ADMIN)));
 
-            User adminUser = new User(adminUsername, passwordEncoder.encode(adminPassword));
+            User adminUser = new User(adminUsername, adminEmail, passwordEncoder.encode(adminPassword));
+            adminUser.setChatId(adminChatId);
             adminUser.getRoles().add(new UserRole(adminUser, adminRole));
 
             userRepository.save(adminUser);
@@ -49,7 +58,8 @@ public class DataSeeder implements CommandLineRunner {
             Role userRole = roleRepository.findByRoleName("ROLE_" + RoleEnum.USER)
                     .orElseGet(() -> roleRepository.save(new Role("ROLE_" + RoleEnum.USER)));
 
-            User user = new User(userUsername, passwordEncoder.encode(userPassword));
+            User user = new User(userUsername, userEmail, passwordEncoder.encode(userPassword));
+            user.setChatId(userChatId);
             user.getRoles().add(new UserRole(user, userRole));
 
             userRepository.save(user);
