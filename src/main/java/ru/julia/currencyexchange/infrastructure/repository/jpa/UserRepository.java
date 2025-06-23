@@ -16,4 +16,6 @@ public interface UserRepository extends CrudRepository<User, String> {
             WHERE u.username = :username
             """)
     Optional<User> findByUsernameWithRoles(String username);
+
+    Optional<User> findByUsername(String username);
 }

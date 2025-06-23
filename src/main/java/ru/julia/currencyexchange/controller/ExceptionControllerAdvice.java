@@ -1,9 +1,12 @@
 package ru.julia.currencyexchange.controller;
 
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.julia.currencyexchange.application.exceptions.*;
 
@@ -13,6 +16,29 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class ExceptionControllerAdvice {
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleConstraintViolation(ConstraintViolationException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getConstraintViolations().forEach(
+                violation -> errors.put("message", violation.getMessage())
+        );
+        return errors;
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleMissingParams(MissingServletRequestParameterException ex) {
+        Map<String, String> error = new HashMap<>();
+        switch (ex.getParameterName()) {
+            case "username" -> error.put("message", "Username is required");
+            case "password" -> error.put("message", "Password is required");
+            case "preferredCurrency" -> error.put("message", "Preferred currency is required");
+            default -> error.put("message", ex.getParameterName() + " is required");
+        }
+        return error;
+    }
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<Object> handleUserNotFoundException(UserNotFoundException ex) {

@@ -1,0 +1,22 @@
+# Глобальные настройки Prometheus
+global:
+  scrape_interval: 15s     # Как часто собирать метрики
+  evaluation_interval: 15s  # Как часто вычислять правила
+
+# Правила оповещений
+rule_files:
+  # - "first.rules"
+  # - "second.rules"
+
+# Настройки сбора метрик
+scrape_configs:
+  # Сбор метрик с нашего Spring Boot приложения
+  - job_name: 'currency-exchange'
+    metrics_path: '/actuator/prometheus'  # Путь к метрикам Spring Boot
+    static_configs:
+      - targets: ['currency-exchange:8080']
+
+  # Сбор метрик самого Prometheus
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090'] 

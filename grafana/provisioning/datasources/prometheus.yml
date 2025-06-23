@@ -1,0 +1,22 @@
+# Конфигурация источников данных для Grafana
+apiVersion: 1
+
+# Список источников данных
+datasources:
+  # Настройка Prometheus как источника данных
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    # URL для подключения к Prometheus (используем имя сервиса из docker-compose)
+    url: http://prometheus:9090
+    # Основной источник данных
+    isDefault: true
+    # Проверка SSL не требуется для внутренней сети
+    jsonData:
+      timeInterval: 15s
+      httpMethod: POST
+    # Отключаем проверку SSL для внутренней сети
+    secureJsonData: {}
+    version: 1
+    # Включаем автоматическое обновление
+    editable: true 
