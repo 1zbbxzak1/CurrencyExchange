@@ -2,12 +2,10 @@ package ru.julia.currencyexchange.infrastructure.repository.jpa;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Repository;
 import ru.julia.currencyexchange.domain.model.User;
 
 import java.util.Optional;
 
-@Repository
 public interface UserRepository extends CrudRepository<User, String> {
     Boolean existsByUsername(String username);
 
