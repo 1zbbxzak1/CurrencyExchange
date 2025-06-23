@@ -32,9 +32,6 @@
         <jbcrypt.version>0.4</jbcrypt.version>
         <junit.version>5.9.0</junit.version>
         <mockito.version>5.3.1</mockito.version>
-        <rest-assured.version>5.5.1</rest-assured.version>
-        <selenium.version>4.10.0</selenium.version>
-        <webdrivermanager.version>5.5.3</webdrivermanager.version>
         <jackson-core.version>2.18.0</jackson-core.version>
         <jackson-databind.version>0.66.0.1</jackson-databind.version>
         <jackson-dataformat-xml.version>2.11.1</jackson-dataformat-xml.version>
@@ -125,22 +122,6 @@
             <artifactId>mockito-core</artifactId>
             <version>${mockito.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.rest-assured</groupId>
-            <artifactId>rest-assured</artifactId>
-            <version>${rest-assured.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.seleniumhq.selenium</groupId>
-            <artifactId>selenium-java</artifactId>
-            <version>${selenium.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.github.bonigarcia</groupId>
-            <artifactId>webdrivermanager</artifactId>
-            <version>${webdrivermanager.version}</version>
         </dependency>
         <dependency>
             <groupId>io.micrometer</groupId>
