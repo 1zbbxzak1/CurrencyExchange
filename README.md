@@ -9,6 +9,7 @@
 - **Фреймворк**: Spring Boot 3.4.3
 - **База данных**: PostgreSQL 17
 - **Миграции БД**: Liquibase
+- **Рассылка**: Spring Mail + Gmail SMTP
 
 ## 🎴 Установка проекта
 
@@ -37,6 +38,20 @@ git clone https://github.com/1zbbxzak1/CurrencyExchange.git
 Для работы с telegram-ботом неодходимо указать его accessToken:
 ```properties
 TELEGRAM_TOKEN=long-token
+```
+
+#### 📬 Настройка Gmail SMTP
+
+Для настройки email-рассылки с кодами подтверждения необходимо указать данные в `.env`:
+
+```properties
+MAIL_HOST=mail_host
+MAIL_PORT=mail_port
+MAIL_USERNAME=email@gmail.com
+MAIL_PASSWORD=email_password
+MAIL_CONNECTION_TIMEOUT=number
+MAIL_TIMEOUT=number
+MAIL_WRITE_TIMEOUT=number
 ```
 
 #### 🗃 Настройки базы данных PostgreSQL
