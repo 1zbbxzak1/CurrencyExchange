@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ "main", "liquibase" ]
+    branches: [ "main", "liquibase", "email-code-verification" ]
   pull_request:
-    branches: [ "main", "liquibase" ]
+    branches: [ "main", "liquibase", "email-code-verification" ]
 
 env:
   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
