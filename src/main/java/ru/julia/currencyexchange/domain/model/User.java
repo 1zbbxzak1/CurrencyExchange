@@ -13,10 +13,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @Column(name = "chat_id", nullable = false)
+    @Column(name = "chat_id")
     private Long chatId;
 
-    @Column(name = "username", nullable = false, unique = true)
+    @Column(name = "username", unique = true)
     private String username;
 
     @Column(name = "email", nullable = false, unique = true)
@@ -25,11 +25,17 @@ public class User {
     @Column(name = "password", nullable = false)
     private String password;
 
+    @Column(name = "verification_code")
+    private String verificationCode;
+
+    @Column(name = "verified")
+    private boolean verified = false;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private final Set<UserRole> roles = new HashSet<>();
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private Settings settings;
+//    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+//    private Settings settings;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private final LocalDateTime createdAt = LocalDateTime.now();
@@ -37,8 +43,7 @@ public class User {
     public User() {
     }
 
-    public User(String username, String email, String password) {
-        this.username = username;
+    public User(String email, String password) {
         this.email = email;
         this.password = password;
     }
@@ -80,13 +85,13 @@ public class User {
         this.password = password;
     }
 
-    public Settings getSettings() {
-        return settings;
-    }
-
-    public void setSettings(Settings settings) {
-        this.settings = settings;
-    }
+//    public Settings getSettings() {
+//        return settings;
+//    }
+//
+//    public void setSettings(Settings settings) {
+//        this.settings = settings;
+//    }
 
     public Set<UserRole> getRoles() {
         return roles;
@@ -94,5 +99,21 @@ public class User {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public String getVerificationCode() {
+        return verificationCode;
+    }
+
+    public void setVerificationCode(String verificationCode) {
+        this.verificationCode = verificationCode;
+    }
+
+    public boolean isVerified() {
+        return verified;
+    }
+
+    public void setVerified(boolean verified) {
+        this.verified = verified;
     }
 }
