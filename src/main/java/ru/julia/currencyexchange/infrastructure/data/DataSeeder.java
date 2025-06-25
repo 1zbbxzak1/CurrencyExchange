@@ -47,8 +47,10 @@ public class DataSeeder implements CommandLineRunner {
             Role adminRole = roleRepository.findByRoleName("ROLE_" + RoleEnum.ADMIN)
                     .orElseGet(() -> roleRepository.save(new Role("ROLE_" + RoleEnum.ADMIN)));
 
-            User adminUser = new User(adminUsername, adminEmail, passwordEncoder.encode(adminPassword));
+            User adminUser = new User(adminEmail, passwordEncoder.encode(adminPassword));
             adminUser.setChatId(adminChatId);
+            adminUser.setUsername(adminUsername);
+            adminUser.setVerified(true);
             adminUser.getRoles().add(new UserRole(adminUser, adminRole));
 
             userRepository.save(adminUser);
@@ -58,8 +60,10 @@ public class DataSeeder implements CommandLineRunner {
             Role userRole = roleRepository.findByRoleName("ROLE_" + RoleEnum.USER)
                     .orElseGet(() -> roleRepository.save(new Role("ROLE_" + RoleEnum.USER)));
 
-            User user = new User(userUsername, userEmail, passwordEncoder.encode(userPassword));
+            User user = new User(userEmail, passwordEncoder.encode(userPassword));
             user.setChatId(userChatId);
+            user.setUsername(userUsername);
+            user.setVerified(true);
             user.getRoles().add(new UserRole(user, userRole));
 
             userRepository.save(user);

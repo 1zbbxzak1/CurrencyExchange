@@ -8,6 +8,7 @@ import ru.julia.currencyexchange.infrastructure.repository.jpa.UserRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -45,5 +46,17 @@ public class UserService {
         userRepository.findAll().forEach(users::add);
 
         return users;
+    }
+
+    @Transactional
+    public boolean verifyUserCode(String email, String code) {
+        Optional<User> user = userRepository.findByEmail(email);
+
+        if (user.isPresent() && user.get().getVerificationCode().equals(code)) {
+            user.get().setVerified(true);
+            userRepository.save(user.get());
+            return true;
+        }
+        return false;
     }
 }

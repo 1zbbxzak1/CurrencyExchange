@@ -17,7 +17,7 @@ public class Settings {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "preferred_currency_id", nullable = false)
+    @JoinColumn(name = "preferred_currency_id")
     private Currency preferredCurrency;
 
     public Settings() {

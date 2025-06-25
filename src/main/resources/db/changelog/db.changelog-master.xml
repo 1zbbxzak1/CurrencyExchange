@@ -6,6 +6,6 @@
           http://www.liquibase.org/xml/ns/dbchangelog
           https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
 
-    <include file="/db/changelog/000-initial-schema.sql"/>
+    <include file="db/changelog/001-initial-schema.sql"/>
 
 </databaseChangeLog>
