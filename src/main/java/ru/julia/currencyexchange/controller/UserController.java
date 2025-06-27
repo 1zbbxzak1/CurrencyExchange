@@ -4,7 +4,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ru.julia.currencyexchange.application.dto.common.ApiResponseDto;
 import ru.julia.currencyexchange.application.dto.user.UserResponse;
@@ -12,9 +14,8 @@ import ru.julia.currencyexchange.application.service.UserService;
 import ru.julia.currencyexchange.application.util.DtoMapper;
 import ru.julia.currencyexchange.application.util.ValidationUtil;
 import ru.julia.currencyexchange.domain.model.User;
-import org.springframework.security.access.prepost.PreAuthorize;
 
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -87,5 +88,28 @@ public class UserController {
         UserResponse userResponse = DtoMapper.mapToUserResponse(user);
 
         return ResponseEntity.ok(ApiResponseDto.success("Пользователь удален", userResponse));
+    }
+
+    @PreAuthorize("permitAll()")
+    @GetMapping(value = "/role", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Получить роль пользователя по chatId", description = "Возвращает основную роль пользователя по chatId Telegram")
+    public ResponseEntity<Map<String, String>> getUserRoleByChatId(
+            @Parameter(description = "Chat ID пользователя Telegram", example = "123456789")
+            @RequestParam Long chatId) {
+        User user = userService.findUserByChatId(chatId);
+        
+        Set<String> roles = user.getRoles().stream()
+                .map(userRole -> userRole.getRole().getRoleName().replace("ROLE_", ""))
+                .collect(Collectors.toSet());
+
+        // Приоритет: ADMIN > USER
+        String role = roles.stream()
+                .min(Comparator.comparing(r -> "ADMIN".equals(r) ? 0 : 1))
+                .orElse("USER");
+
+        Map<String, String> result = new HashMap<>();
+        result.put("role", role);
+
+        return ResponseEntity.ok(result);
     }
 }
