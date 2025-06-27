@@ -17,7 +17,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CurrencyExchangeService {
@@ -73,10 +72,6 @@ public class CurrencyExchangeService {
                 .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));
 
         return conversionRepository.findConversionByUserId(user.getId());
-    }
-
-    public Optional<List<CurrencyConversion>> getConversionByAmountRange(Double minAmount, Double maxAmount) {
-        return conversionRepository.findConversionByAmountRange(minAmount, maxAmount);
     }
 
     public List<CurrencyConversion> findByCurrencyCodeAndDate(String currencyCode, String timestamp) {

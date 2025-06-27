@@ -46,11 +46,4 @@ public class CurrencyController {
             @RequestParam String timestamp) {
         return converterService.findByCurrencyCodeAndDate(currencyCode.toUpperCase(), timestamp);
     }
-
-    @GetMapping("/conversion-range")
-    public Optional<List<CurrencyConversion>> getConversionByAmountRange(
-            @RequestParam Double minAmount,
-            @RequestParam Double maxAmount) {
-        return converterService.getConversionByAmountRange(minAmount, maxAmount);
-    }
 }
