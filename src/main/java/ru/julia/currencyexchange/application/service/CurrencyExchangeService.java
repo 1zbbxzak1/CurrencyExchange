@@ -96,4 +96,8 @@ public class CurrencyExchangeService {
         return StreamSupport.stream(currencyRepository.findAll().spliterator(), false)
                 .collect(Collectors.toList());
     }
+
+    public Currency getCurrencyByCode(String code) {
+        return currencyRepository.findByCode(code).orElse(null);
+    }
 }

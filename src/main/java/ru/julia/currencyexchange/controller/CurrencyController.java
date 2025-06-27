@@ -145,4 +145,27 @@ public class CurrencyController {
 
         return ResponseEntity.ok(ApiResponseDto.success("Список валют получен", currencyResponses));
     }
+
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @GetMapping("/to-rub")
+    @Operation(summary = "Получить курс валюты к рублю", description = "Возвращает курс указанной валюты к рублю (RUB)")
+    @ApiResponse(responseCode = "200", description = "Курс валюты к рублю получен")
+    public ResponseEntity<ApiResponseDto<CurrencyResponse>> getCurrencyToRub(
+            @Parameter(description = "Код валюты", example = "USD")
+            @RequestParam String currencyCode) {
+        Currency currency = converterService.getCurrencyByCode(currencyCode.toUpperCase());
+        Currency rub = converterService.getCurrencyByCode("RUB");
+
+        if (currency == null || rub == null) {
+            return ResponseEntity.badRequest().body(ApiResponseDto.error("Валюта не найдена", 404));
+        }
+
+        CurrencyResponse response = DtoMapper.mapToCurrencyResponse(currency);
+
+        response.setExchangeRate(currency.getExchangeRate().divide(rub.getExchangeRate(), 6, java.math.RoundingMode.HALF_UP));
+        response.setCode(currency.getCode());
+        response.setName(currency.getName());
+        
+        return ResponseEntity.ok(ApiResponseDto.success("Курс валюты к рублю получен", response));
+    }
 }
