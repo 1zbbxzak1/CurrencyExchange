@@ -28,8 +28,11 @@ public class User {
     @Column(name = "verification_code")
     private String verificationCode;
 
-    @Column(name = "verified")
-    private boolean verified = false;
+    @Column(name = "is_verified")
+    private boolean isVerified = false;
+
+    @Column(name = "is_banned")
+    private boolean isBanned = false;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private final Set<UserRole> roles = new HashSet<>();
@@ -110,10 +113,18 @@ public class User {
     }
 
     public boolean isVerified() {
-        return verified;
+        return isVerified;
     }
 
     public void setVerified(boolean verified) {
-        this.verified = verified;
+        isVerified = verified;
+    }
+
+    public boolean isBanned() {
+        return isBanned;
+    }
+
+    public void setBanned(boolean banned) {
+        isBanned = banned;
     }
 }
