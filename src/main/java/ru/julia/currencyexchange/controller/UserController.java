@@ -56,6 +56,31 @@ public class UserController {
         return ResponseEntity.ok(ApiResponseDto.success("Пользователь найден", userResponse));
     }
 
+
+    @PreAuthorize("hasRole('USER')")
+    @DeleteMapping("/by-chat-id/{chatId}")
+    @Operation(summary = "Удалить пользователя", description = "Удаляет пользователя по указанному ID")
+    @ApiResponse(responseCode = "200", description = "Пользователь удален")
+    @ApiResponse(responseCode = "404", description = "Пользователь не найден")
+    public ResponseEntity<ApiResponseDto<UserResponse>> deleteUserById(
+            @Parameter(description = "Chat ID пользователя Telegram", example = "123456789")
+            @PathVariable Long chatId,
+            @Parameter(description = "Username пользователя Telegram", example = "telegram_user")
+            @RequestParam(required = false) String username) {
+
+        ValidationUtil.validateChatId(chatId);
+        ValidationUtil.validateUsername(username);
+
+        userService.updateUsernameIfChanged(chatId, username);
+
+        String id = userService.getUserIdByChatId(chatId);
+
+        User user = userService.deleteUserById(id);
+        UserResponse userResponse = DtoMapper.mapToUserResponse(user);
+
+        return ResponseEntity.ok(ApiResponseDto.success("Пользователь удален", userResponse));
+    }
+
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
     @Operation(summary = "Найти пользователя по ID", description = "Возвращает пользователя по указанному ID")
@@ -73,23 +98,6 @@ public class UserController {
         return ResponseEntity.ok(ApiResponseDto.success("Пользователь найден", userResponse));
     }
 
-    @PreAuthorize("hasRole('USER')")
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Удалить пользователя", description = "Удаляет пользователя по указанному ID")
-    @ApiResponse(responseCode = "200", description = "Пользователь удален")
-    @ApiResponse(responseCode = "404", description = "Пользователь не найден")
-    public ResponseEntity<ApiResponseDto<UserResponse>> deleteUserById(
-            @Parameter(description = "ID пользователя", example = "550e8400-e29b-41d4-a716-446655440000")
-            @PathVariable String id) {
-
-        ValidationUtil.validateUserId(id);
-
-        User user = userService.deleteUserById(id);
-        UserResponse userResponse = DtoMapper.mapToUserResponse(user);
-
-        return ResponseEntity.ok(ApiResponseDto.success("Пользователь удален", userResponse));
-    }
-
     @PreAuthorize("permitAll()")
     @GetMapping(value = "/role", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Получить роль пользователя по chatId", description = "Возвращает основную роль пользователя по chatId Telegram")
@@ -97,7 +105,7 @@ public class UserController {
             @Parameter(description = "Chat ID пользователя Telegram", example = "123456789")
             @RequestParam Long chatId) {
         User user = userService.findUserByChatId(chatId);
-        
+
         Set<String> roles = user.getRoles().stream()
                 .map(userRole -> userRole.getRole().getRoleName().replace("ROLE_", ""))
                 .collect(Collectors.toSet());
