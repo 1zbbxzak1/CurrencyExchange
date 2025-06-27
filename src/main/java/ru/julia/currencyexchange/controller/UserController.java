@@ -12,6 +12,7 @@ import ru.julia.currencyexchange.application.service.UserService;
 import ru.julia.currencyexchange.application.util.DtoMapper;
 import ru.julia.currencyexchange.application.util.ValidationUtil;
 import ru.julia.currencyexchange.domain.model.User;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,6 +27,7 @@ public class UserController {
         this.userService = userService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     @Operation(summary = "Получить всех пользователей", description = "Возвращает список всех зарегистрированных пользователей")
     @ApiResponse(responseCode = "200", description = "Список пользователей получен")
@@ -39,6 +41,7 @@ public class UserController {
         return ResponseEntity.ok(ApiResponseDto.success("Список пользователей получен", userResponses));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/by-chat-id/{chatId}")
     @Operation(summary = "Найти пользователя по chatId", description = "Возвращает пользователя по chatId Telegram")
     @ApiResponse(responseCode = "200", description = "Пользователь найден")
@@ -52,6 +55,7 @@ public class UserController {
         return ResponseEntity.ok(ApiResponseDto.success("Пользователь найден", userResponse));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
     @Operation(summary = "Найти пользователя по ID", description = "Возвращает пользователя по указанному ID")
     @ApiResponse(responseCode = "200", description = "Пользователь найден")
@@ -68,6 +72,7 @@ public class UserController {
         return ResponseEntity.ok(ApiResponseDto.success("Пользователь найден", userResponse));
     }
 
+    @PreAuthorize("hasRole('USER')")
     @DeleteMapping("/{id}")
     @Operation(summary = "Удалить пользователя", description = "Удаляет пользователя по указанному ID")
     @ApiResponse(responseCode = "200", description = "Пользователь удален")

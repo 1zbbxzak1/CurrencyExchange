@@ -19,6 +19,7 @@ import ru.julia.currencyexchange.application.util.DtoMapper;
 import ru.julia.currencyexchange.application.util.ValidationUtil;
 import ru.julia.currencyexchange.domain.model.Currency;
 import ru.julia.currencyexchange.domain.model.CurrencyConversion;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,6 +37,7 @@ public class CurrencyController {
         this.userService = userService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     @Operation(summary = "Обновить курсы валют", description = "Получает актуальные курсы валют с внешнего API")
     @ApiResponse(responseCode = "200", description = "Курсы валют успешно обновлены")
@@ -49,6 +51,7 @@ public class CurrencyController {
         return ResponseEntity.ok(ApiResponseDto.success("Курсы валют успешно обновлены", currencyResponses));
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/convert")
     @Operation(summary = "Конвертировать валюту", description = "Конвертирует указанную сумму из одной валюты в другую")
     @ApiResponse(responseCode = "200", description = "Конвертация выполнена успешно")
@@ -75,6 +78,7 @@ public class CurrencyController {
         return ResponseEntity.ok(ApiResponseDto.success("Конвертация выполнена успешно", response));
     }
 
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/history")
     @Operation(summary = "История конвертаций пользователя", description = "Получает историю всех конвертаций для указанного пользователя")
     @ApiResponse(responseCode = "200", description = "История конвертаций получена")
@@ -98,6 +102,7 @@ public class CurrencyController {
         return ResponseEntity.ok(ApiResponseDto.success("История конвертаций получена", responses));
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/history/find")
     @Operation(summary = "Поиск конвертаций по дате", description = "Находит конвертаций по дате для пользователя")
     @ApiResponse(responseCode = "200", description = "Конвертации найдены")

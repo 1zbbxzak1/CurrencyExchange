@@ -17,6 +17,7 @@ import ru.julia.currencyexchange.application.dto.common.ApiResponseDto;
 import ru.julia.currencyexchange.application.service.AuthService;
 import ru.julia.currencyexchange.application.service.UserService;
 import ru.julia.currencyexchange.application.util.ValidationUtil;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -32,6 +33,7 @@ public class AuthController {
         this.userService = userService;
     }
 
+    @PreAuthorize("permitAll()")
     @PostMapping("/register")
     @Operation(summary = "Регистрация пользователя", description = "Создает нового пользователя и отправляет код подтверждения на email")
     @ApiResponse(responseCode = "200", description = "Код подтверждения отправлен")
@@ -57,6 +59,7 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponseDto.success("Регистрация выполнена успешно", authResponse));
     }
 
+    @PreAuthorize("permitAll()")
     @PostMapping("/verify")
     @Operation(summary = "Подтверждение email", description = "Подтверждает email пользователя с помощью кода")
     @ApiResponse(responseCode = "200", description = "Email подтвержден")
