@@ -1,5 +1,6 @@
 package ru.julia.currencyexchange.application.service;
 
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -18,8 +19,16 @@ public class AppUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsernameWithRoles(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + username));
+
+        if (!user.isVerified()) {
+            throw new DisabledException("User is not verified");
+        }
+
+        if (user.isBanned()) {
+            throw new DisabledException("User is banned");
+        }
 
         return new AppUserDetails(user);
     }
