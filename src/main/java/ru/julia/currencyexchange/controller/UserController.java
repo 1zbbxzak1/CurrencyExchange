@@ -32,8 +32,19 @@ public class UserController {
     @GetMapping
     @Operation(summary = "Получить всех пользователей", description = "Возвращает список всех зарегистрированных пользователей")
     @ApiResponse(responseCode = "200", description = "Список пользователей получен")
-    public ResponseEntity<ApiResponseDto<List<UserResponse>>> getAllUsers() {
-        List<User> users = userService.findAllUsers();
+    public ResponseEntity<ApiResponseDto<List<UserResponse>>> getAllUsers(
+            @Parameter(description = "Chat ID пользователя Telegram", example = "123456789")
+            @RequestParam Long chatId,
+            @Parameter(description = "Username пользователя Telegram", example = "telegram_user")
+            @RequestParam(required = false) String username) {
+
+        ValidationUtil.validateChatId(chatId);
+        ValidationUtil.validateUsername(username);
+
+        userService.updateUsernameIfChanged(chatId, username);
+
+        String id = userService.getUserIdByChatId(chatId);
+        List<User> users = userService.findAllUsers(id);
 
         List<UserResponse> userResponses = users.stream()
                 .map(DtoMapper::mapToUserResponse)
@@ -50,6 +61,8 @@ public class UserController {
     public ResponseEntity<ApiResponseDto<UserResponse>> findUserByChatId(
             @Parameter(description = "Chat ID пользователя Telegram", example = "123456789")
             @PathVariable Long chatId) {
+        ValidationUtil.validateChatId(chatId);
+
         User user = userService.findUserByChatId(chatId);
         UserResponse userResponse = DtoMapper.mapToUserResponse(user);
 

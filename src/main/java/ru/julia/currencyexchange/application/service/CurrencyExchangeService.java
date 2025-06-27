@@ -88,7 +88,7 @@ public class CurrencyExchangeService {
         }
     }
 
-    public List<Currency> updateCurrencyRates() {
+    public List<Currency> updateCurrencyRates(String userId) {
         return currencyService.updateExchangeRates();
     }
 

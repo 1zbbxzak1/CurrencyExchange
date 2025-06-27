@@ -56,7 +56,7 @@ public class UserService {
         return user;
     }
 
-    public List<User> findAllUsers() {
+    public List<User> findAllUsers(String userId) {
         List<User> users = new ArrayList<>();
         userRepository.findAll().forEach(users::add);
 
@@ -77,8 +77,8 @@ public class UserService {
 
     public String getUserIdByChatId(Long chatId) {
         return userRepository.findByChatId(chatId)
-            .orElseThrow(() -> new UserNotFoundException("User with chatId " + chatId + " not found"))
-            .getId();
+                .orElseThrow(() -> new UserNotFoundException("User with chatId " + chatId + " not found"))
+                .getId();
     }
 
     public void updateUsernameIfChanged(Long chatId, String newUsername) {

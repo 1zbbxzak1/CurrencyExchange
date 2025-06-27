@@ -41,8 +41,19 @@ public class CurrencyController {
     @GetMapping
     @Operation(summary = "Обновить курсы валют", description = "Получает актуальные курсы валют с внешнего API")
     @ApiResponse(responseCode = "200", description = "Курсы валют успешно обновлены")
-    public ResponseEntity<ApiResponseDto<List<CurrencyResponse>>> updateCurrencyRates() {
-        List<Currency> currencies = converterService.updateCurrencyRates();
+    public ResponseEntity<ApiResponseDto<List<CurrencyResponse>>> updateCurrencyRates(
+            @Parameter(description = "Chat ID пользователя Telegram", example = "123456789")
+            @RequestParam Long chatId,
+            @Parameter(description = "Username пользователя Telegram", example = "telegram_user")
+            @RequestParam(required = false) String username) {
+        ValidationUtil.validateChatId(chatId);
+        ValidationUtil.validateUsername(username);
+
+        userService.updateUsernameIfChanged(chatId, username);
+
+        String userId = userService.getUserIdByChatId(chatId);
+
+        List<Currency> currencies = converterService.updateCurrencyRates(userId);
 
         List<CurrencyResponse> currencyResponses = currencies.stream()
                 .map(DtoMapper::mapToCurrencyResponse)
@@ -132,7 +143,7 @@ public class CurrencyController {
         return ResponseEntity.ok(ApiResponseDto.success("Конвертации найдены", responses));
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("permitAll()")
     @GetMapping("/all")
     @Operation(summary = "Получить все валюты", description = "Возвращает список всех валют")
     @ApiResponse(responseCode = "200", description = "Список валют получен")
@@ -146,7 +157,7 @@ public class CurrencyController {
         return ResponseEntity.ok(ApiResponseDto.success("Список валют получен", currencyResponses));
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("permitAll()")
     @GetMapping("/to-rub")
     @Operation(summary = "Получить курс валюты к рублю", description = "Возвращает курс указанной валюты к рублю (RUB)")
     @ApiResponse(responseCode = "200", description = "Курс валюты к рублю получен")
@@ -165,7 +176,7 @@ public class CurrencyController {
         response.setExchangeRate(currency.getExchangeRate().divide(rub.getExchangeRate(), 6, java.math.RoundingMode.HALF_UP));
         response.setCode(currency.getCode());
         response.setName(currency.getName());
-        
+
         return ResponseEntity.ok(ApiResponseDto.success("Курс валюты к рублю получен", response));
     }
 }
