@@ -1,13 +1,24 @@
 package ru.julia.currencyexchange.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.julia.currencyexchange.application.dto.common.ApiResponseDto;
+import ru.julia.currencyexchange.application.dto.user.UserResponse;
 import ru.julia.currencyexchange.application.service.UserService;
+import ru.julia.currencyexchange.application.util.DtoMapper;
+import ru.julia.currencyexchange.application.util.ValidationUtil;
 import ru.julia.currencyexchange.domain.model.User;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
+@Tag(name = "User Controller", description = "API для работы с пользователями")
 public class UserController {
     private final UserService userService;
 
@@ -16,17 +27,46 @@ public class UserController {
     }
 
     @GetMapping
-    public List<User> getAllUsers() {
-        return userService.findAllUsers();
+    @Operation(summary = "Получить всех пользователей", description = "Возвращает список всех зарегистрированных пользователей")
+    @ApiResponse(responseCode = "200", description = "Список пользователей получен")
+    public ResponseEntity<ApiResponseDto<List<UserResponse>>> getAllUsers() {
+        List<User> users = userService.findAllUsers();
+        List<UserResponse> userResponses = users.stream()
+                .map(DtoMapper::mapToUserResponse)
+                .collect(Collectors.toList());
+        
+        return ResponseEntity.ok(ApiResponseDto.success("Список пользователей получен", userResponses));
     }
 
     @GetMapping("/{id}")
-    public User findUserById(@PathVariable String id) {
-        return userService.findUserById(id);
+    @Operation(summary = "Найти пользователя по ID", description = "Возвращает пользователя по указанному ID")
+    @ApiResponse(responseCode = "200", description = "Пользователь найден")
+    @ApiResponse(responseCode = "404", description = "Пользователь не найден")
+    public ResponseEntity<ApiResponseDto<UserResponse>> findUserById(
+            @Parameter(description = "ID пользователя", example = "550e8400-e29b-41d4-a716-446655440000")
+            @PathVariable String id) {
+        
+        ValidationUtil.validateUserId(id);
+        
+        User user = userService.findUserById(id);
+        UserResponse userResponse = DtoMapper.mapToUserResponse(user);
+        
+        return ResponseEntity.ok(ApiResponseDto.success("Пользователь найден", userResponse));
     }
 
     @DeleteMapping("/{id}")
-    public User deleteUserById(@PathVariable String id) {
-        return userService.deleteUserById(id);
+    @Operation(summary = "Удалить пользователя", description = "Удаляет пользователя по указанному ID")
+    @ApiResponse(responseCode = "200", description = "Пользователь удален")
+    @ApiResponse(responseCode = "404", description = "Пользователь не найден")
+    public ResponseEntity<ApiResponseDto<UserResponse>> deleteUserById(
+            @Parameter(description = "ID пользователя", example = "550e8400-e29b-41d4-a716-446655440000")
+            @PathVariable String id) {
+        
+        ValidationUtil.validateUserId(id);
+        
+        User user = userService.deleteUserById(id);
+        UserResponse userResponse = DtoMapper.mapToUserResponse(user);
+        
+        return ResponseEntity.ok(ApiResponseDto.success("Пользователь удален", userResponse));
     }
 }
