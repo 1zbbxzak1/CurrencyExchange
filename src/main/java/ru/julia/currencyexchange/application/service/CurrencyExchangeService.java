@@ -16,9 +16,8 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Service
 public class CurrencyExchangeService {
@@ -26,15 +25,18 @@ public class CurrencyExchangeService {
     private final CurrencyRepository currencyRepository;
     private final ConversionRepository conversionRepository;
     private final UserRepository userRepository;
+    private final SettingsService settingsService;
 
     public CurrencyExchangeService(CurrencyService currencyService,
                                    CurrencyRepository currencyRepository,
                                    ConversionRepository conversionRepository,
-                                   UserRepository userRepository) {
+                                   UserRepository userRepository,
+                                   SettingsService settingsService) {
         this.currencyService = currencyService;
         this.currencyRepository = currencyRepository;
         this.conversionRepository = conversionRepository;
         this.userRepository = userRepository;
+        this.settingsService = settingsService;
     }
 
     public CurrencyConversion convert(String userId, String from, String to, BigDecimal amount) {
@@ -42,7 +44,6 @@ public class CurrencyExchangeService {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));
-
 
         Currency fromCurrency = currencyRepository.findByCode(from)
                 .orElseThrow(() -> new CurrencyNotFoundException("Currency " + from + " not found"));
@@ -57,8 +58,13 @@ public class CurrencyExchangeService {
         BigDecimal rate = fromCurrency.getExchangeRate()
                 .divide(toCurrency.getExchangeRate(), 6, RoundingMode.HALF_UP);
 
-
         BigDecimal convertedAmount = amount.multiply(rate);
+
+        double feePercent = settingsService.getGlobalConversionFeePercent();
+        if (feePercent > 0) {
+            BigDecimal fee = convertedAmount.multiply(BigDecimal.valueOf(feePercent / 100.0));
+            convertedAmount = convertedAmount.subtract(fee);
+        }
 
         CurrencyConversion conversion = new CurrencyConversion(user,
                 fromCurrency,
@@ -93,8 +99,10 @@ public class CurrencyExchangeService {
     }
 
     public List<Currency> getAllCurrencies() {
-        return StreamSupport.stream(currencyRepository.findAll().spliterator(), false)
-                .collect(Collectors.toList());
+        List<Currency> currencies = new ArrayList<>();
+        currencyRepository.findAll().forEach(currencies::add);
+
+        return currencies;
     }
 
     public Currency getCurrencyByCode(String code) {

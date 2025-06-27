@@ -37,8 +37,8 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private final Set<UserRole> roles = new HashSet<>();
 
-//    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-//    private Settings settings;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private Settings settings;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private final LocalDateTime createdAt = LocalDateTime.now();
@@ -88,13 +88,13 @@ public class User {
         this.password = password;
     }
 
-//    public Settings getSettings() {
-//        return settings;
-//    }
-//
-//    public void setSettings(Settings settings) {
-//        this.settings = settings;
-//    }
+    public Settings getSettings() {
+        return settings;
+    }
+
+    public void setSettings(Settings settings) {
+        this.settings = settings;
+    }
 
     public Set<UserRole> getRoles() {
         return roles;

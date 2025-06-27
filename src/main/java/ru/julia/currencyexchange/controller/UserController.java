@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ru.julia.currencyexchange.application.dto.common.ApiResponseDto;
 import ru.julia.currencyexchange.application.dto.user.UserResponse;
+import ru.julia.currencyexchange.application.service.SettingsService;
 import ru.julia.currencyexchange.application.service.UserService;
 import ru.julia.currencyexchange.application.util.DtoMapper;
 import ru.julia.currencyexchange.application.util.ValidationUtil;
@@ -23,9 +24,11 @@ import java.util.stream.Collectors;
 @Tag(name = "User Controller", description = "API для работы с пользователями")
 public class UserController {
     private final UserService userService;
+    private final SettingsService settingsService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, SettingsService settingsService) {
         this.userService = userService;
+        this.settingsService = settingsService;
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -156,5 +159,24 @@ public class UserController {
         UserResponse userResponse = DtoMapper.mapToUserResponse(user);
 
         return ResponseEntity.ok(ApiResponseDto.success("Пользователь заблокирован", userResponse));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/set-conversion-fee")
+    @Operation(summary = "Установить глобальный процент конвертации валют", description = "Устанавливает общий процент комиссии для всех пользователей (только для администратора)")
+    public ResponseEntity<ApiResponseDto<Double>> setGlobalConversionFee(
+            @Parameter(description = "Chat ID пользователя Telegram", example = "123456789")
+            @RequestParam Long chatId,
+            @Parameter(description = "Username пользователя Telegram", example = "telegram_user")
+            @RequestParam(required = false) String username,
+            @Parameter(description = "Процент комиссии (например, 2.5)", example = "2.5")
+            @RequestParam double feePercent) {
+        ValidationUtil.validateChatId(chatId);
+        ValidationUtil.validateUsername(username);
+
+        userService.updateUsernameIfChanged(chatId, username);
+
+        settingsService.setGlobalConversionFee(feePercent);
+        return ResponseEntity.ok(ApiResponseDto.success("Глобальный процент конвертации установлен", feePercent));
     }
 }
