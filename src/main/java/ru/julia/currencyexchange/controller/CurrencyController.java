@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.julia.currencyexchange.application.dto.common.ApiResponseDto;
@@ -19,7 +20,6 @@ import ru.julia.currencyexchange.application.util.DtoMapper;
 import ru.julia.currencyexchange.application.util.ValidationUtil;
 import ru.julia.currencyexchange.domain.model.Currency;
 import ru.julia.currencyexchange.domain.model.CurrencyConversion;
-import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -130,5 +130,19 @@ public class CurrencyController {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(ApiResponseDto.success("Конвертации найдены", responses));
+    }
+
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @GetMapping("/all")
+    @Operation(summary = "Получить все валюты", description = "Возвращает список всех валют")
+    @ApiResponse(responseCode = "200", description = "Список валют получен")
+    public ResponseEntity<ApiResponseDto<List<CurrencyResponse>>> getAllCurrencies() {
+        List<Currency> currencies = converterService.getAllCurrencies();
+
+        List<CurrencyResponse> currencyResponses = currencies.stream()
+                .map(DtoMapper::mapToCurrencyResponse)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(ApiResponseDto.success("Список валют получен", currencyResponses));
     }
 }

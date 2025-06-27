@@ -17,6 +17,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 public class CurrencyExchangeService {
@@ -88,5 +90,10 @@ public class CurrencyExchangeService {
 
     public List<Currency> updateCurrencyRates() {
         return currencyService.updateExchangeRates();
+    }
+
+    public List<Currency> getAllCurrencies() {
+        return StreamSupport.stream(currencyRepository.findAll().spliterator(), false)
+                .collect(Collectors.toList());
     }
 }
