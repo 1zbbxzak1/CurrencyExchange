@@ -13,10 +13,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @Column(name = "chat_id")
+    @Column(name = "chat_id", nullable = false, unique = true)
     private Long chatId;
 
-    @Column(name = "username", unique = true)
+    @Column(name = "username", nullable = false)
     private String username;
 
     @Column(name = "email", nullable = false, unique = true)

@@ -37,15 +37,23 @@ public class AuthService {
     }
 
     @Transactional(rollbackFor = UserCreationException.class)
-    public void createUserWithVerificationCode(String email, String password) {
+    public void createUserWithVerificationCode(Long chatId, String username, String email, String password) {
         if (userRepository.findByEmail(email).isPresent()) {
             throw new UserCreationException("User with email " + email + " already exists");
+        }
+        if (userRepository.existsByChatId(chatId)) {
+            throw new UserCreationException("User with chatId " + chatId + " already exists");
+        }
+        if (userRepository.existsByUsername(username)) {
+            throw new UserCreationException("User with username " + username + " already exists");
         }
 
         String verificationCode = verificationCodeGenerator.generateCode();
 
         String encodedPassword = passwordEncoder.encode(password);
         User user = new User(email, encodedPassword);
+        user.setChatId(chatId);
+        user.setUsername(username);
 
 //        Currency preferredCurrency = currencyRepository.findByCode(preferredCurrencyCode)
 //                .orElseThrow(() -> new CurrencyNotFoundException("Currency " + preferredCurrencyCode + " not found"));

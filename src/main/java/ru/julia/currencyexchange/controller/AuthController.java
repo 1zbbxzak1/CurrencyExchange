@@ -1,11 +1,9 @@
 package ru.julia.currencyexchange.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,8 +17,6 @@ import ru.julia.currencyexchange.application.dto.common.ApiResponseDto;
 import ru.julia.currencyexchange.application.service.AuthService;
 import ru.julia.currencyexchange.application.service.UserService;
 import ru.julia.currencyexchange.application.util.ValidationUtil;
-
-import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -40,18 +36,24 @@ public class AuthController {
     @Operation(summary = "Регистрация пользователя", description = "Создает нового пользователя и отправляет код подтверждения на email")
     @ApiResponse(responseCode = "200", description = "Код подтверждения отправлен")
     @ApiResponse(responseCode = "400", description = "Ошибка валидации данных")
-    public ResponseEntity<ApiResponseDto<AuthResponse>> createUserWithSettings(
-            @Valid @RequestBody RegisterRequest request) {
-        
+    public ResponseEntity<ApiResponseDto<AuthResponse>> createUserWithSettings(@Valid @RequestBody RegisterRequest request) {
         ValidationUtil.validateNotEmpty(request.getEmail(), "Email");
         ValidationUtil.validateNotEmpty(request.getPassword(), "Пароль");
-        
-        authService.createUserWithVerificationCode(request.getEmail(), request.getPassword());
+        ValidationUtil.validateNotEmpty(request.getUsername(), "Username");
+        ValidationUtil.validateNotNull(request.getChatId(), "ChatId");
+
+        authService.createUserWithVerificationCode(
+                request.getChatId(),
+                request.getUsername(),
+                request.getEmail(),
+                request.getPassword()
+        );
 
         AuthResponse authResponse = new AuthResponse(
                 "Код подтверждения отправлен на email: " + request.getEmail(),
                 true
         );
+
         return ResponseEntity.ok(ApiResponseDto.success("Регистрация выполнена успешно", authResponse));
     }
 
@@ -59,16 +61,15 @@ public class AuthController {
     @Operation(summary = "Подтверждение email", description = "Подтверждает email пользователя с помощью кода")
     @ApiResponse(responseCode = "200", description = "Email подтвержден")
     @ApiResponse(responseCode = "400", description = "Неверный код подтверждения")
-    public ResponseEntity<ApiResponseDto<AuthResponse>> verifyUser(
-            @Valid @RequestBody VerifyRequest request) {
-        
+    public ResponseEntity<ApiResponseDto<AuthResponse>> verifyUser(@Valid @RequestBody VerifyRequest request) {
         ValidationUtil.validateNotEmpty(request.getEmail(), "Email");
         ValidationUtil.validateNotEmpty(request.getCode(), "Код подтверждения");
-        
+
         boolean result = userService.verifyUserCode(request.getEmail(), request.getCode());
 
         if (result) {
             AuthResponse authResponse = new AuthResponse("Почта подтверждена!", true);
+
             return ResponseEntity.ok(ApiResponseDto.success("Email подтвержден", authResponse));
         } else {
             return ResponseEntity.badRequest().body(ApiResponseDto.error("Неверный код подтверждения", 400));

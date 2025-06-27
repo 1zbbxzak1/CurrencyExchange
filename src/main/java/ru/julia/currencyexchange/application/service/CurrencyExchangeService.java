@@ -74,22 +74,18 @@ public class CurrencyExchangeService {
         return conversionRepository.findConversionByUserId(user.getId());
     }
 
-    public List<CurrencyConversion> findByCurrencyCodeAndDate(String currencyCode, String timestamp) {
+    public List<CurrencyConversion> findByCurrencyDate(String userId, String timestamp) {
         DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
 
         try {
             LocalDate parsedTimestamp = LocalDate.parse(timestamp, formatter);
 
-            Currency currency = currencyRepository.findByCode(currencyCode)
-                    .orElseThrow(() -> new CurrencyNotFoundException("Currency " + currencyCode + " not found"));
-
-            return conversionRepository.findByCurrencyCodeAndDate(currency, parsedTimestamp);
+            return conversionRepository.findByCurrencyDate(parsedTimestamp, userId);
         } catch (DateTimeParseException e) {
             throw new InvalidDateFormatException("Invalid date format: " + timestamp);
         }
     }
 
-    // Метод для обновления курсов валют
     public List<Currency> updateCurrencyRates() {
         return currencyService.updateExchangeRates();
     }

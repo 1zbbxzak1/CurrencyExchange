@@ -27,4 +27,16 @@ public class ValidationUtil {
     public static void validateTimestamp(String timestamp) {
         validateNotEmpty(timestamp, "Дата");
     }
+    
+    public static void validateChatId(Long chatId) {
+        if (chatId == null || chatId <= 0) {
+            throw new InvalidParameterException("Некорректный chatId");
+        }
+    }
+    
+    public static void validateUsername(String username) {
+        if (username == null || username.isBlank() || username.length() > 64) {
+            throw new InvalidParameterException("Некорректный username");
+        }
+    }
 } 

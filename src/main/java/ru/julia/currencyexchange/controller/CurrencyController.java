@@ -4,25 +4,22 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.julia.currencyexchange.application.dto.common.ApiResponseDto;
 import ru.julia.currencyexchange.application.dto.currency.ConvertRequest;
 import ru.julia.currencyexchange.application.dto.currency.CurrencyConversionResponse;
+import ru.julia.currencyexchange.application.dto.currency.CurrencyHistoryRequest;
 import ru.julia.currencyexchange.application.dto.currency.CurrencyResponse;
 import ru.julia.currencyexchange.application.service.CurrencyExchangeService;
+import ru.julia.currencyexchange.application.service.UserService;
 import ru.julia.currencyexchange.application.util.DtoMapper;
 import ru.julia.currencyexchange.application.util.ValidationUtil;
 import ru.julia.currencyexchange.domain.model.Currency;
 import ru.julia.currencyexchange.domain.model.CurrencyConversion;
 
-import jakarta.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,9 +29,11 @@ import java.util.stream.Collectors;
 @Tag(name = "Currency Controller", description = "API для работы с валютными операциями")
 public class CurrencyController {
     private final CurrencyExchangeService converterService;
+    private final UserService userService;
 
-    public CurrencyController(CurrencyExchangeService converterService) {
+    public CurrencyController(CurrencyExchangeService converterService, UserService userService) {
         this.converterService = converterService;
+        this.userService = userService;
     }
 
     @GetMapping
@@ -42,6 +41,7 @@ public class CurrencyController {
     @ApiResponse(responseCode = "200", description = "Курсы валют успешно обновлены")
     public ResponseEntity<ApiResponseDto<List<CurrencyResponse>>> updateCurrencyRates() {
         List<Currency> currencies = converterService.updateCurrencyRates();
+
         List<CurrencyResponse> currencyResponses = currencies.stream()
                 .map(DtoMapper::mapToCurrencyResponse)
                 .collect(Collectors.toList());
@@ -53,20 +53,25 @@ public class CurrencyController {
     @Operation(summary = "Конвертировать валюту", description = "Конвертирует указанную сумму из одной валюты в другую")
     @ApiResponse(responseCode = "200", description = "Конвертация выполнена успешно")
     public ResponseEntity<ApiResponseDto<CurrencyConversionResponse>> convertCurrency(
-            @Parameter(description = "ID пользователя", example = "550e8400-e29b-41d4-a716-446655440000")
-            @RequestParam String userId,
+            @Parameter(description = "Chat ID пользователя Telegram", example = "123456789")
+            @RequestParam Long chatId,
+            @Parameter(description = "Username пользователя Telegram", example = "telegram_user")
+            @RequestParam String username,
             @Valid @RequestBody ConvertRequest request) {
-        
-        ValidationUtil.validateUserId(userId);
-        
+        ValidationUtil.validateChatId(chatId);
+        ValidationUtil.validateUsername(username);
+
+        userService.updateUsernameIfChanged(chatId, username);
+        String userId = userService.getUserIdByChatId(chatId);
+
         CurrencyConversion conversion = converterService.convert(
                 userId,
                 request.getFromCurrency().toUpperCase(),
                 request.getToCurrency().toUpperCase(),
                 request.getAmount()
         );
-
         CurrencyConversionResponse response = DtoMapper.mapToCurrencyConversionResponse(conversion);
+
         return ResponseEntity.ok(ApiResponseDto.success("Конвертация выполнена успешно", response));
     }
 
@@ -74,12 +79,18 @@ public class CurrencyController {
     @Operation(summary = "История конвертаций пользователя", description = "Получает историю всех конвертаций для указанного пользователя")
     @ApiResponse(responseCode = "200", description = "История конвертаций получена")
     public ResponseEntity<ApiResponseDto<List<CurrencyConversionResponse>>> getUserHistory(
-            @Parameter(description = "ID пользователя", example = "550e8400-e29b-41d4-a716-446655440000")
-            @RequestParam String userId) {
-        
-        ValidationUtil.validateUserId(userId);
-        
+            @Parameter(description = "Chat ID пользователя Telegram", example = "123456789")
+            @RequestParam Long chatId,
+            @Parameter(description = "Username пользователя Telegram", example = "telegram_user")
+            @RequestParam String username) {
+        ValidationUtil.validateChatId(chatId);
+        ValidationUtil.validateUsername(username);
+
+        userService.updateUsernameIfChanged(chatId, username);
+        String userId = userService.getUserIdByChatId(chatId);
+
         List<CurrencyConversion> conversions = converterService.getUserHistory(userId);
+
         List<CurrencyConversionResponse> responses = conversions.stream()
                 .map(DtoMapper::mapToCurrencyConversionResponse)
                 .collect(Collectors.toList());
@@ -87,19 +98,28 @@ public class CurrencyController {
         return ResponseEntity.ok(ApiResponseDto.success("История конвертаций получена", responses));
     }
 
-    @GetMapping("/history/find")
-    @Operation(summary = "Поиск конвертаций по валюте и дате", description = "Находит конвертаций по коду валюты и дате")
+    @PostMapping("/history/find")
+    @Operation(summary = "Поиск конвертаций по дате", description = "Находит конвертаций по дате для пользователя")
     @ApiResponse(responseCode = "200", description = "Конвертации найдены")
-    public ResponseEntity<ApiResponseDto<List<CurrencyConversionResponse>>> findByCurrencyCodeAndDate(
-            @Parameter(description = "Код валюты", example = "USD")
-            @RequestParam String currencyCode,
-            @Parameter(description = "Дата в формате YYYY-MM-DD", example = "2024-01-01")
-            @RequestParam String timestamp) {
-        
-        ValidationUtil.validateCurrencyCode(currencyCode);
-        ValidationUtil.validateTimestamp(timestamp);
-        
-        List<CurrencyConversion> conversions = converterService.findByCurrencyCodeAndDate(currencyCode.toUpperCase(), timestamp);
+    public ResponseEntity<ApiResponseDto<List<CurrencyConversionResponse>>> findByCurrencyDate(
+            @Parameter(description = "Chat ID пользователя Telegram", example = "123456789")
+            @RequestParam Long chatId,
+            @Parameter(description = "Username пользователя Telegram", example = "telegram_user")
+            @RequestParam String username,
+            @Valid @RequestBody CurrencyHistoryRequest request) {
+        ValidationUtil.validateChatId(chatId);
+        ValidationUtil.validateUsername(username);
+
+        userService.updateUsernameIfChanged(chatId, username);
+
+        ValidationUtil.validateTimestamp(request.getTimestamp());
+        String userId = userService.getUserIdByChatId(chatId);
+
+        List<CurrencyConversion> conversions = converterService.findByCurrencyDate(
+                userId,
+                request.getTimestamp()
+        );
+
         List<CurrencyConversionResponse> responses = conversions.stream()
                 .map(DtoMapper::mapToCurrencyConversionResponse)
                 .collect(Collectors.toList());

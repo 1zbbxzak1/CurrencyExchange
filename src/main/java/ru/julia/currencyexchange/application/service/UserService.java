@@ -28,6 +28,21 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException("User with ID " + id + " not found"));
     }
 
+    public User findUserByChatId(Long chatId) {
+        if (chatId == null) {
+            throw new IllegalArgumentException("ChatId cannot be null");
+        }
+        return userRepository.findByChatId(chatId)
+                .orElseThrow(() -> new UserNotFoundException("User with chatId " + chatId + " not found"));
+    }
+
+    public boolean existsByChatId(Long chatId) {
+        if (chatId == null) {
+            throw new IllegalArgumentException("ChatId cannot be null");
+        }
+        return userRepository.existsByChatId(chatId);
+    }
+
     @Transactional
     public User deleteUserById(String userId) {
         if (userId == null || userId.isBlank()) {
@@ -58,5 +73,20 @@ public class UserService {
             return true;
         }
         return false;
+    }
+
+    public String getUserIdByChatId(Long chatId) {
+        return userRepository.findByChatId(chatId)
+            .orElseThrow(() -> new UserNotFoundException("User with chatId " + chatId + " not found"))
+            .getId();
+    }
+
+    public void updateUsernameIfChanged(Long chatId, String newUsername) {
+        userRepository.findByChatId(chatId).ifPresent(user -> {
+            if (!java.util.Objects.equals(user.getUsername(), newUsername)) {
+                user.setUsername(newUsername);
+                userRepository.save(user);
+            }
+        });
     }
 }

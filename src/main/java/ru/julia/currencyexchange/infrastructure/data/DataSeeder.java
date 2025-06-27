@@ -50,12 +50,12 @@ public class DataSeeder implements CommandLineRunner {
             createUsers(adminRole, adminEmail, adminPassword, adminChatId, adminUsername);
         }
 
-        if (!userRepository.existsByUsername(userUsername)) {
-            Role userRole = roleRepository.findByRoleName("ROLE_" + RoleEnum.USER)
-                    .orElseGet(() -> roleRepository.save(new Role("ROLE_" + RoleEnum.USER)));
-
-            createUsers(userRole, userEmail, userPassword, userChatId, userUsername);
-        }
+//        if (!userRepository.existsByUsername(userUsername)) {
+//            Role userRole = roleRepository.findByRoleName("ROLE_" + RoleEnum.USER)
+//                    .orElseGet(() -> roleRepository.save(new Role("ROLE_" + RoleEnum.USER)));
+//
+//            createUsers(userRole, userEmail, userPassword, userChatId, userUsername);
+//        }
     }
 
     private void createUsers(Role role, String email, String password, Long chatId, String username) {

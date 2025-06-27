@@ -9,6 +9,8 @@ import java.util.Optional;
 public interface UserRepository extends CrudRepository<User, String> {
     Boolean existsByUsername(String username);
 
+    Boolean existsByChatId(Long chatId);
+
     @Query("""
             SELECT u FROM User u 
             LEFT JOIN FETCH u.roles r 
@@ -20,4 +22,8 @@ public interface UserRepository extends CrudRepository<User, String> {
     Optional<User> findByUsername(String username);
 
     Optional<User> findByEmail(String email);
+
+    Optional<User> findByChatId(Long chatId);
+
+
 }

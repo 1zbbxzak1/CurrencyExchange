@@ -31,11 +31,25 @@ public class UserController {
     @ApiResponse(responseCode = "200", description = "Список пользователей получен")
     public ResponseEntity<ApiResponseDto<List<UserResponse>>> getAllUsers() {
         List<User> users = userService.findAllUsers();
+
         List<UserResponse> userResponses = users.stream()
                 .map(DtoMapper::mapToUserResponse)
                 .collect(Collectors.toList());
-        
+
         return ResponseEntity.ok(ApiResponseDto.success("Список пользователей получен", userResponses));
+    }
+
+    @GetMapping("/by-chat-id/{chatId}")
+    @Operation(summary = "Найти пользователя по chatId", description = "Возвращает пользователя по chatId Telegram")
+    @ApiResponse(responseCode = "200", description = "Пользователь найден")
+    @ApiResponse(responseCode = "404", description = "Пользователь не найден")
+    public ResponseEntity<ApiResponseDto<UserResponse>> findUserByChatId(
+            @Parameter(description = "Chat ID пользователя Telegram", example = "123456789")
+            @PathVariable Long chatId) {
+        User user = userService.findUserByChatId(chatId);
+        UserResponse userResponse = DtoMapper.mapToUserResponse(user);
+
+        return ResponseEntity.ok(ApiResponseDto.success("Пользователь найден", userResponse));
     }
 
     @GetMapping("/{id}")
@@ -45,12 +59,12 @@ public class UserController {
     public ResponseEntity<ApiResponseDto<UserResponse>> findUserById(
             @Parameter(description = "ID пользователя", example = "550e8400-e29b-41d4-a716-446655440000")
             @PathVariable String id) {
-        
+
         ValidationUtil.validateUserId(id);
-        
+
         User user = userService.findUserById(id);
         UserResponse userResponse = DtoMapper.mapToUserResponse(user);
-        
+
         return ResponseEntity.ok(ApiResponseDto.success("Пользователь найден", userResponse));
     }
 
@@ -61,12 +75,12 @@ public class UserController {
     public ResponseEntity<ApiResponseDto<UserResponse>> deleteUserById(
             @Parameter(description = "ID пользователя", example = "550e8400-e29b-41d4-a716-446655440000")
             @PathVariable String id) {
-        
+
         ValidationUtil.validateUserId(id);
-        
+
         User user = userService.deleteUserById(id);
         UserResponse userResponse = DtoMapper.mapToUserResponse(user);
-        
+
         return ResponseEntity.ok(ApiResponseDto.success("Пользователь удален", userResponse));
     }
 }
