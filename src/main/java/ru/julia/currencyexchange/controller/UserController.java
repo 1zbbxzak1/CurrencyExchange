@@ -133,4 +133,28 @@ public class UserController {
 
         return ResponseEntity.ok(result);
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/ban")
+    @Operation(summary = "Заблокировать пользователя по email", description = "Админ блокирует пользователя по email. После этого пользователь не может выполнять запросы.")
+    public ResponseEntity<ApiResponseDto<UserResponse>> banUserByEmail(
+            @Parameter(description = "Chat ID пользователя Telegram", example = "123456789")
+            @RequestParam Long chatId,
+            @Parameter(description = "Username пользователя Telegram", example = "telegram_user")
+            @RequestParam(required = false) String username,
+            @Parameter(description = "Email пользователя", example = "user@example.com")
+            @RequestParam String email) {
+        ValidationUtil.validateChatId(chatId);
+        ValidationUtil.validateUsername(username);
+
+        userService.updateUsernameIfChanged(chatId, username);
+
+        User user = userService.findUserByEmail(email);
+        user.setBanned(true);
+        userService.saveUser(user);
+
+        UserResponse userResponse = DtoMapper.mapToUserResponse(user);
+
+        return ResponseEntity.ok(ApiResponseDto.success("Пользователь заблокирован", userResponse));
+    }
 }

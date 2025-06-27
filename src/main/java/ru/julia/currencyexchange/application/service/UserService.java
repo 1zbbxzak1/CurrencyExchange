@@ -89,4 +89,18 @@ public class UserService {
             }
         });
     }
+
+    public User findUserByEmail(String email) {
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("Email не может быть пустым");
+        }
+        
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User with email " + email + " not found"));
+    }
+
+    @Transactional
+    public User saveUser(User user) {
+        return userRepository.save(user);
+    }
 }
