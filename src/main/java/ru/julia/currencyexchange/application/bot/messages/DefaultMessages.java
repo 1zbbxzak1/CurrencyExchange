@@ -9,6 +9,7 @@ import ru.julia.currencyexchange.application.bot.settings.enums.RegistrationStat
 import ru.julia.currencyexchange.application.service.AuthService;
 import ru.julia.currencyexchange.application.service.UserService;
 import ru.julia.currencyexchange.application.service.bot.RegistrationStateService;
+import ru.julia.currencyexchange.infrastructure.bot.command.HelpCommand;
 import ru.julia.currencyexchange.infrastructure.bot.command.RegisterCommand;
 import ru.julia.currencyexchange.infrastructure.bot.command.StartCommand;
 import ru.julia.currencyexchange.infrastructure.bot.command.interfaces.BotCommandHandler;
@@ -39,6 +40,7 @@ public class DefaultMessages {
     @PostConstruct
     public void init() {
         addCommand(new StartCommand(messageConverter, userService));
+        addCommand(new HelpCommand(messageConverter, userService));
         addCommand(new RegisterCommand(messageConverter, authService, userService, registrationStateService));
     }
 
