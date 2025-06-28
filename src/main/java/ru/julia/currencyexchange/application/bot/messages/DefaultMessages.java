@@ -10,6 +10,7 @@ import ru.julia.currencyexchange.application.bot.settings.enums.RegistrationStat
 import ru.julia.currencyexchange.application.service.bot.RegistrationStateService;
 import ru.julia.currencyexchange.infrastructure.bot.command.*;
 import ru.julia.currencyexchange.infrastructure.bot.command.handler.CurrencyToRubCallbackHandler;
+import ru.julia.currencyexchange.infrastructure.bot.command.handler.CurrencyConvertCallbackHandler;
 import ru.julia.currencyexchange.infrastructure.bot.command.interfaces.BotCommandHandler;
 
 import java.util.ArrayList;
@@ -35,6 +36,10 @@ public class DefaultMessages {
     private CurrencyToRubCommand currencyToRubCommand;
     @Autowired
     private CurrencyToRubCallbackHandler currencyToRubCallbackHandler;
+    @Autowired
+    private ConvertCommand convertCommand;
+    @Autowired
+    private CurrencyConvertCallbackHandler currencyConvertCallbackHandler;
 
     public DefaultMessages(MessageConverter messageConverter,
                            RegistrationStateService registrationStateService) {
@@ -49,6 +54,7 @@ public class DefaultMessages {
         addCommand(registerCommand);
         addCommand(currenciesCommand);
         addCommand(currencyToRubCommand);
+        addCommand(convertCommand);
     }
 
     public void addCommand(BotCommandHandler command) {
@@ -61,6 +67,10 @@ public class DefaultMessages {
 
     public CurrencyToRubCallbackHandler getCurrencyToRubCallbackHandler() {
         return currencyToRubCallbackHandler;
+    }
+
+    public CurrencyConvertCallbackHandler getCurrencyConvertCallbackHandler() {
+        return currencyConvertCallbackHandler;
     }
 
     public SendMessage sendMessage(Update update) {
