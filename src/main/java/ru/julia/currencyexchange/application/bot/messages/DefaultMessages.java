@@ -5,6 +5,8 @@ import com.pengrad.telegrambot.request.SendMessage;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 import ru.julia.currencyexchange.application.bot.messages.converter.interfaces.MessageConverter;
+import ru.julia.currencyexchange.application.service.UserService;
+import ru.julia.currencyexchange.infrastructure.bot.command.StartCommand;
 import ru.julia.currencyexchange.infrastructure.bot.command.interfaces.BotCommandHandler;
 
 import java.util.ArrayList;
@@ -14,15 +16,19 @@ import java.util.Map;
 @Component
 public class DefaultMessages {
     private final MessageConverter messageConverter;
+    private final UserService userService;
 
     private final List<BotCommandHandler> botCommands = new ArrayList<>();
 
-    public DefaultMessages(MessageConverter messageConverter) {
+    public DefaultMessages(MessageConverter messageConverter,
+                           UserService userService) {
         this.messageConverter = messageConverter;
+        this.userService = userService;
     }
 
     @PostConstruct
     public void init() {
+        botCommands.add(new StartCommand(messageConverter, userService));
     }
 
     public void addCommand(BotCommandHandler command) {
