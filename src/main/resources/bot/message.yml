@@ -31,6 +31,13 @@ command:
     error: "⚠️ Произошла ошибка при получении курсов валют."
     description: "Показать все валюты"
   
+  currencyToRub:
+    usage: "Использование: /currencyToRub <код_валюты>\nПример: /currencyToRub USD"
+    not_found: "❌ Валюта с кодом '%currency_code%' не найдена.\nИспользуйте /currencies для просмотра доступных валют."
+    no_currencies: "❌ Валюты не найдены в базе данных."
+    error: "⚠️ Произошла ошибка при получении курса валюты."
+    description: "Получить курс валюты к рублю"
+  
   help:
     admin_help_message: |
       *Команды администратора:*
@@ -50,6 +57,7 @@ command:
       /updateRates - обновить курсы валют
       /banUser user@example.com - заблокировать пользователя
       /setFee 2.5 - установить комиссию 2.5%
+      /currencyToRub - выбрать валюту из списка
     user_help_message: |
       *Команды пользователя:*
       
@@ -67,6 +75,7 @@ command:
       *Примеры использования:*
       /convert 100 USD EUR - конвертировать 100 долларов в евро
       /findByDate 2024-01-15 - найти конвертации за 15 января
+      /currencyToRub - выбрать валюту из списка
     unverified_help_message: |
       *Доступные команды:*
       

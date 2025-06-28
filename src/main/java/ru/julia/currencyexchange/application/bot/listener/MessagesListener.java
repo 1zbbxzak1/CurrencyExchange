@@ -39,6 +39,15 @@ public class MessagesListener implements UpdatesListener {
                         // Игнорируем некорректные callback'и
                     }
                 }
+                
+                if (callbackData != null && callbackData.startsWith("currency_to_rub_")) {
+                    EditMessageText editMessage = defaultMessages.getCurrencyToRubCallbackHandler().handleCallback(update);
+                    if (editMessage != null) {
+                        editMessage.parseMode(ParseMode.Markdown);
+                        executor.execute(editMessage);
+                    }
+                    return;
+                }
             }
 
             SendMessage sendMessage = defaultMessages.sendMessage(update);
