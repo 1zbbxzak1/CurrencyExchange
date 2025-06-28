@@ -5,7 +5,11 @@ import com.pengrad.telegrambot.request.SendMessage;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 import ru.julia.currencyexchange.application.bot.messages.converter.interfaces.MessageConverter;
+import ru.julia.currencyexchange.application.bot.settings.enums.RegistrationState;
+import ru.julia.currencyexchange.application.service.AuthService;
 import ru.julia.currencyexchange.application.service.UserService;
+import ru.julia.currencyexchange.application.service.bot.RegistrationStateService;
+import ru.julia.currencyexchange.infrastructure.bot.command.RegisterCommand;
 import ru.julia.currencyexchange.infrastructure.bot.command.StartCommand;
 import ru.julia.currencyexchange.infrastructure.bot.command.interfaces.BotCommandHandler;
 
@@ -17,18 +21,25 @@ import java.util.Map;
 public class DefaultMessages {
     private final MessageConverter messageConverter;
     private final UserService userService;
+    private final AuthService authService;
+    private final RegistrationStateService registrationStateService;
 
     private final List<BotCommandHandler> botCommands = new ArrayList<>();
 
     public DefaultMessages(MessageConverter messageConverter,
-                           UserService userService) {
+                           UserService userService,
+                           AuthService authService,
+                           RegistrationStateService registrationStateService) {
         this.messageConverter = messageConverter;
         this.userService = userService;
+        this.authService = authService;
+        this.registrationStateService = registrationStateService;
     }
 
     @PostConstruct
     public void init() {
-        botCommands.add(new StartCommand(messageConverter, userService));
+        addCommand(new StartCommand(messageConverter, userService));
+        addCommand(new RegisterCommand(messageConverter, authService, userService, registrationStateService));
     }
 
     public void addCommand(BotCommandHandler command) {
@@ -43,7 +54,14 @@ public class DefaultMessages {
         Long chatId = update.message().chat().id();
         String message = update.message().text();
 
-        // Проверяем команды
+        if (registrationStateService.getState(chatId) != RegistrationState.NONE) {
+            for (BotCommandHandler botCommand : botCommands) {
+                if (botCommand instanceof RegisterCommand) {
+                    return botCommand.handle(update);
+                }
+            }
+        }
+
         for (BotCommandHandler botCommand : botCommands) {
             if (botCommand.matches(update)) {
                 return botCommand.handle(update);
