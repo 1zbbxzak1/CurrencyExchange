@@ -5,21 +5,26 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.EditMessageText;
 import org.springframework.stereotype.Component;
+import ru.julia.currencyexchange.application.bot.messages.converter.interfaces.MessageConverter;
 import ru.julia.currencyexchange.application.service.bot.CurrencyToRubService;
 import ru.julia.currencyexchange.domain.model.Currency;
 import ru.julia.currencyexchange.infrastructure.bot.command.builder.CurrencyToRubKeyboardBuilder;
 
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class CurrencyToRubCallbackHandler {
     private final CurrencyToRubService currencyToRubService;
     private final CurrencyToRubKeyboardBuilder keyboardBuilder;
+    private final MessageConverter messageConverter;
 
     public CurrencyToRubCallbackHandler(CurrencyToRubService currencyToRubService,
-                                        CurrencyToRubKeyboardBuilder keyboardBuilder) {
+                                        CurrencyToRubKeyboardBuilder keyboardBuilder,
+                                        MessageConverter messageConverter) {
         this.currencyToRubService = currencyToRubService;
         this.keyboardBuilder = keyboardBuilder;
+        this.messageConverter = messageConverter;
     }
 
     public EditMessageText handleCallback(Update update) {
@@ -39,7 +44,7 @@ public class CurrencyToRubCallbackHandler {
                 default -> showCurrencyRate(callbackQuery, action);
             };
         } catch (Exception e) {
-            return createErrorMessage(callbackQuery, "❌ Произошла ошибка. Попробуйте позже.");
+            return createErrorMessage(callbackQuery, messageConverter.resolve("command.currencyToRub.error"));
         }
     }
 
@@ -47,8 +52,8 @@ public class CurrencyToRubCallbackHandler {
         List<Currency> allCurrencies = currencyToRubService.getAllCurrencies();
         var keyboard = keyboardBuilder.buildAllCurrenciesKeyboard(allCurrencies);
 
-        String messageText = "💱 *Выберите валюту для просмотра курса к рублю:*\n\n" +
-                "Все доступные валюты:";
+        String messageText = messageConverter.resolve("command.currencyToRub.selection.title") + "\n\n" +
+                messageConverter.resolve("command.currencyToRub.selection.all_subtitle");
 
         return new EditMessageText(
                 callbackQuery.message().chat().id(),
@@ -62,8 +67,8 @@ public class CurrencyToRubCallbackHandler {
         List<Currency> popularCurrencies = currencyToRubService.getPopularCurrencies();
         var keyboard = keyboardBuilder.buildPopularCurrenciesKeyboard(popularCurrencies);
 
-        String messageText = "💱 *Выберите валюту для просмотра курса к рублю:*\n\n" +
-                "Популярные валюты:";
+        String messageText = messageConverter.resolve("command.currencyToRub.selection.title") + "\n\n" +
+                messageConverter.resolve("command.currencyToRub.selection.popular_subtitle");
 
         return new EditMessageText(
                 callbackQuery.message().chat().id(),
@@ -77,7 +82,8 @@ public class CurrencyToRubCallbackHandler {
         Currency currency = currencyToRubService.getCurrencyByCode(currencyCode);
         if (currency == null) {
             return createErrorMessage(callbackQuery,
-                    "❌ Валюта с кодом '" + currencyCode + "' не найдена.");
+                    messageConverter.resolve("command.currencyToRub.not_found",
+                            Map.of("currency_code", currencyCode)));
         }
 
         String messageText = currencyToRubService.buildCurrencyToRubMessage(currency);

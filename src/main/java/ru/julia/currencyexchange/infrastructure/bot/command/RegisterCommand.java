@@ -72,7 +72,7 @@ public class RegisterCommand extends AbstractCommandHandler {
         try {
             if (userService.existsByChatId(chatId)) {
                 registrationStateService.clearData(chatId);
-                return new SendMessage(chatId, "Пользователь с таким Chat ID уже зарегистрирован.");
+                return new SendMessage(chatId, messageConverter.resolve("command.register.error"));
             }
 
             authService.createUserWithVerificationCode(chatId, username,
@@ -82,7 +82,7 @@ public class RegisterCommand extends AbstractCommandHandler {
             return new SendMessage(chatId, messageConverter.resolve("command.register.code_sent"));
         } catch (Exception e) {
             registrationStateService.clearData(chatId);
-            String errorMessage = "Ошибка при регистрации: " + e.getMessage();
+            String errorMessage = messageConverter.resolve("command.register.error") + ": " + e.getMessage();
             System.err.println("Registration error for chatId " + chatId + ": " + e.getMessage());
             e.printStackTrace();
             return new SendMessage(chatId, errorMessage);

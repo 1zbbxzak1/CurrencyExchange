@@ -3,6 +3,7 @@ package ru.julia.currencyexchange.infrastructure.bot.command.builder;
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import org.springframework.stereotype.Component;
+import ru.julia.currencyexchange.application.bot.messages.converter.interfaces.MessageConverter;
 import ru.julia.currencyexchange.domain.model.Currency;
 import ru.julia.currencyexchange.infrastructure.bot.command.utils.CurrencyEmojiUtils;
 
@@ -12,25 +13,28 @@ import java.util.List;
 @Component
 public class CurrencyToRubKeyboardBuilder {
     private final CurrencyEmojiUtils currencyEmojiUtils;
+    private final MessageConverter messageConverter;
 
-    public CurrencyToRubKeyboardBuilder(CurrencyEmojiUtils currencyEmojiUtils) {
+    public CurrencyToRubKeyboardBuilder(CurrencyEmojiUtils currencyEmojiUtils,
+                                       MessageConverter messageConverter) {
         this.currencyEmojiUtils = currencyEmojiUtils;
+        this.messageConverter = messageConverter;
     }
 
     public InlineKeyboardMarkup buildPopularCurrenciesKeyboard(List<Currency> popularCurrencies) {
         return buildCurrencyKeyboard(popularCurrencies, 4, 
-                "📋 Показать все валюты", "currency_to_rub_show_all");
+                messageConverter.resolve("command.currencyToRub.keyboard.show_all"), "currency_to_rub_show_all");
     }
 
     public InlineKeyboardMarkup buildAllCurrenciesKeyboard(List<Currency> allCurrencies) {
         return buildCurrencyKeyboard(allCurrencies, 3, 
-                "⬅️ Назад к популярным", "currency_to_rub_show_popular");
+                messageConverter.resolve("command.currencyToRub.keyboard.back_to_popular"), "currency_to_rub_show_popular");
     }
 
     public InlineKeyboardMarkup buildBackKeyboard() {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
 
-        InlineKeyboardButton backButton = new InlineKeyboardButton("⬅️ Назад к выбору валюты")
+        InlineKeyboardButton backButton = new InlineKeyboardButton(messageConverter.resolve("command.currencyToRub.keyboard.back_to_selection"))
                 .callbackData("currency_to_rub_back_to_selection");
         keyboardMarkup.addRow(backButton);
 

@@ -86,8 +86,8 @@ public class CurrencyToRubCommand extends AbstractCommandHandler {
         List<Currency> popularCurrencies = currencyToRubService.getPopularCurrencies();
         var keyboard = keyboardBuilder.buildPopularCurrenciesKeyboard(popularCurrencies);
 
-        String messageText = "💱 *Выберите валюту для просмотра курса к рублю:*\n\n" +
-                "Популярные валюты:";
+        String messageText = messageConverter.resolve("command.currencyToRub.selection.title") + "\n\n" +
+                messageConverter.resolve("command.currencyToRub.selection.popular_subtitle");
 
         return new SendMessage(chatId, messageText)
                 .parseMode(ParseMode.Markdown)

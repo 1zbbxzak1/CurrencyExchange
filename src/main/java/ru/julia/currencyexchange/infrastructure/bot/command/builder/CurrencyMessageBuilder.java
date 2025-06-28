@@ -61,11 +61,13 @@ public class CurrencyMessageBuilder {
         }
 
         message.append("\n").append("\n");
-        message.append("📊 *Страница ").append(page + 1).append(" из ").append(totalPages).append("*");
-        message.append(" | Всего валют: *").append(currencies.size()).append("*");
+        message.append(messageConverter.resolve("command.currencies.pagination.page_info",
+                Map.of("current", String.valueOf(page + 1), "total", String.valueOf(totalPages))));
+        message.append(" | ").append(messageConverter.resolve("command.currencies.pagination.total_currencies",
+                Map.of("count", String.valueOf(currencies.size()))));
 
         if (useCompactFormat) {
-            message.append(" | 🚀 Компактный режим");
+            message.append(" | ").append(messageConverter.resolve("command.currencies.pagination.compact_mode"));
         }
 
         return message.toString();

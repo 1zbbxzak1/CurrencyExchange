@@ -15,4 +15,12 @@ public class CurrencyFormatUtils {
             return rate.setScale(6, RoundingMode.HALF_UP).toString();
         }
     }
+
+    public String formatAmount(BigDecimal amount) {
+        if (amount.compareTo(BigDecimal.ONE) >= 0) {
+            return amount.setScale(2, RoundingMode.HALF_UP).toString();
+        } else {
+            return amount.setScale(4, RoundingMode.HALF_UP).toString();
+        }
+    }
 } 

@@ -1,25 +1,33 @@
 package ru.julia.currencyexchange.application.service.bot;
 
 import org.springframework.stereotype.Service;
+import ru.julia.currencyexchange.application.bot.messages.converter.interfaces.MessageConverter;
 import ru.julia.currencyexchange.application.service.CurrencyExchangeService;
 import ru.julia.currencyexchange.domain.model.Currency;
 import ru.julia.currencyexchange.infrastructure.bot.command.utils.CurrencyEmojiUtils;
 import ru.julia.currencyexchange.infrastructure.bot.command.utils.CurrencyFormatUtils;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class CurrencyToRubService {
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
+    
     private final CurrencyExchangeService currencyExchangeService;
     private final CurrencyEmojiUtils currencyEmojiUtils;
     private final CurrencyFormatUtils currencyFormatUtils;
+    private final MessageConverter messageConverter;
 
     public CurrencyToRubService(CurrencyExchangeService currencyExchangeService,
                                 CurrencyEmojiUtils currencyEmojiUtils,
-                                CurrencyFormatUtils currencyFormatUtils) {
+                                CurrencyFormatUtils currencyFormatUtils,
+                                MessageConverter messageConverter) {
         this.currencyExchangeService = currencyExchangeService;
         this.currencyEmojiUtils = currencyEmojiUtils;
         this.currencyFormatUtils = currencyFormatUtils;
+        this.messageConverter = messageConverter;
     }
 
     public Currency getCurrencyByCode(String currencyCode) {
@@ -50,21 +58,24 @@ public class CurrencyToRubService {
     }
 
     public String buildCurrencyToRubMessage(Currency currency) {
-
-        String message = "💱 *Курс валюты к рублю*\n\n" +
-                currencyEmojiUtils.getCurrencyEmoji(currency.getCode()) +
-                " *" + currency.getCode() + "* - " +
-                currency.getName() + "\n\n" +
-                "📊 *Курс:* " +
-                currencyFormatUtils.formatExchangeRate(currency.getExchangeRate()) +
-                " ₽\n\n" +
-                "🕐 *Обновлено:* " +
-                currency.getLastUpdated().format(java.time.format.DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")) +
-                "\n\n" +
-                "💡 *Пример:* 1 " + currency.getCode() +
-                " = " + currencyFormatUtils.formatExchangeRate(currency.getExchangeRate()) +
-                " ₽";
-
-        return message;
+        StringBuilder message = new StringBuilder();
+        message.append(messageConverter.resolve("command.currencyToRub.result.title")).append("\n\n");
+        
+        message.append(messageConverter.resolve("command.currencyToRub.result.currency_info",
+                Map.of("emoji", currencyEmojiUtils.getCurrencyEmoji(currency.getCode()),
+                       "code", currency.getCode(),
+                       "name", currency.getName()))).append("\n\n");
+        
+        message.append(messageConverter.resolve("command.currencyToRub.result.rate",
+                Map.of("rate", currencyFormatUtils.formatExchangeRate(currency.getExchangeRate())))).append("\n\n");
+        
+        message.append(messageConverter.resolve("command.currencyToRub.result.updated",
+                Map.of("date", currency.getLastUpdated().format(DATE_FORMATTER)))).append("\n\n");
+        
+        message.append(messageConverter.resolve("command.currencyToRub.result.example",
+                Map.of("code", currency.getCode(),
+                       "rate", currencyFormatUtils.formatExchangeRate(currency.getExchangeRate()))));
+        
+        return message.toString();
     }
 } 

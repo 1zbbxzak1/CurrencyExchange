@@ -25,17 +25,14 @@ public class StartCommand extends AbstractCommandHandler {
         String firstName = update.message().chat().firstName();
 
         try {
-            // Проверяем, существует ли пользователь
             if (userService.existsByChatId(chatId)) {
-                // Пользователь существует, проверяем его статус
                 User user = userService.findUserByChatId(chatId);
-                
+
                 if (user.isBanned()) {
                     return new SendMessage(chatId, messageConverter.resolve("command.start.banned_message"));
                 }
-                
+
                 if (user.isVerified()) {
-                    // Пользователь верифицирован и не забанен - показываем приветствие
                     userService.updateUsernameIfChanged(chatId, update.message().chat().username());
                     return new SendMessage(
                             chatId, messageConverter.resolve("command.start.welcome_back_message", Map.of("user_name", firstName)));
@@ -45,7 +42,6 @@ public class StartCommand extends AbstractCommandHandler {
                             chatId, messageConverter.resolve("command.start.not_verified_message"));
                 }
             } else {
-                // Пользователь не существует - предлагаем регистрацию
                 userService.updateUsernameIfChanged(chatId, update.message().chat().username());
                 return new SendMessage(
                         chatId, messageConverter.resolve("command.start.start_message", Map.of("user_name", firstName)));
