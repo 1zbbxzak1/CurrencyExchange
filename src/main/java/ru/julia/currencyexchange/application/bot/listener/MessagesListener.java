@@ -3,6 +3,7 @@ package ru.julia.currencyexchange.application.bot.listener;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.ParseMode;
+import com.pengrad.telegrambot.request.EditMessageText;
 import com.pengrad.telegrambot.request.SendMessage;
 import org.springframework.stereotype.Component;
 import ru.julia.currencyexchange.application.bot.executor.interfaces.Executor;
@@ -23,12 +24,28 @@ public class MessagesListener implements UpdatesListener {
     @Override
     public int process(List<Update> list) {
         list.forEach(update -> {
+            if (update.callbackQuery() != null) {
+                String callbackData = update.callbackQuery().data();
+                if (callbackData != null && callbackData.startsWith("currencies_page_")) {
+                    try {
+                        int page = Integer.parseInt(callbackData.substring("currencies_page_".length()));
+                        var editMessage = defaultMessages.getCurrenciesCommand().getCallbackHandler().handleCallback(update, page);
+                        if (editMessage != null) {
+                            editMessage.parseMode(ParseMode.Markdown);
+                            executor.execute(editMessage);
+                        }
+                        return;
+                    } catch (NumberFormatException e) {
+                        // Игнорируем некорректные callback'и
+                    }
+                }
+            }
+
             SendMessage sendMessage = defaultMessages.sendMessage(update);
             if (sendMessage != null) {
                 sendMessage.parseMode(ParseMode.Markdown);
+                executor.execute(sendMessage);
             }
-
-            executor.execute(sendMessage);
         });
 
         return CONFIRMED_UPDATES_ALL;
