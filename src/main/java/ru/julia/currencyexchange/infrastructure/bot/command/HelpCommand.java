@@ -8,7 +8,8 @@ import ru.julia.currencyexchange.application.service.UserService;
 import ru.julia.currencyexchange.domain.model.User;
 import ru.julia.currencyexchange.infrastructure.bot.command.abstracts.AbstractCommandHandler;
 
-import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class HelpCommand extends AbstractCommandHandler {
@@ -24,28 +25,40 @@ public class HelpCommand extends AbstractCommandHandler {
         Long chatId = update.message().chat().id();
 
         try {
-            // Проверяем статус пользователя
             if (userService.existsByChatId(chatId)) {
                 User user = userService.findUserByChatId(chatId);
-                
+
                 if (user.isBanned()) {
                     return new SendMessage(chatId, messageConverter.resolve("command.help.banned_message"));
                 }
-                
+
                 if (user.isVerified()) {
-                    // Пользователь верифицирован - показываем все команды
-                    return new SendMessage(chatId, messageConverter.resolve("command.help.verified_help_message"));
+                    String role = getUserRole(user);
+
+                    if ("ADMIN".equals(role)) {
+                        return new SendMessage(chatId, messageConverter.resolve("command.help.admin_help_message"));
+                    } else {
+                        return new SendMessage(chatId, messageConverter.resolve("command.help.user_help_message"));
+                    }
                 } else {
-                    // Пользователь не верифицирован - показываем ограниченный список
                     return new SendMessage(chatId, messageConverter.resolve("command.help.unverified_help_message"));
                 }
             } else {
-                // Пользователь не зарегистрирован - показываем базовые команды
                 return new SendMessage(chatId, messageConverter.resolve("command.help.unregistered_help_message"));
             }
         } catch (Exception e) {
             return new SendMessage(chatId, messageConverter.resolve("command.help.error_message"));
         }
+    }
+
+    private String getUserRole(User user) {
+        Set<String> roles = user.getRoles().stream()
+                .map(userRole -> userRole.getRole().getRoleName().replace("ROLE_", ""))
+                .collect(Collectors.toSet());
+
+        return roles.stream()
+                .min(java.util.Comparator.comparing(r -> "ADMIN".equals(r) ? 0 : 1))
+                .orElse("USER");
     }
 
     @Override
