@@ -64,7 +64,7 @@ public class UserService {
     }
 
     @Transactional
-    public boolean verifyUserCode(String email, String code) {
+    public boolean verifyUserCode(Long chatId, String email, String code) {
         Optional<User> user = userRepository.findByEmail(email);
 
         if (user.isPresent() && user.get().getVerificationCode().equals(code)) {
@@ -94,7 +94,7 @@ public class UserService {
         if (email == null || email.isBlank()) {
             throw new IllegalArgumentException("Email не может быть пустым");
         }
-        
+
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User with email " + email + " not found"));
     }

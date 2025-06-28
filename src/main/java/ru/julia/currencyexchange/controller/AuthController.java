@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,7 +18,6 @@ import ru.julia.currencyexchange.application.dto.common.ApiResponseDto;
 import ru.julia.currencyexchange.application.service.AuthService;
 import ru.julia.currencyexchange.application.service.UserService;
 import ru.julia.currencyexchange.application.util.ValidationUtil;
-import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -67,8 +67,9 @@ public class AuthController {
     public ResponseEntity<ApiResponseDto<AuthResponse>> verifyUser(@Valid @RequestBody VerifyRequest request) {
         ValidationUtil.validateNotEmpty(request.getEmail(), "Email");
         ValidationUtil.validateNotEmpty(request.getCode(), "Код подтверждения");
+        ValidationUtil.validateNotNull(request.getChatId(), "ChatId");
 
-        boolean result = userService.verifyUserCode(request.getEmail(), request.getCode());
+        boolean result = userService.verifyUserCode(request.getChatId(), request.getEmail(), request.getCode());
 
         if (result) {
             AuthResponse authResponse = new AuthResponse("Почта подтверждена!", true);

@@ -56,23 +56,6 @@ public class UserController {
         return ResponseEntity.ok(ApiResponseDto.success("Список пользователей получен", userResponses));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/by-chat-id/{chatId}")
-    @Operation(summary = "Найти пользователя по chatId", description = "Возвращает пользователя по chatId Telegram")
-    @ApiResponse(responseCode = "200", description = "Пользователь найден")
-    @ApiResponse(responseCode = "404", description = "Пользователь не найден")
-    public ResponseEntity<ApiResponseDto<UserResponse>> findUserByChatId(
-            @Parameter(description = "Chat ID пользователя Telegram", example = "123456789")
-            @PathVariable Long chatId) {
-        ValidationUtil.validateChatId(chatId);
-
-        User user = userService.findUserByChatId(chatId);
-        UserResponse userResponse = DtoMapper.mapToUserResponse(user);
-
-        return ResponseEntity.ok(ApiResponseDto.success("Пользователь найден", userResponse));
-    }
-
-
     @PreAuthorize("hasRole('USER')")
     @DeleteMapping("/by-chat-id/{chatId}")
     @Operation(summary = "Удалить пользователя", description = "Удаляет пользователя по указанному ID")
@@ -95,23 +78,6 @@ public class UserController {
         UserResponse userResponse = DtoMapper.mapToUserResponse(user);
 
         return ResponseEntity.ok(ApiResponseDto.success("Пользователь удален", userResponse));
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/{id}")
-    @Operation(summary = "Найти пользователя по ID", description = "Возвращает пользователя по указанному ID")
-    @ApiResponse(responseCode = "200", description = "Пользователь найден")
-    @ApiResponse(responseCode = "404", description = "Пользователь не найден")
-    public ResponseEntity<ApiResponseDto<UserResponse>> findUserById(
-            @Parameter(description = "ID пользователя", example = "550e8400-e29b-41d4-a716-446655440000")
-            @PathVariable String id) {
-
-        ValidationUtil.validateUserId(id);
-
-        User user = userService.findUserById(id);
-        UserResponse userResponse = DtoMapper.mapToUserResponse(user);
-
-        return ResponseEntity.ok(ApiResponseDto.success("Пользователь найден", userResponse));
     }
 
     @PreAuthorize("permitAll()")
@@ -170,7 +136,7 @@ public class UserController {
             @Parameter(description = "Username пользователя Telegram", example = "telegram_user")
             @RequestParam(required = false) String username,
             @Parameter(description = "Процент комиссии (например, 2.5)", example = "2.5")
-            @RequestParam double feePercent) {
+            @RequestParam Double feePercent) {
         ValidationUtil.validateChatId(chatId);
         ValidationUtil.validateUsername(username);
 
