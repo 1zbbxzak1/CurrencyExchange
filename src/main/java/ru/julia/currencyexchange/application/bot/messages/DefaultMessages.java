@@ -10,14 +10,8 @@ import ru.julia.currencyexchange.application.service.bot.RegistrationStateServic
 import ru.julia.currencyexchange.domain.model.User;
 import ru.julia.currencyexchange.infrastructure.bot.command.CurrenciesCommand;
 import ru.julia.currencyexchange.infrastructure.bot.command.RegisterCommand;
-import ru.julia.currencyexchange.infrastructure.bot.command.handler.CurrencyConvertCallbackHandler;
-import ru.julia.currencyexchange.infrastructure.bot.command.handler.CurrencyToRubCallbackHandler;
-import ru.julia.currencyexchange.infrastructure.bot.command.handler.DeleteAccountCallbackHandler;
-import ru.julia.currencyexchange.infrastructure.bot.command.handler.FindByDateCallbackHandler;
-import ru.julia.currencyexchange.infrastructure.bot.command.handler.HistoryCallbackHandler;
+import ru.julia.currencyexchange.infrastructure.bot.command.handler.*;
 import ru.julia.currencyexchange.infrastructure.bot.command.interfaces.BotCommandHandler;
-import ru.julia.currencyexchange.infrastructure.bot.command.handler.UsersCallbackHandler;
-import ru.julia.currencyexchange.infrastructure.bot.command.handler.BanUserCallbackHandler;
 
 import java.util.List;
 import java.util.Map;
@@ -37,6 +31,7 @@ public class DefaultMessages {
     private final DeleteAccountCallbackHandler deleteAccountCallbackHandler;
     private final UsersCallbackHandler usersCallbackHandler;
     private final BanUserCallbackHandler banUserCallbackHandler;
+    private final SetFeeCallbackHandler setFeeCallbackHandler;
 
     public DefaultMessages(MessageConverter messageConverter,
                            RegistrationStateService registrationStateService,
@@ -49,7 +44,8 @@ public class DefaultMessages {
                            FindByDateCallbackHandler findByDateCallbackHandler,
                            DeleteAccountCallbackHandler deleteAccountCallbackHandler,
                            UsersCallbackHandler usersCallbackHandler,
-                           BanUserCallbackHandler banUserCallbackHandler) {
+                           BanUserCallbackHandler banUserCallbackHandler,
+                           SetFeeCallbackHandler setFeeCallbackHandler) {
         this.messageConverter = messageConverter;
         this.registrationStateService = registrationStateService;
         this.userService = userService;
@@ -62,6 +58,7 @@ public class DefaultMessages {
         this.deleteAccountCallbackHandler = deleteAccountCallbackHandler;
         this.usersCallbackHandler = usersCallbackHandler;
         this.banUserCallbackHandler = banUserCallbackHandler;
+        this.setFeeCallbackHandler = setFeeCallbackHandler;
     }
 
     public CurrenciesCommand getCurrenciesCommand() {
@@ -94,6 +91,10 @@ public class DefaultMessages {
 
     public BanUserCallbackHandler getBanUserCallbackHandler() {
         return banUserCallbackHandler;
+    }
+
+    public SetFeeCallbackHandler getSetFeeCallbackHandler() {
+        return setFeeCallbackHandler;
     }
 
     public SendMessage sendMessage(Update update) {

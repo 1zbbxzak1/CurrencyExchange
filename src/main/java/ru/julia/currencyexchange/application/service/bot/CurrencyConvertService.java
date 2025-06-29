@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import ru.julia.currencyexchange.application.bot.messages.converter.interfaces.MessageConverter;
 import ru.julia.currencyexchange.application.bot.settings.enums.ConversionState;
 import ru.julia.currencyexchange.application.service.CurrencyExchangeService;
+import ru.julia.currencyexchange.application.service.SettingsService;
 import ru.julia.currencyexchange.application.service.UserService;
 import ru.julia.currencyexchange.domain.model.Currency;
 import ru.julia.currencyexchange.domain.model.CurrencyConversion;
@@ -22,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class CurrencyConvertService {
     private final CurrencyExchangeService currencyExchangeService;
     private final UserService userService;
+    private final SettingsService settingsService;
     private final CurrencyEmojiUtils currencyEmojiUtils;
     private final CurrencyFormatUtils currencyFormatUtils;
     private final MessageConverter messageConverter;
@@ -31,11 +33,13 @@ public class CurrencyConvertService {
 
     public CurrencyConvertService(CurrencyExchangeService currencyExchangeService,
                                   UserService userService,
+                                  SettingsService settingsService,
                                   CurrencyEmojiUtils currencyEmojiUtils,
                                   CurrencyFormatUtils currencyFormatUtils,
                                   MessageConverter messageConverter) {
         this.currencyExchangeService = currencyExchangeService;
         this.userService = userService;
+        this.settingsService = settingsService;
         this.currencyEmojiUtils = currencyEmojiUtils;
         this.currencyFormatUtils = currencyFormatUtils;
         this.messageConverter = messageConverter;
@@ -71,6 +75,7 @@ public class CurrencyConvertService {
     public String buildConversionMessage(CurrencyConversion conversion) {
         Currency fromCurrency = conversion.getSourceCurrency();
         Currency toCurrency = conversion.getTargetCurrency();
+        double feePercent = settingsService.getGlobalConversionFeePercent();
 
         String message = messageConverter.resolve("command.convert.result.title") + Constants.LINE_SEPARATOR +
                 Constants.LINE_SEPARATOR +
@@ -99,8 +104,15 @@ public class CurrencyConvertService {
                         Map.of("amount", currencyFormatUtils.formatAmount(conversion.getAmount()),
                                 "from_code", fromCurrency.getCode(),
                                 "result", currencyFormatUtils.formatAmount(conversion.getConvertedAmount()),
-                                "to_code", toCurrency.getCode())) +
-                Constants.LINE_SEPARATOR +
+                                "to_code", toCurrency.getCode()));
+
+        if (feePercent > 0) {
+            message += Constants.LINE_SEPARATOR +
+                    messageConverter.resolve("command.convert.result.fee",
+                            Map.of("fee", String.valueOf(feePercent)));
+        }
+
+        message += Constants.LINE_SEPARATOR +
                 Constants.LINE_SEPARATOR +
                 messageConverter.resolve("command.convert.result.updated",
                         Map.of("date", fromCurrency.getLastUpdated().format(Constants.DATE_FORMATTER)));

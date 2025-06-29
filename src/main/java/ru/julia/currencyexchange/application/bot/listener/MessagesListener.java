@@ -81,6 +81,10 @@ public class MessagesListener implements UpdatesListener {
             return true;
         }
 
+        if (handleSetFeeCallback(update, callbackData)) {
+            return true;
+        }
+
         if (callbackData.startsWith("currency_to_rub_")) {
             return handleSimpleCallback(update,
                     () -> defaultMessages.getCurrencyToRubCallbackHandler().handleCallback(update));
@@ -190,6 +194,14 @@ public class MessagesListener implements UpdatesListener {
         if (callbackData.startsWith("ban_user_")) {
             return handleSimpleCallback(update,
                     () -> defaultMessages.getBanUserCallbackHandler().handleCallback(update));
+        }
+        return false;
+    }
+
+    private boolean handleSetFeeCallback(Update update, String callbackData) {
+        if (callbackData.startsWith("set_fee_")) {
+            return handleSimpleCallback(update,
+                    () -> defaultMessages.getSetFeeCallbackHandler().handleCallback(update));
         }
         return false;
     }
