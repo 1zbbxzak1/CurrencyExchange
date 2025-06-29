@@ -29,6 +29,10 @@ public class PaginationKeyboardBuilder {
                                                          PaginationConfig config) {
         int totalPages = (totalItems - 1) / itemsPerPage + 1;
 
+        if (totalPages <= 1) {
+            return null;
+        }
+
         InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
         InlineKeyboardButton[] buttons = new InlineKeyboardButton[2];
 
