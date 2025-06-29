@@ -58,8 +58,12 @@ public class UpdateRatesCommand extends AbstractCommandHandler {
     }
 
     private boolean validateUser(Long chatId) {
+        if (!userService.existsByChatId(chatId)) {
+            return false;
+        }
+        
         User user = userService.findUserByChatId(chatId);
-        return user != null && !user.isDeleted() && !user.isBanned();
+        return user != null && "ADMIN".equals(getUserRole(user)) && !user.isDeleted() && !user.isBanned();
     }
 
     @Override

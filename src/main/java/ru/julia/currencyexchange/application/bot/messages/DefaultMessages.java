@@ -17,6 +17,7 @@ import ru.julia.currencyexchange.infrastructure.bot.command.handler.FindByDateCa
 import ru.julia.currencyexchange.infrastructure.bot.command.handler.HistoryCallbackHandler;
 import ru.julia.currencyexchange.infrastructure.bot.command.interfaces.BotCommandHandler;
 import ru.julia.currencyexchange.infrastructure.bot.command.handler.UsersCallbackHandler;
+import ru.julia.currencyexchange.infrastructure.bot.command.handler.BanUserCallbackHandler;
 
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,7 @@ public class DefaultMessages {
     private final FindByDateCallbackHandler findByDateCallbackHandler;
     private final DeleteAccountCallbackHandler deleteAccountCallbackHandler;
     private final UsersCallbackHandler usersCallbackHandler;
+    private final BanUserCallbackHandler banUserCallbackHandler;
 
     public DefaultMessages(MessageConverter messageConverter,
                            RegistrationStateService registrationStateService,
@@ -46,7 +48,8 @@ public class DefaultMessages {
                            HistoryCallbackHandler historyCallbackHandler,
                            FindByDateCallbackHandler findByDateCallbackHandler,
                            DeleteAccountCallbackHandler deleteAccountCallbackHandler,
-                           UsersCallbackHandler usersCallbackHandler) {
+                           UsersCallbackHandler usersCallbackHandler,
+                           BanUserCallbackHandler banUserCallbackHandler) {
         this.messageConverter = messageConverter;
         this.registrationStateService = registrationStateService;
         this.userService = userService;
@@ -58,6 +61,7 @@ public class DefaultMessages {
         this.findByDateCallbackHandler = findByDateCallbackHandler;
         this.deleteAccountCallbackHandler = deleteAccountCallbackHandler;
         this.usersCallbackHandler = usersCallbackHandler;
+        this.banUserCallbackHandler = banUserCallbackHandler;
     }
 
     public CurrenciesCommand getCurrenciesCommand() {
@@ -86,6 +90,10 @@ public class DefaultMessages {
 
     public UsersCallbackHandler getUsersCallbackHandler() {
         return usersCallbackHandler;
+    }
+
+    public BanUserCallbackHandler getBanUserCallbackHandler() {
+        return banUserCallbackHandler;
     }
 
     public SendMessage sendMessage(Update update) {

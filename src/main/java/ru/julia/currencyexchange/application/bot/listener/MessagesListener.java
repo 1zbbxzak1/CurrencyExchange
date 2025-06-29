@@ -77,6 +77,10 @@ public class MessagesListener implements UpdatesListener {
             return true;
         }
 
+        if (handleBanUserCallback(update, callbackData)) {
+            return true;
+        }
+
         if (callbackData.startsWith("currency_to_rub_")) {
             return handleSimpleCallback(update,
                     () -> defaultMessages.getCurrencyToRubCallbackHandler().handleCallback(update));
@@ -178,6 +182,14 @@ public class MessagesListener implements UpdatesListener {
             } catch (NumberFormatException e) {
                 // Игнорируем некорректные callback'и
             }
+        }
+        return false;
+    }
+
+    private boolean handleBanUserCallback(Update update, String callbackData) {
+        if (callbackData.startsWith("ban_user_")) {
+            return handleSimpleCallback(update,
+                    () -> defaultMessages.getBanUserCallbackHandler().handleCallback(update));
         }
         return false;
     }

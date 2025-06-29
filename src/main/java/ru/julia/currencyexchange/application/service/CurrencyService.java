@@ -84,11 +84,14 @@ public class CurrencyService {
 
             BigDecimal exchangeRate = calculateExchangeRate(rate);
 
-            Currency currency = currencyRepository.findByCode(code)
-                    .orElse(new Currency(code, currencyName, exchangeRate));
-
-            currency.setExchangeRate(exchangeRate);
-            currency.setName(currencyName);
+            Currency currency = currencyRepository.findByCode(code).orElse(null);
+            
+            if (currency == null) {
+                currency = new Currency(code, currencyName, exchangeRate);
+            } else {
+                currency.setExchangeRate(exchangeRate);
+                currency.setName(currencyName);
+            }
 
             try {
                 currencyRepository.save(currency);
