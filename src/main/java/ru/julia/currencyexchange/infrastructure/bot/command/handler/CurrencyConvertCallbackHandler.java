@@ -7,6 +7,7 @@ import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.EditMessageText;
 import org.springframework.stereotype.Component;
 import ru.julia.currencyexchange.application.bot.messages.converter.interfaces.MessageConverter;
+import ru.julia.currencyexchange.application.bot.settings.enums.ConversionState;
 import ru.julia.currencyexchange.application.service.bot.CurrencyConvertService;
 import ru.julia.currencyexchange.domain.model.Currency;
 import ru.julia.currencyexchange.infrastructure.bot.command.builder.CurrencyConvertKeyboardBuilder;
@@ -139,7 +140,12 @@ public class CurrencyConvertCallbackHandler {
         String amountStr = parts[2];
 
         try {
+            if (!currencyConvertService.isValidAmount(amountStr)) {
+                return createErrorMessage(callbackQuery, messageConverter.resolve("command.convert.invalid_amount"));
+            }
+
             return performCurrencyConversion(callbackQuery, fromCurrency, toCurrency, amountStr);
+
         } catch (Exception e) {
             return createErrorMessage(callbackQuery, messageConverter.resolve("command.convert.errors.conversion_failed"));
         }
@@ -153,6 +159,10 @@ public class CurrencyConvertCallbackHandler {
 
         String fromCurrency = parts[0];
         String toCurrency = parts[1];
+
+        currencyConvertService.setState(callbackQuery.message().chat().id(), ConversionState.WAITING_AMOUNT);
+        currencyConvertService.setData(callbackQuery.message().chat().id(), fromCurrency, toCurrency);
+
         String messageText = buildConversionTitleMessage(fromCurrency, toCurrency) +
                 Constants.LINE_SEPARATOR +
                 Constants.LINE_SEPARATOR +
@@ -181,22 +191,6 @@ public class CurrencyConvertCallbackHandler {
                 Map.of("from", fromCurrency, "to", toCurrency));
     }
 
-    private EditMessageText createEditMessage(CallbackQuery callbackQuery,
-                                              String messageText,
-                                              InlineKeyboardMarkup keyboard) {
-        EditMessageText editMessage = new EditMessageText(
-                callbackQuery.message().chat().id(),
-                callbackQuery.message().messageId(),
-                messageText
-        ).parseMode(ParseMode.Markdown);
-
-        if (keyboard != null) {
-            editMessage.replyMarkup(keyboard);
-        }
-
-        return editMessage;
-    }
-
     private boolean isValidAmountData(String[] parts) {
         return parts.length == 3;
     }
@@ -211,6 +205,22 @@ public class CurrencyConvertCallbackHandler {
         var keyboard = keyboardBuilder.buildBackKeyboard();
 
         return createEditMessage(callbackQuery, messageText, keyboard);
+    }
+
+    private EditMessageText createEditMessage(CallbackQuery callbackQuery,
+                                              String messageText,
+                                              InlineKeyboardMarkup keyboard) {
+        EditMessageText editMessage = new EditMessageText(
+                callbackQuery.message().chat().id(),
+                callbackQuery.message().messageId(),
+                messageText
+        ).parseMode(ParseMode.Markdown);
+
+        if (keyboard != null) {
+            editMessage.replyMarkup(keyboard);
+        }
+
+        return editMessage;
     }
 
     private String extractFromCurrency(String text) {

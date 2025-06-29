@@ -2,6 +2,7 @@ package ru.julia.currencyexchange.application.service.bot;
 
 import org.springframework.stereotype.Service;
 import ru.julia.currencyexchange.application.bot.messages.converter.interfaces.MessageConverter;
+import ru.julia.currencyexchange.application.bot.settings.enums.ConversionState;
 import ru.julia.currencyexchange.application.service.CurrencyExchangeService;
 import ru.julia.currencyexchange.domain.model.Currency;
 import ru.julia.currencyexchange.infrastructure.bot.command.utils.CurrencyEmojiUtils;
@@ -12,6 +13,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class CurrencyConvertService {
@@ -19,6 +21,9 @@ public class CurrencyConvertService {
     private final CurrencyEmojiUtils currencyEmojiUtils;
     private final CurrencyFormatUtils currencyFormatUtils;
     private final MessageConverter messageConverter;
+
+    private final Map<Long, ConversionState> userStates = new ConcurrentHashMap<>();
+    private final Map<Long, ConversionData> userData = new ConcurrentHashMap<>();
 
     public CurrencyConvertService(CurrencyExchangeService currencyExchangeService,
                                   CurrencyEmojiUtils currencyEmojiUtils,
@@ -120,5 +125,29 @@ public class CurrencyConvertService {
 
     public BigDecimal parseAmount(String amountStr) {
         return new BigDecimal(amountStr.replace(",", "."));
+    }
+
+    public ConversionState getState(Long chatId) {
+        return userStates.getOrDefault(chatId, ConversionState.NONE);
+    }
+
+    public void setState(Long chatId, ConversionState state) {
+        userStates.put(chatId, state);
+    }
+
+    public void setData(Long chatId, String fromCurrency, String toCurrency) {
+        userData.put(chatId, new ConversionData(fromCurrency, toCurrency));
+    }
+
+    public ConversionData getData(Long chatId) {
+        return userData.get(chatId);
+    }
+
+    public void clearData(Long chatId) {
+        userStates.remove(chatId);
+        userData.remove(chatId);
+    }
+    
+    public record ConversionData(String fromCurrency, String toCurrency) {
     }
 } 
