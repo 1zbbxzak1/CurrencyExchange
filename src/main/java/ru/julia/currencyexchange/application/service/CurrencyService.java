@@ -46,7 +46,7 @@ public class CurrencyService {
         }
     }
 
-    private String fetchCurrencyRatesXml() {
+    String fetchCurrencyRatesXml() {
         try {
             return restTemplate.getForObject(CBR_URL, String.class);
         } catch (RestClientException e) {
@@ -54,7 +54,7 @@ public class CurrencyService {
         }
     }
 
-    private Map<String, CurrencyRate> parseCurrencyRates(String xmlResponse) {
+    Map<String, CurrencyRate> parseCurrencyRates(String xmlResponse) {
         try {
             XmlMapper xmlMapper = new XmlMapper();
             CurrencyRatesList ratesList = xmlMapper.readValue(xmlResponse, CurrencyRatesList.class);
@@ -72,7 +72,7 @@ public class CurrencyService {
         }
     }
 
-    private void saveCurrencyRates(Map<String, CurrencyRate> rates) {
+    void saveCurrencyRates(Map<String, CurrencyRate> rates) {
         for (Map.Entry<String, CurrencyRate> entry : rates.entrySet()) {
             String code = entry.getKey();
             CurrencyRate rate = entry.getValue();
@@ -85,7 +85,7 @@ public class CurrencyService {
             BigDecimal exchangeRate = calculateExchangeRate(rate);
 
             Currency currency = currencyRepository.findByCode(code).orElse(null);
-            
+
             if (currency == null) {
                 currency = new Currency(code, currencyName, exchangeRate);
             } else {
