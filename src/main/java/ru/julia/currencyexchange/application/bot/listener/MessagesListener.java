@@ -39,6 +39,7 @@ public class MessagesListener implements UpdatesListener {
                     executor.execute(sendMessage);
                 }
             } catch (Exception e) {
+
             }
         });
 
@@ -58,6 +59,10 @@ public class MessagesListener implements UpdatesListener {
 
         if (handlePaginationCallback(update, callbackData, "history_page_",
                 page -> defaultMessages.getHistoryCallbackHandler().handleCallback(update, page))) {
+            return true;
+        }
+
+        if (handleFindByDatePaginationCallback(update, callbackData)) {
             return true;
         }
 
@@ -92,6 +97,29 @@ public class MessagesListener implements UpdatesListener {
         return false;
     }
 
+    private boolean handleFindByDatePaginationCallback(Update update, String callbackData) {
+        if (callbackData.startsWith("findByDate_page_")) {
+            try {
+                String[] parts = callbackData.substring("findByDate_page_".length()).split("_");
+                if (parts.length >= 4) {
+                    String dateStr = parts[0] + "-" + parts[1] + "-" + parts[2];
+                    int page = Integer.parseInt(parts[3]);
+
+                    EditMessageText editMessage = defaultMessages.getFindByDateCallbackHandler()
+                            .handleCallback(update, page, dateStr);
+                    if (editMessage != null && editMessage.getParameters() != null) {
+                        editMessage.parseMode(ParseMode.Markdown);
+                        executor.execute(editMessage);
+                    }
+                    return true;
+                }
+            } catch (NumberFormatException e) {
+                // Игнорируем некорректные callback'и
+            }
+        }
+        return false;
+    }
+
     private boolean handleSimpleCallback(Update update, Supplier<EditMessageText> callbackHandler) {
         try {
             EditMessageText editMessage = callbackHandler.get();
@@ -101,8 +129,6 @@ public class MessagesListener implements UpdatesListener {
             }
             return true;
         } catch (Exception e) {
-            System.err.println("Error handling simple callback: " + e.getMessage());
-            e.printStackTrace();
             return false;
         }
     }

@@ -25,10 +25,29 @@ public class HistoryMessageBuilder {
     }
 
     public String buildHistoryMessage(List<CurrencyConversion> conversions, int page, boolean useCompactFormat, int conversionsPerPage) {
+        return buildConversionMessage(conversions, page, useCompactFormat, conversionsPerPage, 
+                "command.history.title", "command.history.subtitle", null, 
+                "command.history.pagination");
+    }
+
+    public String buildFindByDateMessage(List<CurrencyConversion> conversions, int page, boolean useCompactFormat, int conversionsPerPage, String dateStr) {
+        String formattedDate = formatDate(dateStr);
+        return buildConversionMessage(conversions, page, useCompactFormat, conversionsPerPage, 
+                "command.findByDate.title", "command.findByDate.subtitle", formattedDate, 
+                "command.findByDate.pagination");
+    }
+
+    private String buildConversionMessage(List<CurrencyConversion> conversions, int page, boolean useCompactFormat, int conversionsPerPage,
+                                        String titleKey, String subtitleKey, String dateParam, String paginationKey) {
         StringBuilder message = new StringBuilder();
 
-        message.append(messageConverter.resolve("command.history.title")).append(Constants.LINE_SEPARATOR);
-        message.append(messageConverter.resolve("command.history.subtitle")).append(Constants.LINE_SEPARATOR);
+        message.append(messageConverter.resolve(titleKey)).append(Constants.LINE_SEPARATOR);
+        
+        if (dateParam != null) {
+            message.append(messageConverter.resolve(subtitleKey, Map.of("date", dateParam))).append(Constants.LINE_SEPARATOR);
+        } else {
+            message.append(messageConverter.resolve(subtitleKey)).append(Constants.LINE_SEPARATOR);
+        }
         message.append(Constants.LINE_SEPARATOR);
 
         int startIndex = page * conversionsPerPage;
@@ -70,15 +89,20 @@ public class HistoryMessageBuilder {
         }
 
         message.append(Constants.LINE_SEPARATOR).append(Constants.LINE_SEPARATOR);
-        message.append(messageConverter.resolve("command.history.pagination.page_info",
+        message.append(messageConverter.resolve(paginationKey + ".page_info",
                 Map.of("current", String.valueOf(page + 1), "total", String.valueOf(totalPages))));
-        message.append(" | ").append(messageConverter.resolve("command.history.pagination.total_conversions",
+        message.append(" | ").append(messageConverter.resolve(paginationKey + ".total_conversions",
                 Map.of("count", String.valueOf(conversions.size()))));
 
         if (useCompactFormat) {
-            message.append(" | ").append(messageConverter.resolve("command.history.pagination.compact_mode"));
+            message.append(" | ").append(messageConverter.resolve(paginationKey + ".compact_mode"));
         }
 
         return message.toString();
+    }
+
+    private String formatDate(String dateStr) {
+        java.time.LocalDate date = java.time.LocalDate.parse(dateStr);
+        return date.format(java.time.format.DateTimeFormatter.ofPattern("dd.MM.yyyy"));
     }
 } 

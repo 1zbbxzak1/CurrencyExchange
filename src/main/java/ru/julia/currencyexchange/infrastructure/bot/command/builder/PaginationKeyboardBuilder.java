@@ -66,6 +66,21 @@ public class PaginationKeyboardBuilder {
         return buildPaginationKeyboard(totalConversions, currentPage, conversionsPerPage, config);
     }
 
+    public InlineKeyboardMarkup buildFindByDatePaginationKeyboard(int totalConversions,
+                                                                  int currentPage,
+                                                                  int conversionsPerPage,
+                                                                  String dateStr) {
+        String[] dateParts = dateStr.split("-");
+        String callbackDateStr = dateParts[0] + "_" + dateParts[1] + "_" + dateParts[2];
+
+        PaginationConfig config = new PaginationConfig(
+                "command.findByDate.pagination",
+                "findByDate_page_" + callbackDateStr + "_"
+        );
+
+        return buildPaginationKeyboard(totalConversions, currentPage, conversionsPerPage, config);
+    }
+
     private record PaginationConfig(String messagePrefix, String callbackPrefix) {
     }
 } 

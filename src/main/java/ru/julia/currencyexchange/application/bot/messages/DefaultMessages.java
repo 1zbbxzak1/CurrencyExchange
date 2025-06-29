@@ -9,14 +9,10 @@ import ru.julia.currencyexchange.application.service.UserService;
 import ru.julia.currencyexchange.application.service.bot.RegistrationStateService;
 import ru.julia.currencyexchange.domain.model.User;
 import ru.julia.currencyexchange.infrastructure.bot.command.CurrenciesCommand;
-import ru.julia.currencyexchange.infrastructure.bot.command.CurrencyToRubCommand;
-import ru.julia.currencyexchange.infrastructure.bot.command.ConvertCommand;
-import ru.julia.currencyexchange.infrastructure.bot.command.HelpCommand;
-import ru.julia.currencyexchange.infrastructure.bot.command.HistoryCommand;
 import ru.julia.currencyexchange.infrastructure.bot.command.RegisterCommand;
-import ru.julia.currencyexchange.infrastructure.bot.command.StartCommand;
-import ru.julia.currencyexchange.infrastructure.bot.command.handler.CurrencyToRubCallbackHandler;
 import ru.julia.currencyexchange.infrastructure.bot.command.handler.CurrencyConvertCallbackHandler;
+import ru.julia.currencyexchange.infrastructure.bot.command.handler.CurrencyToRubCallbackHandler;
+import ru.julia.currencyexchange.infrastructure.bot.command.handler.FindByDateCallbackHandler;
 import ru.julia.currencyexchange.infrastructure.bot.command.handler.HistoryCallbackHandler;
 import ru.julia.currencyexchange.infrastructure.bot.command.interfaces.BotCommandHandler;
 
@@ -34,6 +30,7 @@ public class DefaultMessages {
     private final CurrencyToRubCallbackHandler currencyToRubCallbackHandler;
     private final CurrencyConvertCallbackHandler currencyConvertCallbackHandler;
     private final HistoryCallbackHandler historyCallbackHandler;
+    private final FindByDateCallbackHandler findByDateCallbackHandler;
 
     public DefaultMessages(MessageConverter messageConverter,
                            RegistrationStateService registrationStateService,
@@ -42,7 +39,8 @@ public class DefaultMessages {
                            CurrenciesCommand currenciesCommand,
                            CurrencyToRubCallbackHandler currencyToRubCallbackHandler,
                            CurrencyConvertCallbackHandler currencyConvertCallbackHandler,
-                           HistoryCallbackHandler historyCallbackHandler) {
+                           HistoryCallbackHandler historyCallbackHandler,
+                           FindByDateCallbackHandler findByDateCallbackHandler) {
         this.messageConverter = messageConverter;
         this.registrationStateService = registrationStateService;
         this.userService = userService;
@@ -51,6 +49,7 @@ public class DefaultMessages {
         this.currencyToRubCallbackHandler = currencyToRubCallbackHandler;
         this.currencyConvertCallbackHandler = currencyConvertCallbackHandler;
         this.historyCallbackHandler = historyCallbackHandler;
+        this.findByDateCallbackHandler = findByDateCallbackHandler;
     }
 
     public CurrenciesCommand getCurrenciesCommand() {
@@ -67,6 +66,10 @@ public class DefaultMessages {
 
     public HistoryCallbackHandler getHistoryCallbackHandler() {
         return historyCallbackHandler;
+    }
+
+    public FindByDateCallbackHandler getFindByDateCallbackHandler() {
+        return findByDateCallbackHandler;
     }
 
     public SendMessage sendMessage(Update update) {
