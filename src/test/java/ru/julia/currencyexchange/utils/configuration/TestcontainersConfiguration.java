@@ -8,6 +8,11 @@ import org.testcontainers.containers.PostgreSQLContainer;
 @TestConfiguration(proxyBeanMethods = false)
 public class TestcontainersConfiguration {
     @Bean
+    public DatabaseCleaner databaseCleaner() {
+        return new DatabaseCleaner();
+    }
+
+    @Bean
     @ServiceConnection
     PostgreSQLContainer<?> postgresContainer() {
         return new PostgreSQLContainer<>("postgres:17-alpine")
