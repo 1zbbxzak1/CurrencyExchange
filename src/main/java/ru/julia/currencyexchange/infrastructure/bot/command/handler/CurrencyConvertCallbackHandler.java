@@ -10,6 +10,7 @@ import ru.julia.currencyexchange.application.bot.messages.converter.interfaces.M
 import ru.julia.currencyexchange.application.bot.settings.enums.ConversionState;
 import ru.julia.currencyexchange.application.service.bot.CurrencyConvertService;
 import ru.julia.currencyexchange.domain.model.Currency;
+import ru.julia.currencyexchange.domain.model.CurrencyConversion;
 import ru.julia.currencyexchange.infrastructure.bot.command.builder.CurrencyConvertKeyboardBuilder;
 import ru.julia.currencyexchange.infrastructure.configuration.Constants;
 
@@ -199,12 +200,21 @@ public class CurrencyConvertCallbackHandler {
                                                       String fromCurrency,
                                                       String toCurrency,
                                                       String amountStr) {
-        BigDecimal amount = currencyConvertService.parseAmount(amountStr);
-        BigDecimal result = currencyConvertService.convertCurrency(fromCurrency, toCurrency, amount);
-        String messageText = currencyConvertService.buildConversionMessage(fromCurrency, toCurrency, amount, result);
-        var keyboard = keyboardBuilder.buildBackKeyboard();
+        try {
+            BigDecimal amount = currencyConvertService.parseAmount(amountStr);
+            CurrencyConversion conversion = currencyConvertService.convertCurrency(
+                callbackQuery.message().chat().id(), 
+                fromCurrency, 
+                toCurrency, 
+                amount
+            );
+            String messageText = currencyConvertService.buildConversionMessage(conversion);
+            var keyboard = keyboardBuilder.buildBackKeyboard();
 
-        return createEditMessage(callbackQuery, messageText, keyboard);
+            return createEditMessage(callbackQuery, messageText, keyboard);
+        } catch (Exception e) {
+            return createErrorMessage(callbackQuery, messageConverter.resolve("command.convert.errors.conversion_failed"));
+        }
     }
 
     private EditMessageText createEditMessage(CallbackQuery callbackQuery,

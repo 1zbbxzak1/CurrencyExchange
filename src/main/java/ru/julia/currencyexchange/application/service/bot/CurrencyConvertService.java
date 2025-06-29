@@ -4,7 +4,10 @@ import org.springframework.stereotype.Service;
 import ru.julia.currencyexchange.application.bot.messages.converter.interfaces.MessageConverter;
 import ru.julia.currencyexchange.application.bot.settings.enums.ConversionState;
 import ru.julia.currencyexchange.application.service.CurrencyExchangeService;
+import ru.julia.currencyexchange.application.service.UserService;
 import ru.julia.currencyexchange.domain.model.Currency;
+import ru.julia.currencyexchange.domain.model.CurrencyConversion;
+import ru.julia.currencyexchange.domain.model.User;
 import ru.julia.currencyexchange.infrastructure.bot.command.utils.CurrencyEmojiUtils;
 import ru.julia.currencyexchange.infrastructure.bot.command.utils.CurrencyFormatUtils;
 import ru.julia.currencyexchange.infrastructure.configuration.Constants;
@@ -18,18 +21,21 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class CurrencyConvertService {
     private final CurrencyExchangeService currencyExchangeService;
+    private final UserService userService;
     private final CurrencyEmojiUtils currencyEmojiUtils;
     private final CurrencyFormatUtils currencyFormatUtils;
     private final MessageConverter messageConverter;
-
+    
     private final Map<Long, ConversionState> userStates = new ConcurrentHashMap<>();
     private final Map<Long, ConversionData> userData = new ConcurrentHashMap<>();
 
     public CurrencyConvertService(CurrencyExchangeService currencyExchangeService,
+                                  UserService userService,
                                   CurrencyEmojiUtils currencyEmojiUtils,
                                   CurrencyFormatUtils currencyFormatUtils,
                                   MessageConverter messageConverter) {
         this.currencyExchangeService = currencyExchangeService;
+        this.userService = userService;
         this.currencyEmojiUtils = currencyEmojiUtils;
         this.currencyFormatUtils = currencyFormatUtils;
         this.messageConverter = messageConverter;
@@ -49,30 +55,22 @@ public class CurrencyConvertService {
                 .toList();
     }
 
-    public BigDecimal convertCurrency(String fromCurrencyCode, String toCurrencyCode, BigDecimal amount) {
-        Currency fromCurrency = getCurrencyByCode(fromCurrencyCode);
-        Currency toCurrency = getCurrencyByCode(toCurrencyCode);
+    public CurrencyConversion convertCurrency(Long chatId, String fromCurrencyCode, String toCurrencyCode, BigDecimal amount) {
+        User user = userService.findUserByChatId(chatId);
+        if (user == null) {
+            throw new IllegalArgumentException(messageConverter.resolve("command.convert.validation.user_not_found"));
+        }
 
-        validateCurrencies(fromCurrency, toCurrency);
-
-        BigDecimal amountInRub = amount.multiply(fromCurrency.getExchangeRate());
-        return amountInRub.divide(toCurrency.getExchangeRate(), Constants.CONVERSION_SCALE, RoundingMode.HALF_UP);
+        return currencyExchangeService.convert(user.getId().toString(), fromCurrencyCode, toCurrencyCode, amount);
     }
 
     public Currency getCurrencyByCode(String currencyCode) {
         return currencyExchangeService.getCurrencyByCode(currencyCode);
     }
 
-    private void validateCurrencies(Currency fromCurrency, Currency toCurrency) {
-        if (fromCurrency == null || toCurrency == null) {
-            throw new IllegalArgumentException(messageConverter.resolve("command.convert.validation.currency_not_found"));
-        }
-    }
-
-    public String buildConversionMessage(String fromCurrencyCode, String toCurrencyCode,
-                                         BigDecimal amount, BigDecimal result) {
-        Currency fromCurrency = getCurrencyByCode(fromCurrencyCode);
-        Currency toCurrency = getCurrencyByCode(toCurrencyCode);
+    public String buildConversionMessage(CurrencyConversion conversion) {
+        Currency fromCurrency = conversion.getSourceCurrency();
+        Currency toCurrency = conversion.getTargetCurrency();
 
         String message = messageConverter.resolve("command.convert.result.title") + Constants.LINE_SEPARATOR +
                 Constants.LINE_SEPARATOR +
@@ -82,7 +80,7 @@ public class CurrencyConvertService {
                                 "name", fromCurrency.getName())) +
                 Constants.LINE_SEPARATOR +
                 messageConverter.resolve("command.convert.result.amount",
-                        Map.of("amount", currencyFormatUtils.formatAmount(amount),
+                        Map.of("amount", currencyFormatUtils.formatAmount(conversion.getAmount()),
                                 "code", fromCurrency.getCode(),
                                 "rate", currencyFormatUtils.formatExchangeRate(fromCurrency.getExchangeRate()))) +
                 Constants.LINE_SEPARATOR +
@@ -98,9 +96,9 @@ public class CurrencyConvertService {
                 Constants.LINE_SEPARATOR +
                 Constants.LINE_SEPARATOR +
                 messageConverter.resolve("command.convert.result.result",
-                        Map.of("amount", currencyFormatUtils.formatAmount(amount),
+                        Map.of("amount", currencyFormatUtils.formatAmount(conversion.getAmount()),
                                 "from_code", fromCurrency.getCode(),
-                                "result", currencyFormatUtils.formatAmount(result),
+                                "result", currencyFormatUtils.formatAmount(conversion.getConvertedAmount()),
                                 "to_code", toCurrency.getCode())) +
                 Constants.LINE_SEPARATOR +
                 Constants.LINE_SEPARATOR +
@@ -147,7 +145,7 @@ public class CurrencyConvertService {
         userStates.remove(chatId);
         userData.remove(chatId);
     }
-    
+
     public record ConversionData(String fromCurrency, String toCurrency) {
     }
 } 

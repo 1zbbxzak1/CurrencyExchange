@@ -10,6 +10,7 @@ import ru.julia.currencyexchange.application.bot.settings.enums.ConversionState;
 import ru.julia.currencyexchange.application.service.UserService;
 import ru.julia.currencyexchange.application.service.bot.CurrencyConvertService;
 import ru.julia.currencyexchange.domain.model.Currency;
+import ru.julia.currencyexchange.domain.model.CurrencyConversion;
 import ru.julia.currencyexchange.domain.model.User;
 import ru.julia.currencyexchange.infrastructure.bot.command.abstracts.AbstractCommandHandler;
 import ru.julia.currencyexchange.infrastructure.bot.command.builder.CurrencyConvertKeyboardBuilder;
@@ -96,43 +97,40 @@ public class ConvertCommand extends AbstractCommandHandler {
     private SendMessage handleAmountInput(Long chatId, String amountText) {
         try {
             if (!currencyConvertService.isValidAmount(amountText.trim())) {
-                return new SendMessage(chatId,
-                        messageConverter.resolve("command.convert.invalid_amount"));
+                return new SendMessage(chatId, 
+                    messageConverter.resolve("command.convert.invalid_amount"));
             }
 
             CurrencyConvertService.ConversionData data = currencyConvertService.getData(chatId);
             if (data == null) {
                 currencyConvertService.clearData(chatId);
-                return new SendMessage(chatId,
-                        messageConverter.resolve("command.convert.errors.general"));
+                return new SendMessage(chatId, 
+                    messageConverter.resolve("command.convert.errors.general"));
             }
 
+            // Выполняем конвертацию с сохранением в историю
             BigDecimal amount = currencyConvertService.parseAmount(amountText.trim());
-            BigDecimal result = currencyConvertService.convertCurrency(
-                    data.fromCurrency(),
-                    data.toCurrency(),
-                    amount
+            CurrencyConversion conversion = currencyConvertService.convertCurrency(
+                chatId,
+                data.fromCurrency(), 
+                data.toCurrency(), 
+                amount
             );
-
-            String messageText = currencyConvertService.buildConversionMessage(
-                    data.fromCurrency(),
-                    data.toCurrency(),
-                    amount,
-                    result
-            );
+            
+            String messageText = currencyConvertService.buildConversionMessage(conversion);
 
             SendMessage response = new SendMessage(chatId, messageText)
-                    .parseMode(ParseMode.Markdown)
-                    .replyMarkup(keyboardBuilder.buildBackKeyboard());
-
+                .parseMode(ParseMode.Markdown)
+                .replyMarkup(keyboardBuilder.buildBackKeyboard());
+            
             currencyConvertService.clearData(chatId);
-
+            
             return response;
-
+            
         } catch (Exception e) {
             currencyConvertService.clearData(chatId);
-            return new SendMessage(chatId,
-                    messageConverter.resolve("command.convert.errors.conversion_failed"));
+            return new SendMessage(chatId, 
+                messageConverter.resolve("command.convert.errors.conversion_failed"));
         }
     }
 
@@ -156,8 +154,8 @@ public class ConvertCommand extends AbstractCommandHandler {
 
         try {
             BigDecimal amount = currencyConvertService.parseAmount(amountStr);
-            BigDecimal result = currencyConvertService.convertCurrency(fromCurrency, toCurrency, amount);
-            String messageText = currencyConvertService.buildConversionMessage(fromCurrency, toCurrency, amount, result);
+            CurrencyConversion conversion = currencyConvertService.convertCurrency(chatId, fromCurrency, toCurrency, amount);
+            String messageText = currencyConvertService.buildConversionMessage(conversion);
 
             return createMessageWithKeyboard(chatId, messageText, keyboardBuilder.buildBackKeyboard());
 
