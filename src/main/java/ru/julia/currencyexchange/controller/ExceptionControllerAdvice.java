@@ -1,152 +1,126 @@
 package ru.julia.currencyexchange.controller;
 
+import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.julia.currencyexchange.application.dto.common.ApiResponseDto;
 import ru.julia.currencyexchange.application.exceptions.*;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class ExceptionControllerAdvice {
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ApiResponseDto<String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        String message = ex.getBindingResult().getFieldErrors().stream()
+                .map(FieldError::getDefaultMessage)
+                .collect(Collectors.joining(", "));
+        
+        return ResponseEntity.badRequest().body(ApiResponseDto.error(message, 400));
+    }
+
+    @ExceptionHandler(InvalidParameterException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ApiResponseDto<String>> handleInvalidParameterException(InvalidParameterException ex) {
+        return ResponseEntity.badRequest().body(ApiResponseDto.error(ex.getMessage(), 400));
+    }
+
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleConstraintViolation(ConstraintViolationException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getConstraintViolations().forEach(
-                violation -> errors.put("message", violation.getMessage())
-        );
-        return errors;
+    public ResponseEntity<ApiResponseDto<String>> handleConstraintViolation(ConstraintViolationException ex) {
+        String message = ex.getConstraintViolations().stream()
+                .findFirst()
+                .map(ConstraintViolation::getMessage)
+                .orElse("Ошибка валидации");
+        
+        return ResponseEntity.badRequest().body(ApiResponseDto.error(message, 400));
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleMissingParams(MissingServletRequestParameterException ex) {
-        Map<String, String> error = new HashMap<>();
+    public ResponseEntity<ApiResponseDto<String>> handleMissingParams(MissingServletRequestParameterException ex) {
+        String message;
         switch (ex.getParameterName()) {
-            case "username" -> error.put("message", "Username is required");
-            case "password" -> error.put("message", "Password is required");
-            case "preferredCurrency" -> error.put("message", "Preferred currency is required");
-            default -> error.put("message", ex.getParameterName() + " is required");
+            case "username" -> message = "Username is required";
+            case "password" -> message = "Password is required";
+            case "preferredCurrency" -> message = "Preferred currency is required";
+            default -> message = ex.getParameterName() + " is required";
         }
-        return error;
+        
+        return ResponseEntity.badRequest().body(ApiResponseDto.error(message, 400));
     }
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<Object> handleUserNotFoundException(UserNotFoundException ex) {
-        return new ResponseEntity<>(createErrorBody(
-                HttpStatus.NOT_FOUND,
-                "User Not Found",
-                ex.getMessage(),
-                "USER_NOT_FOUND"
-        ), HttpStatus.NOT_FOUND);
-    }
-
-    private Map<String, Object> createErrorBody(HttpStatus status, String error, String message, String errorCode) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", status.value());
-        body.put("error", error);
-        body.put("message", message);
-        body.put("errorCode", errorCode);
-        return body;
+    public ResponseEntity<ApiResponseDto<String>> handleUserNotFoundException(UserNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponseDto.error(ex.getMessage(), 404));
     }
 
     @ExceptionHandler(UserCreationException.class)
-    public ResponseEntity<Object> handleUserCreationException(UserCreationException ex) {
-        return new ResponseEntity<>(createErrorBody(
-                HttpStatus.BAD_REQUEST,
-                "User Creation Failed",
-                ex.getMessage(),
-                "USER_CREATION_FAILED"
-        ), HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ApiResponseDto<String>> handleUserCreationException(UserCreationException ex) {
+        return ResponseEntity.badRequest()
+                .body(ApiResponseDto.error(ex.getMessage(), 400));
     }
 
     @ExceptionHandler(CurrencyNotFoundException.class)
-    public ResponseEntity<Object> handleCurrencyNotFound(CurrencyNotFoundException ex) {
-        return new ResponseEntity<>(createErrorBody(
-                HttpStatus.NOT_FOUND,
-                "Currency Not Found",
-                ex.getMessage(),
-                "CURRENCY_NOT_FOUND"
-        ), HttpStatus.NOT_FOUND);
+    public ResponseEntity<ApiResponseDto<String>> handleCurrencyNotFound(CurrencyNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponseDto.error(ex.getMessage(), 404));
     }
 
     @ExceptionHandler(CurrencyRateFetchException.class)
-    public ResponseEntity<Object> handleCurrencyRateFetchException(CurrencyRateFetchException ex) {
-        return new ResponseEntity<>(createErrorBody(
-                HttpStatus.SERVICE_UNAVAILABLE,
-                "Failed to Fetch Currency Rates",
-                ex.getMessage(),
-                "CURRENCY_RATE_FETCH_FAILED"
-        ), HttpStatus.SERVICE_UNAVAILABLE);
+    public ResponseEntity<ApiResponseDto<String>> handleCurrencyRateFetchException(CurrencyRateFetchException ex) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(ApiResponseDto.error(ex.getMessage(), 503));
     }
 
     @ExceptionHandler(CurrencyRateParsingException.class)
-    public ResponseEntity<Object> handleCurrencyRateParsingException(CurrencyRateParsingException ex) {
-        return new ResponseEntity<>(createErrorBody(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                "Currency Rate Parsing Error",
-                ex.getMessage(),
-                "CURRENCY_RATE_PARSING_ERROR"
-        ), HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<ApiResponseDto<String>> handleCurrencyRateParsingException(CurrencyRateParsingException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponseDto.error(ex.getMessage(), 500));
     }
 
     @ExceptionHandler(CurrencyRateSaveException.class)
-    public ResponseEntity<Object> handleCurrencyRateSaveException(CurrencyRateSaveException ex) {
-        return new ResponseEntity<>(createErrorBody(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                "Currency Save Error",
-                ex.getMessage(),
-                "CURRENCY_SAVE_FAILED"
-        ), HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<ApiResponseDto<String>> handleCurrencyRateSaveException(CurrencyRateSaveException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponseDto.error(ex.getMessage(), 500));
     }
 
     @ExceptionHandler(InvalidDateFormatException.class)
-    public ResponseEntity<Object> handleInvalidDateFormat(InvalidDateFormatException ex) {
-        return new ResponseEntity<>(createErrorBody(
-                HttpStatus.BAD_REQUEST,
-                "Invalid Date Format",
-                ex.getMessage() + ". Expected format: yyyy-MM-dd (e.g. 2024-12-31)",
-                "INVALID_DATE_FORMAT"
-        ), HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ApiResponseDto<String>> handleInvalidDateFormat(InvalidDateFormatException ex) {
+        String message = ex.getMessage() + ". Expected format: yyyy-MM-dd (e.g. 2024-12-31)";
+        return ResponseEntity.badRequest()
+                .body(ApiResponseDto.error(message, 400));
     }
 
     @ExceptionHandler(ArithmeticException.class)
-    public ResponseEntity<Object> handleArithmeticException(ArithmeticException ex) {
-        return new ResponseEntity<>(createErrorBody(
-                HttpStatus.BAD_REQUEST,
-                "Arithmetic Error in Currency Conversion",
-                "An error occurred during currency conversion: " + ex.getMessage(),
-                "CURRENCY_ARITHMETIC_ERROR"
-        ), HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ApiResponseDto<String>> handleArithmeticException(ArithmeticException ex) {
+        String message = "An error occurred during currency conversion: " + ex.getMessage();
+        return ResponseEntity.badRequest()
+                .body(ApiResponseDto.error(message, 400));
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<Object> handleDatabaseError(DataIntegrityViolationException ex) {
-        return new ResponseEntity<>(createErrorBody(
-                HttpStatus.BAD_REQUEST,
-                "Database Error",
-                ex.getMostSpecificCause().getMessage(),
-                "DATABASE_ERROR"
-        ), HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ApiResponseDto<String>> handleDatabaseError(DataIntegrityViolationException ex) {
+        String message = ex.getMostSpecificCause().getMessage();
+        return ResponseEntity.badRequest()
+                .body(ApiResponseDto.error(message, 400));
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Object> handleGenericException(Exception ex) {
-        return new ResponseEntity<>(createErrorBody(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                "Unexpected Error",
-                ex.getMessage() != null ? ex.getMessage() : "An unexpected error occurred",
-                "INTERNAL_ERROR"
-        ), HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<ApiResponseDto<String>> handleGenericException(Exception ex) {
+        String message = ex.getMessage() != null ? ex.getMessage() : "An unexpected error occurred";
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponseDto.error(message, 500));
     }
 }

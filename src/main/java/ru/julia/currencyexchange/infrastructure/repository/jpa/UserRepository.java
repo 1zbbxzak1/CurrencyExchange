@@ -9,15 +9,12 @@ import java.util.Optional;
 public interface UserRepository extends CrudRepository<User, String> {
     Boolean existsByUsername(String username);
 
-    @Query("""
-            SELECT u FROM User u 
-            LEFT JOIN FETCH u.roles r 
-            LEFT JOIN FETCH r.role 
-            WHERE u.username = :username
-            """)
-    Optional<User> findByUsernameWithRoles(String username);
-
-    Optional<User> findByUsername(String username);
+    Boolean existsByChatId(Long chatId);
 
     Optional<User> findByEmail(String email);
+
+    Optional<User> findByChatId(Long chatId);
+
+    @Query("SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END FROM User u WHERE u.chatId = :chatId AND u.isDeleted = false")
+    Boolean existsActiveByChatId(Long chatId);
 }

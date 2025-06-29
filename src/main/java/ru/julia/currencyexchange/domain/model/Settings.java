@@ -11,9 +11,12 @@ public class Settings {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
+    @Column(name = "conversion_percent")
+    private double conversionFeePercent;
+
     @JsonBackReference
     @OneToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne
@@ -46,5 +49,13 @@ public class Settings {
 
     public void setPreferredCurrency(Currency preferredCurrency) {
         this.preferredCurrency = preferredCurrency;
+    }
+
+    public double getConversionFeePercent() {
+        return conversionFeePercent;
+    }
+
+    public void setConversionFeePercent(double conversionFeePercent) {
+        this.conversionFeePercent = conversionFeePercent;
     }
 }
