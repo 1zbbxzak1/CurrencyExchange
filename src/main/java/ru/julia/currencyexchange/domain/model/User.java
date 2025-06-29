@@ -34,6 +34,9 @@ public class User {
     @Column(name = "is_banned")
     private boolean isBanned = false;
 
+    @Column(name = "is_deleted")
+    private boolean isDeleted = false;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private final Set<UserRole> roles = new HashSet<>();
 
@@ -126,5 +129,13 @@ public class User {
 
     public void setBanned(boolean banned) {
         isBanned = banned;
+    }
+
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
     }
 }

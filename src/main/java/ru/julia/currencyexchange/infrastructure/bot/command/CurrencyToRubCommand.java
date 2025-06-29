@@ -44,7 +44,7 @@ public class CurrencyToRubCommand extends AbstractCommandHandler {
             }
 
             User user = userService.findUserByChatId(chatId);
-            if (user.isBanned()) {
+            if (user.isBanned() || user.isDeleted() || !user.isVerified()) {
                 return new SendMessage(chatId, messageConverter.resolve("command.currencyToRub.error"));
             }
 

@@ -29,6 +29,10 @@ public class HelpCommand extends AbstractCommandHandler {
                     return new SendMessage(chatId, messageConverter.resolve("command.help.banned_message"));
                 }
 
+                if (user.isDeleted()) {
+                    return new SendMessage(chatId, messageConverter.resolve("command.help.deleted_help_message"));
+                }
+
                 if (user.isVerified()) {
                     String role = getUserRole(user);
 

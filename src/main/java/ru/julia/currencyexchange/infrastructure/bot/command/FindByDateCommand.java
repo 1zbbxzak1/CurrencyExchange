@@ -12,7 +12,6 @@ import ru.julia.currencyexchange.domain.model.User;
 import ru.julia.currencyexchange.infrastructure.bot.command.abstracts.AbstractCommandHandler;
 import ru.julia.currencyexchange.infrastructure.bot.command.builder.HistoryMessageBuilder;
 import ru.julia.currencyexchange.infrastructure.bot.command.builder.PaginationKeyboardBuilder;
-import ru.julia.currencyexchange.infrastructure.bot.command.handler.FindByDateCallbackHandler;
 import ru.julia.currencyexchange.infrastructure.configuration.Constants;
 
 import java.time.LocalDate;
@@ -26,20 +25,17 @@ public class FindByDateCommand extends AbstractCommandHandler {
     private final UserService userService;
     private final HistoryMessageBuilder historyMessageBuilder;
     private final PaginationKeyboardBuilder paginationKeyboardBuilder;
-    private final FindByDateCallbackHandler findByDateCallbackHandler;
 
     public FindByDateCommand(MessageConverter messageConverter,
                              CurrencyExchangeService currencyExchangeService,
                              UserService userService,
                              HistoryMessageBuilder historyMessageBuilder,
-                             PaginationKeyboardBuilder paginationKeyboardBuilder,
-                             FindByDateCallbackHandler findByDateCallbackHandler) {
+                             PaginationKeyboardBuilder paginationKeyboardBuilder) {
         super(messageConverter);
         this.currencyExchangeService = currencyExchangeService;
         this.userService = userService;
         this.historyMessageBuilder = historyMessageBuilder;
         this.paginationKeyboardBuilder = paginationKeyboardBuilder;
-        this.findByDateCallbackHandler = findByDateCallbackHandler;
     }
 
     @Override
@@ -54,7 +50,7 @@ public class FindByDateCommand extends AbstractCommandHandler {
             }
 
             User user = userService.findUserByChatId(chatId);
-            if (user.isBanned()) {
+            if (user.isBanned() || user.isDeleted() || !user.isVerified()) {
                 return new SendMessage(chatId, messageConverter.resolve("command.findByDate.error"));
             }
 
@@ -116,10 +112,6 @@ public class FindByDateCommand extends AbstractCommandHandler {
 
     @Override
     public boolean isAccessible(User user) {
-        return user != null && "USER".equals(getUserRole(user));
-    }
-
-    public FindByDateCallbackHandler getCallbackHandler() {
-        return findByDateCallbackHandler;
+        return user != null && "USER".equals(getUserRole(user)) && !user.isDeleted() && user.isVerified();
     }
 } 

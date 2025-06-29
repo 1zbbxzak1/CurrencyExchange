@@ -32,6 +32,10 @@ public class StartCommand extends AbstractCommandHandler {
                     return new SendMessage(chatId, messageConverter.resolve("command.start.banned_message"));
                 }
 
+                if (user.isDeleted()) {
+                    return new SendMessage(chatId, messageConverter.resolve("command.start.deleted_message"));
+                }
+
                 if (user.isVerified()) {
                     userService.updateUsernameIfChanged(chatId, update.message().chat().username());
                     return new SendMessage(

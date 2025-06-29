@@ -5,7 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Set;
 
 public class Constants {
-    
+
     public static final String LINE_SEPARATOR = System.lineSeparator();
     public static final String PLACEHOLDER_SYMBOL = "%";
 
@@ -37,4 +37,7 @@ public class Constants {
     public static final int DEFAULT_CONVERSIONS_PER_PAGE = 5;
     public static final int COMPACT_CONVERSIONS_PER_PAGE = 8;
     public static final int COMPACT_FORMAT_THRESHOLD = 20;
+
+    public static final String CALLBACK_CONFIRM = "delete_account_confirm";
+    public static final String CALLBACK_CANCEL = "delete_account_cancel";
 }

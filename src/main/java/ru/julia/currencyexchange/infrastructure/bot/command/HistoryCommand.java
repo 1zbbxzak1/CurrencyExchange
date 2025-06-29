@@ -50,7 +50,7 @@ public class HistoryCommand extends AbstractCommandHandler {
             }
 
             User user = userService.findUserByChatId(chatId);
-            if (user.isBanned()) {
+            if (user.isBanned() || user.isDeleted() || !user.isVerified()) {
                 return new SendMessage(chatId, messageConverter.resolve("command.history.error"));
             }
 
@@ -69,9 +69,14 @@ public class HistoryCommand extends AbstractCommandHandler {
 
             var keyboard = paginationKeyboardBuilder.buildHistoryPaginationKeyboard(conversions.size(), 0, conversionsPerPage);
 
-            return new SendMessage(chatId, messageText)
-                    .parseMode(ParseMode.Markdown)
-                    .replyMarkup(keyboard);
+            SendMessage sendMessage = new SendMessage(chatId, messageText)
+                    .parseMode(ParseMode.Markdown);
+
+            if (keyboard != null) {
+                sendMessage.replyMarkup(keyboard);
+            }
+
+            return sendMessage;
 
         } catch (Exception e) {
             return new SendMessage(chatId, messageConverter.resolve("command.history.error"));
@@ -90,7 +95,7 @@ public class HistoryCommand extends AbstractCommandHandler {
 
     @Override
     public boolean isAccessible(User user) {
-        return user != null && "USER".equals(getUserRole(user));
+        return user != null && "USER".equals(getUserRole(user)) && !user.isDeleted() && user.isVerified();
     }
 
     public HistoryCallbackHandler getCallbackHandler() {

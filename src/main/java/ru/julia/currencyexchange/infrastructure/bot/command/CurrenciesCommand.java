@@ -50,7 +50,7 @@ public class CurrenciesCommand extends AbstractCommandHandler {
             }
 
             User user = userService.findUserByChatId(chatId);
-            if (user.isBanned()) {
+            if (user.isBanned() || user.isDeleted() || !user.isVerified()) {
                 return new SendMessage(chatId, messageConverter.resolve("command.currencies.error"));
             }
 
@@ -69,9 +69,14 @@ public class CurrenciesCommand extends AbstractCommandHandler {
 
             var keyboard = paginationKeyboardBuilder.buildPaginationKeyboard(currencies.size(), 0, currenciesPerPage);
 
-            return new SendMessage(chatId, messageText)
-                    .parseMode(ParseMode.Markdown)
-                    .replyMarkup(keyboard);
+            SendMessage sendMessage = new SendMessage(chatId, messageText)
+                    .parseMode(ParseMode.Markdown);
+
+            if (keyboard != null) {
+                sendMessage.replyMarkup(keyboard);
+            }
+
+            return sendMessage;
 
         } catch (Exception e) {
             return new SendMessage(chatId, messageConverter.resolve("command.currencies.error"));

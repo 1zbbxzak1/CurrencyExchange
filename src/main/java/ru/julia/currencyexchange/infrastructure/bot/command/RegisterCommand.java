@@ -70,11 +70,12 @@ public class RegisterCommand extends AbstractCommandHandler {
         registrationStateService.setPassword(chatId, password);
 
         try {
-            if (userService.existsByChatId(chatId)) {
+            if (userService.existsActiveUserByChatId(chatId)) {
                 registrationStateService.clearData(chatId);
                 return new SendMessage(chatId, messageConverter.resolve("command.register.error"));
             }
 
+            // Создаем нового пользователя
             authService.createUserWithVerificationCode(chatId, username,
                     registrationStateService.getData(chatId).getEmail(), password);
 

@@ -96,7 +96,7 @@ public class ConvertCommand extends AbstractCommandHandler {
 
     @Override
     public boolean isAccessible(User user) {
-        return user != null && "USER".equals(getUserRole(user));
+        return user != null && "USER".equals(getUserRole(user)) && !user.isDeleted() && user.isVerified();
     }
 
     private SendMessage handleAmountInput(Long chatId, String amountText) {
@@ -144,7 +144,7 @@ public class ConvertCommand extends AbstractCommandHandler {
             return false;
         }
         User user = userService.findUserByChatId(chatId);
-        return !user.isBanned();
+        return !user.isBanned() && !user.isDeleted() && user.isVerified();
     }
 
     private SendMessage handleFullConvert(Long chatId, String fromCurrency, String toCurrency, String amountStr) {

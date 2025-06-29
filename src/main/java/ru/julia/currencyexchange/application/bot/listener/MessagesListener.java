@@ -5,9 +5,11 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.EditMessageText;
 import com.pengrad.telegrambot.request.SendMessage;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.julia.currencyexchange.application.bot.executor.interfaces.Executor;
 import ru.julia.currencyexchange.application.bot.messages.DefaultMessages;
+import ru.julia.currencyexchange.infrastructure.configuration.Constants;
 
 import java.util.List;
 import java.util.function.Function;
@@ -18,6 +20,7 @@ public class MessagesListener implements UpdatesListener {
     private final Executor executor;
     private final DefaultMessages defaultMessages;
 
+    @Autowired
     public MessagesListener(Executor executor, DefaultMessages defaultMessages) {
         this.executor = executor;
         this.defaultMessages = defaultMessages;
@@ -74,6 +77,11 @@ public class MessagesListener implements UpdatesListener {
         if (callbackData.startsWith("convert_")) {
             return handleSimpleCallback(update,
                     () -> defaultMessages.getCurrencyConvertCallbackHandler().handleCallback(update));
+        }
+
+        if (callbackData.equals(Constants.CALLBACK_CONFIRM) || callbackData.equals(Constants.CALLBACK_CANCEL)) {
+            executor.execute(defaultMessages.getDeleteAccountCallbackHandler().handleCallback(update.callbackQuery()));
+            return true;
         }
 
         return false;
