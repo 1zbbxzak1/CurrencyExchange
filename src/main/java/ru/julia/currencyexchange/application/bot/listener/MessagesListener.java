@@ -69,6 +69,14 @@ public class MessagesListener implements UpdatesListener {
             return true;
         }
 
+        if (handleUsersPaginationCallback(update, callbackData)) {
+            return true;
+        }
+
+        if (handleUsersSwitchModeCallback(update, callbackData)) {
+            return true;
+        }
+
         if (callbackData.startsWith("currency_to_rub_")) {
             return handleSimpleCallback(update,
                     () -> defaultMessages.getCurrencyToRubCallbackHandler().handleCallback(update));
@@ -115,6 +123,52 @@ public class MessagesListener implements UpdatesListener {
 
                     EditMessageText editMessage = defaultMessages.getFindByDateCallbackHandler()
                             .handleCallback(update, page, dateStr);
+                    if (editMessage != null && editMessage.getParameters() != null) {
+                        editMessage.parseMode(ParseMode.Markdown);
+                        executor.execute(editMessage);
+                    }
+                    return true;
+                }
+            } catch (NumberFormatException e) {
+                // Игнорируем некорректные callback'и
+            }
+        }
+        return false;
+    }
+
+    private boolean handleUsersPaginationCallback(Update update, String callbackData) {
+        if (callbackData.startsWith("users_page_")) {
+            try {
+                String[] parts = callbackData.substring("users_page_".length()).split("_");
+                if (parts.length >= 2) {
+                    boolean useCompactFormat = "compact".equals(parts[0]);
+                    int page = Integer.parseInt(parts[1]);
+
+                    EditMessageText editMessage = defaultMessages.getUsersCallbackHandler()
+                            .handleCallback(update, page, useCompactFormat);
+                    if (editMessage != null && editMessage.getParameters() != null) {
+                        editMessage.parseMode(ParseMode.Markdown);
+                        executor.execute(editMessage);
+                    }
+                    return true;
+                }
+            } catch (NumberFormatException e) {
+                // Игнорируем некорректные callback'и
+            }
+        }
+        return false;
+    }
+
+    private boolean handleUsersSwitchModeCallback(Update update, String callbackData) {
+        if (callbackData.startsWith("users_switch_")) {
+            try {
+                String[] parts = callbackData.substring("users_switch_".length()).split("_");
+                if (parts.length >= 2) {
+                    boolean useCompactFormat = "compact".equals(parts[0]);
+                    int page = Integer.parseInt(parts[1]);
+
+                    EditMessageText editMessage = defaultMessages.getUsersCallbackHandler()
+                            .handleCallback(update, page, useCompactFormat);
                     if (editMessage != null && editMessage.getParameters() != null) {
                         editMessage.parseMode(ParseMode.Markdown);
                         executor.execute(editMessage);

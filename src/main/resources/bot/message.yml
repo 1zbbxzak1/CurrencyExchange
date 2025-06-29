@@ -203,3 +203,23 @@ command:
     success: "✅ *Курсы валют успешно обновлены!*\n\n📅 *Дата обновления:* %date%\n💰 *Количество валют:* %count%"
     error: "❌ Ошибка при обновлении курсов валют. Попробуйте позже."
     description: "Обновить курсы валют"
+
+  users:
+    title: "👥 *СПИСОК ПОЛЬЗОВАТЕЛЕЙ*"
+    subtitle: "Все зарегистрированные пользователи системы"
+    user_format_compact: "👤 *%username%*\n📧 Email: %email%\n💬 Chat ID: %chatId%\n📊 Статус: %status%"
+    user_format_full: "👤 *%username%*\n📧 Email: %email%\n🆔 ID: %id%\n💬 Chat ID: %chatId%\n👑 Роли: %roles%\n📅 Создан: %createdAt%\n✅ Верифицирован: %verified%\n🚫 Заблокирован: %banned%\n🗑️ Удален: %deleted%"
+    no_access: "❌ У вас нет доступа к этой команде. Только администраторы могут просматривать список пользователей."
+    empty: "❌ В системе нет зарегистрированных пользователей."
+    error: "⚠️ Произошла ошибка при получении списка пользователей."
+    description: "Показать всех пользователей (только для администраторов)"
+    pagination:
+      page_info: "📊 *Страница %current% из %total%*"
+      total_users: "Всего пользователей: *%count%*"
+      compact_mode: "🚀 Компактный режим"
+      switch_compact: "📱 Компактный режим"
+      switch_full: "📋 Полный режим"
+      previous: "⬅️ Предыдущая"
+      next: "Следующая ➡️"
+      first: "Первая ➡️"
+      last: "⬅️ Последняя"

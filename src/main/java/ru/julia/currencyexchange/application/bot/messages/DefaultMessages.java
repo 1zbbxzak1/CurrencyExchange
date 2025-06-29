@@ -16,6 +16,7 @@ import ru.julia.currencyexchange.infrastructure.bot.command.handler.DeleteAccoun
 import ru.julia.currencyexchange.infrastructure.bot.command.handler.FindByDateCallbackHandler;
 import ru.julia.currencyexchange.infrastructure.bot.command.handler.HistoryCallbackHandler;
 import ru.julia.currencyexchange.infrastructure.bot.command.interfaces.BotCommandHandler;
+import ru.julia.currencyexchange.infrastructure.bot.command.handler.UsersCallbackHandler;
 
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,7 @@ public class DefaultMessages {
     private final HistoryCallbackHandler historyCallbackHandler;
     private final FindByDateCallbackHandler findByDateCallbackHandler;
     private final DeleteAccountCallbackHandler deleteAccountCallbackHandler;
+    private final UsersCallbackHandler usersCallbackHandler;
 
     public DefaultMessages(MessageConverter messageConverter,
                            RegistrationStateService registrationStateService,
@@ -43,7 +45,8 @@ public class DefaultMessages {
                            CurrencyConvertCallbackHandler currencyConvertCallbackHandler,
                            HistoryCallbackHandler historyCallbackHandler,
                            FindByDateCallbackHandler findByDateCallbackHandler,
-                           DeleteAccountCallbackHandler deleteAccountCallbackHandler) {
+                           DeleteAccountCallbackHandler deleteAccountCallbackHandler,
+                           UsersCallbackHandler usersCallbackHandler) {
         this.messageConverter = messageConverter;
         this.registrationStateService = registrationStateService;
         this.userService = userService;
@@ -54,6 +57,7 @@ public class DefaultMessages {
         this.historyCallbackHandler = historyCallbackHandler;
         this.findByDateCallbackHandler = findByDateCallbackHandler;
         this.deleteAccountCallbackHandler = deleteAccountCallbackHandler;
+        this.usersCallbackHandler = usersCallbackHandler;
     }
 
     public CurrenciesCommand getCurrenciesCommand() {
@@ -78,6 +82,10 @@ public class DefaultMessages {
 
     public DeleteAccountCallbackHandler getDeleteAccountCallbackHandler() {
         return deleteAccountCallbackHandler;
+    }
+
+    public UsersCallbackHandler getUsersCallbackHandler() {
+        return usersCallbackHandler;
     }
 
     public SendMessage sendMessage(Update update) {

@@ -81,6 +81,26 @@ public class PaginationKeyboardBuilder {
         return buildPaginationKeyboard(totalConversions, currentPage, conversionsPerPage, config);
     }
 
+    public InlineKeyboardMarkup buildUsersPaginationKeyboard(int totalUsers,
+                                                            int currentPage,
+                                                            int usersPerPage,
+                                                            boolean useCompactFormat) {
+        PaginationConfig config = new PaginationConfig(
+                "command.users.pagination",
+                "users_page_" + (useCompactFormat ? "compact_" : "full_")
+        );
+        InlineKeyboardMarkup keyboard = buildPaginationKeyboard(totalUsers, currentPage, usersPerPage, config);
+        // Добавим кнопку переключения режима
+        String switchModeText = useCompactFormat ? messageConverter.resolve("command.users.pagination.switch_full") : messageConverter.resolve("command.users.pagination.switch_compact");
+        String switchModeCallback = useCompactFormat ? "users_switch_full_" + currentPage : "users_switch_compact_" + currentPage;
+        InlineKeyboardButton switchButton = new InlineKeyboardButton(switchModeText).callbackData(switchModeCallback);
+        if (keyboard == null) {
+            keyboard = new InlineKeyboardMarkup();
+        }
+        keyboard.addRow(switchButton);
+        return keyboard;
+    }
+
     private record PaginationConfig(String messagePrefix, String callbackPrefix) {
     }
 } 
