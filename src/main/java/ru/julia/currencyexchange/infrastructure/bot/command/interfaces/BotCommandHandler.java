@@ -3,6 +3,7 @@ package ru.julia.currencyexchange.infrastructure.bot.command.interfaces;
 import com.pengrad.telegrambot.model.BotCommand;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
+import ru.julia.currencyexchange.domain.model.User;
 
 public interface BotCommandHandler {
     SendMessage handle(Update update);
@@ -24,4 +25,8 @@ public interface BotCommandHandler {
     }
 
     String getDescription();
+
+    default boolean isAccessible(User user) {
+        return true;
+    }
 }

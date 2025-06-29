@@ -48,7 +48,7 @@ public class ConvertCommand extends AbstractCommandHandler {
             }
 
             userService.updateUsernameIfChanged(chatId, username);
-            
+
             ConversionState currentState = currencyConvertService.getState(chatId);
             if (currentState == ConversionState.WAITING_AMOUNT) {
                 return handleAmountInput(chatId, text);
@@ -94,43 +94,48 @@ public class ConvertCommand extends AbstractCommandHandler {
         return "command.convert.description";
     }
 
+    @Override
+    public boolean isAccessible(User user) {
+        return user != null && "USER".equals(getUserRole(user));
+    }
+
     private SendMessage handleAmountInput(Long chatId, String amountText) {
         try {
             if (!currencyConvertService.isValidAmount(amountText.trim())) {
-                return new SendMessage(chatId, 
-                    messageConverter.resolve("command.convert.invalid_amount"));
+                return new SendMessage(chatId,
+                        messageConverter.resolve("command.convert.invalid_amount"));
             }
 
             CurrencyConvertService.ConversionData data = currencyConvertService.getData(chatId);
             if (data == null) {
                 currencyConvertService.clearData(chatId);
-                return new SendMessage(chatId, 
-                    messageConverter.resolve("command.convert.errors.general"));
+                return new SendMessage(chatId,
+                        messageConverter.resolve("command.convert.errors.general"));
             }
 
             // Выполняем конвертацию с сохранением в историю
             BigDecimal amount = currencyConvertService.parseAmount(amountText.trim());
             CurrencyConversion conversion = currencyConvertService.convertCurrency(
-                chatId,
-                data.fromCurrency(), 
-                data.toCurrency(), 
-                amount
+                    chatId,
+                    data.fromCurrency(),
+                    data.toCurrency(),
+                    amount
             );
-            
+
             String messageText = currencyConvertService.buildConversionMessage(conversion);
 
             SendMessage response = new SendMessage(chatId, messageText)
-                .parseMode(ParseMode.Markdown)
-                .replyMarkup(keyboardBuilder.buildBackKeyboard());
-            
+                    .parseMode(ParseMode.Markdown)
+                    .replyMarkup(keyboardBuilder.buildBackKeyboard());
+
             currencyConvertService.clearData(chatId);
-            
+
             return response;
-            
+
         } catch (Exception e) {
             currencyConvertService.clearData(chatId);
-            return new SendMessage(chatId, 
-                messageConverter.resolve("command.convert.errors.conversion_failed"));
+            return new SendMessage(chatId,
+                    messageConverter.resolve("command.convert.errors.conversion_failed"));
         }
     }
 

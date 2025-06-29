@@ -13,6 +13,7 @@ import ru.julia.currencyexchange.infrastructure.bot.command.abstracts.AbstractCo
 import ru.julia.currencyexchange.infrastructure.bot.command.builder.HistoryMessageBuilder;
 import ru.julia.currencyexchange.infrastructure.bot.command.builder.PaginationKeyboardBuilder;
 import ru.julia.currencyexchange.infrastructure.bot.command.handler.HistoryCallbackHandler;
+import ru.julia.currencyexchange.infrastructure.configuration.Constants;
 
 import java.util.List;
 
@@ -24,15 +25,12 @@ public class HistoryCommand extends AbstractCommandHandler {
     private final PaginationKeyboardBuilder paginationKeyboardBuilder;
     private final HistoryCallbackHandler historyCallbackHandler;
 
-    private static final int CONVERSIONS_PER_PAGE = 5;
-    private static final int CONVERSIONS_PER_PAGE_COMPACT = 8;
-
     public HistoryCommand(MessageConverter messageConverter,
-                           CurrencyExchangeService currencyExchangeService,
-                           UserService userService,
-                           HistoryMessageBuilder historyMessageBuilder,
-                           PaginationKeyboardBuilder paginationKeyboardBuilder,
-                           HistoryCallbackHandler historyCallbackHandler) {
+                          CurrencyExchangeService currencyExchangeService,
+                          UserService userService,
+                          HistoryMessageBuilder historyMessageBuilder,
+                          PaginationKeyboardBuilder paginationKeyboardBuilder,
+                          HistoryCallbackHandler historyCallbackHandler) {
         super(messageConverter);
         this.currencyExchangeService = currencyExchangeService;
         this.userService = userService;
@@ -65,7 +63,7 @@ public class HistoryCommand extends AbstractCommandHandler {
             }
 
             boolean useCompactFormat = conversions.size() > 20;
-            int conversionsPerPage = useCompactFormat ? CONVERSIONS_PER_PAGE_COMPACT : CONVERSIONS_PER_PAGE;
+            int conversionsPerPage = useCompactFormat ? Constants.COMPACT_CONVERSIONS_PER_PAGE : Constants.DEFAULT_CONVERSIONS_PER_PAGE;
 
             String messageText = historyMessageBuilder.buildHistoryMessage(conversions, 0, useCompactFormat, conversionsPerPage);
 
@@ -88,6 +86,11 @@ public class HistoryCommand extends AbstractCommandHandler {
     @Override
     public String getDescription() {
         return "command.history.description";
+    }
+
+    @Override
+    public boolean isAccessible(User user) {
+        return user != null && "USER".equals(getUserRole(user));
     }
 
     public HistoryCallbackHandler getCallbackHandler() {

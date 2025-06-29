@@ -8,9 +8,6 @@ import ru.julia.currencyexchange.application.service.UserService;
 import ru.julia.currencyexchange.domain.model.User;
 import ru.julia.currencyexchange.infrastructure.bot.command.abstracts.AbstractCommandHandler;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-
 @Component
 public class HelpCommand extends AbstractCommandHandler {
     private final UserService userService;
@@ -51,16 +48,6 @@ public class HelpCommand extends AbstractCommandHandler {
         }
     }
 
-    private String getUserRole(User user) {
-        Set<String> roles = user.getRoles().stream()
-                .map(userRole -> userRole.getRole().getRoleName().replace("ROLE_", ""))
-                .collect(Collectors.toSet());
-
-        return roles.stream()
-                .min(java.util.Comparator.comparing(r -> "ADMIN".equals(r) ? 0 : 1))
-                .orElse("USER");
-    }
-
     @Override
     public String getCommand() {
         return "/help";
@@ -70,4 +57,4 @@ public class HelpCommand extends AbstractCommandHandler {
     public String getDescription() {
         return "command.help.description";
     }
-} 
+}

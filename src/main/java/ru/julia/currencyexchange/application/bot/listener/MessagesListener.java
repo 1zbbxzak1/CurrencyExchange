@@ -26,16 +26,19 @@ public class MessagesListener implements UpdatesListener {
     @Override
     public int process(List<Update> list) {
         list.forEach(update -> {
-            if (update.callbackQuery() != null) {
-                if (handleCallback(update)) {
-                    return;
+            try {
+                if (update.callbackQuery() != null) {
+                    if (handleCallback(update)) {
+                        return;
+                    }
                 }
-            }
 
-            SendMessage sendMessage = defaultMessages.sendMessage(update);
-            if (sendMessage != null) {
-                sendMessage.parseMode(ParseMode.Markdown);
-                executor.execute(sendMessage);
+                SendMessage sendMessage = defaultMessages.sendMessage(update);
+                if (sendMessage != null && sendMessage.getParameters() != null) {
+                    sendMessage.parseMode(ParseMode.Markdown);
+                    executor.execute(sendMessage);
+                }
+            } catch (Exception e) {
             }
         });
 
@@ -77,7 +80,7 @@ public class MessagesListener implements UpdatesListener {
             try {
                 int page = Integer.parseInt(callbackData.substring(prefix.length()));
                 EditMessageText editMessage = callbackHandler.apply(page);
-                if (editMessage != null) {
+                if (editMessage != null && editMessage.getParameters() != null) {
                     editMessage.parseMode(ParseMode.Markdown);
                     executor.execute(editMessage);
                 }
@@ -90,11 +93,17 @@ public class MessagesListener implements UpdatesListener {
     }
 
     private boolean handleSimpleCallback(Update update, Supplier<EditMessageText> callbackHandler) {
-        EditMessageText editMessage = callbackHandler.get();
-        if (editMessage != null) {
-            editMessage.parseMode(ParseMode.Markdown);
-            executor.execute(editMessage);
+        try {
+            EditMessageText editMessage = callbackHandler.get();
+            if (editMessage != null && editMessage.getParameters() != null) {
+                editMessage.parseMode(ParseMode.Markdown);
+                executor.execute(editMessage);
+            }
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error handling simple callback: " + e.getMessage());
+            e.printStackTrace();
+            return false;
         }
-        return true;
     }
 }
