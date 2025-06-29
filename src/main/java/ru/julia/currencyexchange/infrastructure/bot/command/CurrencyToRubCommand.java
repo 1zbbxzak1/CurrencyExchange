@@ -11,6 +11,7 @@ import ru.julia.currencyexchange.domain.model.Currency;
 import ru.julia.currencyexchange.domain.model.User;
 import ru.julia.currencyexchange.infrastructure.bot.command.abstracts.AbstractCommandHandler;
 import ru.julia.currencyexchange.infrastructure.bot.command.builder.CurrencyToRubKeyboardBuilder;
+import ru.julia.currencyexchange.infrastructure.configuration.Constants;
 
 import java.util.List;
 import java.util.Map;
@@ -86,7 +87,9 @@ public class CurrencyToRubCommand extends AbstractCommandHandler {
         List<Currency> popularCurrencies = currencyToRubService.getPopularCurrencies();
         var keyboard = keyboardBuilder.buildPopularCurrenciesKeyboard(popularCurrencies);
 
-        String messageText = messageConverter.resolve("command.currencyToRub.selection.title") + "\n\n" +
+        String messageText = messageConverter.resolve("command.currencyToRub.selection.title") +
+                Constants.LINE_SEPARATOR +
+                Constants.LINE_SEPARATOR +
                 messageConverter.resolve("command.currencyToRub.selection.popular_subtitle");
 
         return new SendMessage(chatId, messageText)

@@ -10,11 +10,9 @@ import org.springframework.core.io.ClassPathResource;
 public class MessageConfig {
     @Bean
     public ResourceBundleMessageSource messageSource() {
-        // Создаем объект для чтения YAML как properties
         YamlPropertiesFactoryBean propertiesFactoryBean = new YamlPropertiesFactoryBean();
         propertiesFactoryBean.setResources(new ClassPathResource("bot/message.yml"));
 
-        // Создаем и настраиваем messageSource
         ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
         messageSource.setCommonMessages(propertiesFactoryBean.getObject());
 

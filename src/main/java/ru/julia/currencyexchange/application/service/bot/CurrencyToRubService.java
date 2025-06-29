@@ -6,15 +6,14 @@ import ru.julia.currencyexchange.application.service.CurrencyExchangeService;
 import ru.julia.currencyexchange.domain.model.Currency;
 import ru.julia.currencyexchange.infrastructure.bot.command.utils.CurrencyEmojiUtils;
 import ru.julia.currencyexchange.infrastructure.bot.command.utils.CurrencyFormatUtils;
+import ru.julia.currencyexchange.infrastructure.configuration.Constants;
 
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
 @Service
 public class CurrencyToRubService {
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
-    
+
     private final CurrencyExchangeService currencyExchangeService;
     private final CurrencyEmojiUtils currencyEmojiUtils;
     private final CurrencyFormatUtils currencyFormatUtils;
@@ -44,38 +43,33 @@ public class CurrencyToRubService {
     }
 
     public List<Currency> getPopularCurrencies() {
-        String[] popularCodes = {"USD", "EUR", "GBP", "JPY", "CNY", "CHF", "CAD", "AUD"};
         return getAllCurrencies().stream()
-                .filter(currency -> List.of(popularCodes).contains(currency.getCode()))
-                .toList();
-    }
-
-    public List<Currency> getOtherCurrencies() {
-        String[] popularCodes = {"USD", "EUR", "GBP", "JPY", "CNY", "CHF", "CAD", "AUD"};
-        return getAllCurrencies().stream()
-                .filter(currency -> !List.of(popularCodes).contains(currency.getCode()))
+                .filter(currency -> Constants.POPULAR_CURRENCIES.contains(currency.getCode()))
                 .toList();
     }
 
     public String buildCurrencyToRubMessage(Currency currency) {
-        StringBuilder message = new StringBuilder();
-        message.append(messageConverter.resolve("command.currencyToRub.result.title")).append("\n\n");
-        
-        message.append(messageConverter.resolve("command.currencyToRub.result.currency_info",
-                Map.of("emoji", currencyEmojiUtils.getCurrencyEmoji(currency.getCode()),
-                       "code", currency.getCode(),
-                       "name", currency.getName()))).append("\n\n");
-        
-        message.append(messageConverter.resolve("command.currencyToRub.result.rate",
-                Map.of("rate", currencyFormatUtils.formatExchangeRate(currency.getExchangeRate())))).append("\n\n");
-        
-        message.append(messageConverter.resolve("command.currencyToRub.result.updated",
-                Map.of("date", currency.getLastUpdated().format(DATE_FORMATTER)))).append("\n\n");
-        
-        message.append(messageConverter.resolve("command.currencyToRub.result.example",
-                Map.of("code", currency.getCode(),
-                       "rate", currencyFormatUtils.formatExchangeRate(currency.getExchangeRate()))));
-        
-        return message.toString();
+
+        String message = messageConverter.resolve("command.currencyToRub.result.title") + Constants.LINE_SEPARATOR +
+                Constants.LINE_SEPARATOR +
+                messageConverter.resolve("command.currencyToRub.result.currency_info",
+                        Map.of("emoji", currencyEmojiUtils.getCurrencyEmoji(currency.getCode()),
+                                "code", currency.getCode(),
+                                "name", currency.getName())) +
+                Constants.LINE_SEPARATOR +
+                Constants.LINE_SEPARATOR +
+                messageConverter.resolve("command.currencyToRub.result.rate",
+                        Map.of("rate", currencyFormatUtils.formatExchangeRate(currency.getExchangeRate()))) +
+                Constants.LINE_SEPARATOR +
+                Constants.LINE_SEPARATOR +
+                messageConverter.resolve("command.currencyToRub.result.updated",
+                        Map.of("date", currency.getLastUpdated().format(Constants.DATE_FORMATTER))) +
+                Constants.LINE_SEPARATOR +
+                Constants.LINE_SEPARATOR +
+                messageConverter.resolve("command.currencyToRub.result.example",
+                        Map.of("code", currency.getCode(),
+                                "rate", currencyFormatUtils.formatExchangeRate(currency.getExchangeRate())));
+
+        return message;
     }
 } 

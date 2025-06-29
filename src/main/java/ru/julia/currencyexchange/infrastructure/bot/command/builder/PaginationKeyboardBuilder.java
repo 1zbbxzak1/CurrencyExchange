@@ -13,31 +13,42 @@ public class PaginationKeyboardBuilder {
         this.messageConverter = messageConverter;
     }
 
-    public InlineKeyboardMarkup buildPaginationKeyboard(int totalCurrencies, int currentPage, int currenciesPerPage) {
-        int totalPages = (totalCurrencies - 1) / currenciesPerPage + 1;
+    public InlineKeyboardMarkup buildPaginationKeyboard(int totalCurrencies,
+                                                        int currentPage,
+                                                        int currenciesPerPage) {
+        PaginationConfig config = new PaginationConfig(
+                "command.currencies.pagination",
+                "currencies_page_"
+        );
+        return buildPaginationKeyboard(totalCurrencies, currentPage, currenciesPerPage, config);
+    }
+
+    private InlineKeyboardMarkup buildPaginationKeyboard(int totalItems,
+                                                         int currentPage,
+                                                         int itemsPerPage,
+                                                         PaginationConfig config) {
+        int totalPages = (totalItems - 1) / itemsPerPage + 1;
 
         InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
-
         InlineKeyboardButton[] buttons = new InlineKeyboardButton[2];
 
         if (currentPage > 0) {
-            buttons[0] = new InlineKeyboardButton(messageConverter.resolve("command.currencies.pagination.previous"))
-                    .callbackData("currencies_page_" + (currentPage - 1));
+            buttons[0] = new InlineKeyboardButton(messageConverter.resolve(config.messagePrefix + ".previous"))
+                    .callbackData(config.callbackPrefix + (currentPage - 1));
         } else {
-            buttons[0] = new InlineKeyboardButton(messageConverter.resolve("command.currencies.pagination.last"))
-                    .callbackData("currencies_page_" + (totalPages - 1));
+            buttons[0] = new InlineKeyboardButton(messageConverter.resolve(config.messagePrefix + ".last"))
+                    .callbackData(config.callbackPrefix + (totalPages - 1));
         }
 
         if (currentPage < totalPages - 1) {
-            buttons[1] = new InlineKeyboardButton(messageConverter.resolve("command.currencies.pagination.next"))
-                    .callbackData("currencies_page_" + (currentPage + 1));
+            buttons[1] = new InlineKeyboardButton(messageConverter.resolve(config.messagePrefix + ".next"))
+                    .callbackData(config.callbackPrefix + (currentPage + 1));
         } else {
-            buttons[1] = new InlineKeyboardButton(messageConverter.resolve("command.currencies.pagination.first"))
-                    .callbackData("currencies_page_0");
+            buttons[1] = new InlineKeyboardButton(messageConverter.resolve(config.messagePrefix + ".first"))
+                    .callbackData(config.callbackPrefix + "0");
         }
 
         keyboard.addRow(buttons);
-
         return keyboard;
     }
 } 

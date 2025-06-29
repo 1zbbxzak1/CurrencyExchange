@@ -5,6 +5,7 @@ import ru.julia.currencyexchange.application.bot.messages.converter.interfaces.M
 import ru.julia.currencyexchange.domain.model.Currency;
 import ru.julia.currencyexchange.infrastructure.bot.command.utils.CurrencyEmojiUtils;
 import ru.julia.currencyexchange.infrastructure.bot.command.utils.CurrencyFormatUtils;
+import ru.julia.currencyexchange.infrastructure.configuration.Constants;
 
 import java.util.List;
 import java.util.Map;
@@ -26,9 +27,9 @@ public class CurrencyMessageBuilder {
     public String buildCurrenciesMessage(List<Currency> currencies, int page, boolean useCompactFormat, int currenciesPerPage) {
         StringBuilder message = new StringBuilder();
 
-        message.append(messageConverter.resolve("command.currencies.title")).append("\n");
-        message.append(messageConverter.resolve("command.currencies.subtitle")).append("\n");
-        message.append("\n");
+        message.append(messageConverter.resolve("command.currencies.title")).append(Constants.LINE_SEPARATOR);
+        message.append(messageConverter.resolve("command.currencies.subtitle")).append(Constants.LINE_SEPARATOR);
+        message.append(Constants.LINE_SEPARATOR);
 
         int startIndex = page * currenciesPerPage;
         int endIndex = Math.min(startIndex + currenciesPerPage, currencies.size());
@@ -53,14 +54,14 @@ public class CurrencyMessageBuilder {
                                 "rate", currencyFormatUtils.formatExchangeRate(currency.getExchangeRate())
                         ));
             }
-            message.append(currencyLine).append("\n");
+            message.append(currencyLine).append(Constants.LINE_SEPARATOR);
 
             if (!useCompactFormat && i < endIndex - 1) {
-                message.append("\n");
+                message.append(Constants.LINE_SEPARATOR);
             }
         }
 
-        message.append("\n").append("\n");
+        message.append(Constants.LINE_SEPARATOR).append(Constants.LINE_SEPARATOR);
         message.append(messageConverter.resolve("command.currencies.pagination.page_info",
                 Map.of("current", String.valueOf(page + 1), "total", String.valueOf(totalPages))));
         message.append(" | ").append(messageConverter.resolve("command.currencies.pagination.total_currencies",

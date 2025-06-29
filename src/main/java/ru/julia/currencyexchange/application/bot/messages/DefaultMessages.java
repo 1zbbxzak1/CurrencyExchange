@@ -73,22 +73,8 @@ public class DefaultMessages {
         return currencyConvertCallbackHandler;
     }
 
-    public SendMessage sendMessage(Update update) {
-        if (update.callbackQuery() != null) {
-            String callbackData = update.callbackQuery().data();
-            if (callbackData != null && callbackData.startsWith("currencies_page_")) {
-                try {
-                    int page = Integer.parseInt(callbackData.substring("currencies_page_".length()));
-                    if (currenciesCommand != null) {
-                        var editMessage = currenciesCommand.getCallbackHandler().handleCallback(update, page);
-                        return null;
-                    }
-                } catch (NumberFormatException e) {
-                    // Игнорируем некорректные callback'и
-                }
-            }
-        }
 
+    public SendMessage sendMessage(Update update) {
         if (update.message() == null) {
             return null;
         }

@@ -11,6 +11,7 @@ import ru.julia.currencyexchange.domain.model.Currency;
 import ru.julia.currencyexchange.domain.model.User;
 import ru.julia.currencyexchange.infrastructure.bot.command.builder.CurrencyMessageBuilder;
 import ru.julia.currencyexchange.infrastructure.bot.command.builder.PaginationKeyboardBuilder;
+import ru.julia.currencyexchange.infrastructure.configuration.Constants;
 
 import java.util.List;
 
@@ -21,9 +22,6 @@ public class CurrencyCallbackHandler {
     private final CurrencyExchangeService currencyExchangeService;
     private final CurrencyMessageBuilder currencyMessageBuilder;
     private final PaginationKeyboardBuilder paginationKeyboardBuilder;
-
-    private static final int CURRENCIES_PER_PAGE = 10;
-    private static final int CURRENCIES_PER_PAGE_COMPACT = 15;
 
     public CurrencyCallbackHandler(MessageConverter messageConverter,
                                    UserService userService,
@@ -58,7 +56,7 @@ public class CurrencyCallbackHandler {
             }
 
             boolean useCompactFormat = currencies.size() > 50;
-            int currenciesPerPage = useCompactFormat ? CURRENCIES_PER_PAGE_COMPACT : CURRENCIES_PER_PAGE;
+            int currenciesPerPage = useCompactFormat ? Constants.CURRENCIES_PER_PAGE_COMPACT : Constants.CURRENCIES_PER_PAGE;
 
             int maxPage = (currencies.size() - 1) / currenciesPerPage;
             if (page < 0) page = 0;

@@ -13,6 +13,7 @@ import ru.julia.currencyexchange.infrastructure.bot.command.abstracts.AbstractCo
 import ru.julia.currencyexchange.infrastructure.bot.command.builder.CurrencyMessageBuilder;
 import ru.julia.currencyexchange.infrastructure.bot.command.builder.PaginationKeyboardBuilder;
 import ru.julia.currencyexchange.infrastructure.bot.command.handler.CurrencyCallbackHandler;
+import ru.julia.currencyexchange.infrastructure.configuration.Constants;
 
 import java.util.List;
 
@@ -23,9 +24,6 @@ public class CurrenciesCommand extends AbstractCommandHandler {
     private final CurrencyMessageBuilder currencyMessageBuilder;
     private final PaginationKeyboardBuilder paginationKeyboardBuilder;
     private final CurrencyCallbackHandler currencyCallbackHandler;
-
-    private static final int CURRENCIES_PER_PAGE = 10;
-    private static final int CURRENCIES_PER_PAGE_COMPACT = 15;
 
     public CurrenciesCommand(MessageConverter messageConverter,
                              CurrencyExchangeService currencyExchangeService,
@@ -65,7 +63,7 @@ public class CurrenciesCommand extends AbstractCommandHandler {
             }
 
             boolean useCompactFormat = currencies.size() > 50;
-            int currenciesPerPage = useCompactFormat ? CURRENCIES_PER_PAGE_COMPACT : CURRENCIES_PER_PAGE;
+            int currenciesPerPage = useCompactFormat ? Constants.CURRENCIES_PER_PAGE_COMPACT : Constants.CURRENCIES_PER_PAGE;
 
             String messageText = currencyMessageBuilder.buildCurrenciesMessage(currencies, 0, useCompactFormat, currenciesPerPage);
 

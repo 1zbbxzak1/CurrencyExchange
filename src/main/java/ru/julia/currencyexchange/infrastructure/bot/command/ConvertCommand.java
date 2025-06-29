@@ -12,6 +12,7 @@ import ru.julia.currencyexchange.domain.model.Currency;
 import ru.julia.currencyexchange.domain.model.User;
 import ru.julia.currencyexchange.infrastructure.bot.command.abstracts.AbstractCommandHandler;
 import ru.julia.currencyexchange.infrastructure.bot.command.builder.CurrencyConvertKeyboardBuilder;
+import ru.julia.currencyexchange.infrastructure.configuration.Constants;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -107,7 +108,9 @@ public class ConvertCommand extends AbstractCommandHandler {
 
         var keyboard = keyboardBuilder.buildAmountInputKeyboard(fromCurrency, toCurrency);
         String messageText = messageConverter.resolve("command.convert.conversion.title",
-                Map.of("from", fromCurrency, "to", toCurrency)) + "\n\n" +
+                Map.of("from", fromCurrency, "to", toCurrency)) +
+                Constants.LINE_SEPARATOR +
+                Constants.LINE_SEPARATOR +
                 messageConverter.resolve("command.convert.selection.amount_selection");
 
         return createMessageWithKeyboard(chatId, messageText, keyboard);
@@ -122,7 +125,9 @@ public class ConvertCommand extends AbstractCommandHandler {
         List<Currency> popularCurrencies = currencyConvertService.getPopularCurrencies();
         InlineKeyboardMarkup keyboard = keyboardBuilder.buildToCurrencyKeyboard(popularCurrencies, fromCurrency);
         String messageText = messageConverter.resolve("command.convert.conversion.title_with_question",
-                Map.of("from", fromCurrency)) + "\n\n" +
+                Map.of("from", fromCurrency)) +
+                Constants.LINE_SEPARATOR +
+                Constants.LINE_SEPARATOR +
                 messageConverter.resolve("command.convert.selection.to_currency") + ":";
 
         return createMessageWithKeyboard(chatId, messageText, keyboard);
@@ -135,7 +140,9 @@ public class ConvertCommand extends AbstractCommandHandler {
 
         List<Currency> popularCurrencies = currencyConvertService.getPopularCurrencies();
         InlineKeyboardMarkup keyboard = keyboardBuilder.buildFromCurrencyKeyboard(popularCurrencies);
-        String messageText = messageConverter.resolve("command.convert.selection.title") + "\n\n" +
+        String messageText = messageConverter.resolve("command.convert.selection.title") +
+                Constants.LINE_SEPARATOR +
+                Constants.LINE_SEPARATOR +
                 messageConverter.resolve("command.convert.selection.from_currency") + ":";
 
         return createMessageWithKeyboard(chatId, messageText, keyboard);

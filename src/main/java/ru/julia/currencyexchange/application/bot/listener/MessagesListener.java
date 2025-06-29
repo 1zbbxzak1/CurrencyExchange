@@ -10,6 +10,8 @@ import ru.julia.currencyexchange.application.bot.executor.interfaces.Executor;
 import ru.julia.currencyexchange.application.bot.messages.DefaultMessages;
 
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 @Component
 public class MessagesListener implements UpdatesListener {
@@ -25,36 +27,7 @@ public class MessagesListener implements UpdatesListener {
     public int process(List<Update> list) {
         list.forEach(update -> {
             if (update.callbackQuery() != null) {
-                String callbackData = update.callbackQuery().data();
-                if (callbackData != null && callbackData.startsWith("currencies_page_")) {
-                    try {
-                        int page = Integer.parseInt(callbackData.substring("currencies_page_".length()));
-                        var editMessage = defaultMessages.getCurrenciesCommand().getCallbackHandler().handleCallback(update, page);
-                        if (editMessage != null) {
-                            editMessage.parseMode(ParseMode.Markdown);
-                            executor.execute(editMessage);
-                        }
-                        return;
-                    } catch (NumberFormatException e) {
-                        // Игнорируем некорректные callback'и
-                    }
-                }
-
-                if (callbackData != null && callbackData.startsWith("currency_to_rub_")) {
-                    EditMessageText editMessage = defaultMessages.getCurrencyToRubCallbackHandler().handleCallback(update);
-                    if (editMessage != null) {
-                        editMessage.parseMode(ParseMode.Markdown);
-                        executor.execute(editMessage);
-                    }
-                    return;
-                }
-
-                if (callbackData != null && callbackData.startsWith("convert_")) {
-                    EditMessageText editMessage = defaultMessages.getCurrencyConvertCallbackHandler().handleCallback(update);
-                    if (editMessage != null) {
-                        editMessage.parseMode(ParseMode.Markdown);
-                        executor.execute(editMessage);
-                    }
+                if (handleCallback(update)) {
                     return;
                 }
             }
@@ -67,5 +40,56 @@ public class MessagesListener implements UpdatesListener {
         });
 
         return CONFIRMED_UPDATES_ALL;
+    }
+
+    private boolean handleCallback(Update update) {
+        String callbackData = update.callbackQuery().data();
+        if (callbackData == null) {
+            return false;
+        }
+
+        if (handlePaginationCallback(update, callbackData, "currencies_page_",
+                page -> defaultMessages.getCurrenciesCommand().getCallbackHandler().handleCallback(update, page))) {
+            return true;
+        }
+
+        if (callbackData.startsWith("currency_to_rub_")) {
+            return handleSimpleCallback(update,
+                    () -> defaultMessages.getCurrencyToRubCallbackHandler().handleCallback(update));
+        }
+
+        if (callbackData.startsWith("convert_")) {
+            return handleSimpleCallback(update,
+                    () -> defaultMessages.getCurrencyConvertCallbackHandler().handleCallback(update));
+        }
+
+        return false;
+    }
+
+    private boolean handlePaginationCallback(Update update, String callbackData, String prefix,
+                                             Function<Integer, EditMessageText> callbackHandler) {
+        if (callbackData.startsWith(prefix)) {
+            try {
+                int page = Integer.parseInt(callbackData.substring(prefix.length()));
+                EditMessageText editMessage = callbackHandler.apply(page);
+                if (editMessage != null) {
+                    editMessage.parseMode(ParseMode.Markdown);
+                    executor.execute(editMessage);
+                }
+                return true;
+            } catch (NumberFormatException e) {
+                // Игнорируем некорректные callback'и
+            }
+        }
+        return false;
+    }
+
+    private boolean handleSimpleCallback(Update update, Supplier<EditMessageText> callbackHandler) {
+        EditMessageText editMessage = callbackHandler.get();
+        if (editMessage != null) {
+            editMessage.parseMode(ParseMode.Markdown);
+            executor.execute(editMessage);
+        }
+        return true;
     }
 }

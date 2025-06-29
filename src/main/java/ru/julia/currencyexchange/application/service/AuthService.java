@@ -55,12 +55,6 @@ public class AuthService {
         user.setChatId(chatId);
         user.setUsername(username);
 
-//        Currency preferredCurrency = currencyRepository.findByCode(preferredCurrencyCode)
-//                .orElseThrow(() -> new CurrencyNotFoundException("Currency " + preferredCurrencyCode + " not found"));
-//
-//        Settings settings = new Settings(user, preferredCurrency);
-//        user.setSettings(settings);
-
         Role userRole = roleRepository.findByRoleName("ROLE_" + RoleEnum.USER)
                 .orElseGet(() -> roleRepository.save(new Role("ROLE_" + RoleEnum.USER.name())));
 

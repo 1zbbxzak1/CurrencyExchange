@@ -4,6 +4,7 @@ import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.stereotype.Component;
 import ru.julia.currencyexchange.application.bot.messages.converter.interfaces.MessageConverter;
+import ru.julia.currencyexchange.infrastructure.configuration.Constants;
 
 import java.util.Locale;
 import java.util.Map;
@@ -28,11 +29,8 @@ public class YamlMessageConverter implements MessageConverter {
     }
 
     private String replacePlaceholders(String message, Map<String, String> params) {
-        String PLACEHOLDER_SYMBOL = "%";
-
-        // Заменяем все плейсхолдеры в формате %ключ% на соответствующие значения из карты
         for (Map.Entry<String, String> entry : params.entrySet()) {
-            String placeholder = PLACEHOLDER_SYMBOL + entry.getKey() + PLACEHOLDER_SYMBOL;
+            String placeholder = Constants.PLACEHOLDER_SYMBOL + entry.getKey() + Constants.PLACEHOLDER_SYMBOL;
             message = message.replace(placeholder, entry.getValue());
         }
         return message;
