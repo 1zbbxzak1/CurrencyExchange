@@ -11,6 +11,7 @@ import ru.julia.currencyexchange.application.service.bot.RegistrationStateServic
 import ru.julia.currencyexchange.infrastructure.bot.command.*;
 import ru.julia.currencyexchange.infrastructure.bot.command.handler.CurrencyToRubCallbackHandler;
 import ru.julia.currencyexchange.infrastructure.bot.command.handler.CurrencyConvertCallbackHandler;
+import ru.julia.currencyexchange.infrastructure.bot.command.handler.HistoryCallbackHandler;
 import ru.julia.currencyexchange.infrastructure.bot.command.interfaces.BotCommandHandler;
 
 import java.util.ArrayList;
@@ -40,6 +41,10 @@ public class DefaultMessages {
     private ConvertCommand convertCommand;
     @Autowired
     private CurrencyConvertCallbackHandler currencyConvertCallbackHandler;
+    @Autowired
+    private HistoryCommand historyCommand;
+    @Autowired
+    private HistoryCallbackHandler historyCallbackHandler;
 
     public DefaultMessages(MessageConverter messageConverter,
                            RegistrationStateService registrationStateService) {
@@ -55,6 +60,7 @@ public class DefaultMessages {
         addCommand(currenciesCommand);
         addCommand(currencyToRubCommand);
         addCommand(convertCommand);
+        addCommand(historyCommand);
     }
 
     public void addCommand(BotCommandHandler command) {
@@ -73,6 +79,9 @@ public class DefaultMessages {
         return currencyConvertCallbackHandler;
     }
 
+    public HistoryCallbackHandler getHistoryCallbackHandler() {
+        return historyCallbackHandler;
+    }
 
     public SendMessage sendMessage(Update update) {
         if (update.message() == null) {

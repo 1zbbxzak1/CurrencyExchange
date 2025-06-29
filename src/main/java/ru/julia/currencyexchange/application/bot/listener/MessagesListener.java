@@ -53,6 +53,11 @@ public class MessagesListener implements UpdatesListener {
             return true;
         }
 
+        if (handlePaginationCallback(update, callbackData, "history_page_",
+                page -> defaultMessages.getHistoryCallbackHandler().handleCallback(update, page))) {
+            return true;
+        }
+
         if (callbackData.startsWith("currency_to_rub_")) {
             return handleSimpleCallback(update,
                     () -> defaultMessages.getCurrencyToRubCallbackHandler().handleCallback(update));

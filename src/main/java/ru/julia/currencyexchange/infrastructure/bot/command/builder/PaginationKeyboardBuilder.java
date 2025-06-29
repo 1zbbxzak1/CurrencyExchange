@@ -51,4 +51,17 @@ public class PaginationKeyboardBuilder {
         keyboard.addRow(buttons);
         return keyboard;
     }
+
+    public InlineKeyboardMarkup buildHistoryPaginationKeyboard(int totalConversions,
+                                                               int currentPage,
+                                                               int conversionsPerPage) {
+        PaginationConfig config = new PaginationConfig(
+                "command.history.pagination",
+                "history_page_"
+        );
+        return buildPaginationKeyboard(totalConversions, currentPage, conversionsPerPage, config);
+    }
+
+    private record PaginationConfig(String messagePrefix, String callbackPrefix) {
+    }
 } 
