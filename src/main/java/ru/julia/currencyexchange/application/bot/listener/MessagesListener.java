@@ -49,7 +49,7 @@ public class MessagesListener implements UpdatesListener {
         return CONFIRMED_UPDATES_ALL;
     }
 
-    private boolean handleCallback(Update update) {
+    boolean handleCallback(Update update) {
         String callbackData = update.callbackQuery().data();
         if (callbackData == null) {
             return false;
