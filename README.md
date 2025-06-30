@@ -75,7 +75,10 @@
 - **Фреймворк**: Spring Boot 3.4.3
 - **База данных**: PostgreSQL 17
 - **Миграции БД**: Liquibase
-- **Рассылка**: Spring Mail + Gmail SMTP
+- **Мониторинг**: Prometheus, Grafana, Actuator
+- **Логирование**: Loki, Logstash и Promtail
+- **Тестирование**: JUnit, AssertJ, Mockito, Testcontainers
+- **Дополнительные зависимости**: BCrypt, Spring Mail, Gmail SMTP, Jackson, Telegram Bot API
 
 ## 🎴 Установка проекта
 
@@ -486,6 +489,7 @@ src/test/java/ru/julia/currencyexchange/
 
 - `application/service/` — unit- и интеграционные тесты сервисов
 - `application/util/` — unit-тесты утилит (например, ValidationUtil, DtoMapper)
+- `application/bot/` — unit-тесты настроек telegram-бота
 - `infrastructure/repository/jpa/` — интеграционные тесты репозиториев
 - `utils/annotation/`, `utils/configuration/` — вспомогательные классы для тестирования
 
