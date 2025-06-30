@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.junit.jupiter.api.DisplayName;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -23,6 +24,7 @@ class EmailServiceTest {
     }
 
     @Test
+    @DisplayName("Отправка кода верификации: корректное сообщение")
     void sendVerificationCode_sendsCorrectMessage() {
         String toEmail = "test@example.com";
         String code = "123456";
@@ -38,6 +40,7 @@ class EmailServiceTest {
     }
 
     @Test
+    @DisplayName("MailSender выбрасывает исключение: ошибка пробрасывается")
     void sendVerificationCode_mailSenderThrows_exceptionPropagates() {
         String toEmail = "fail@example.com";
         String code = "fail";

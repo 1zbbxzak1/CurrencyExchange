@@ -23,6 +23,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import org.junit.jupiter.api.DisplayName;
 
 class AuthServiceUnitTest {
     @Mock
@@ -45,6 +46,7 @@ class AuthServiceUnitTest {
     }
 
     @Test
+    @DisplayName("Успешное создание пользователя с кодом верификации")
     void createUserWithVerificationCode_success() {
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
         when(userRepository.existsByChatId(anyLong())).thenReturn(false);
@@ -68,6 +70,7 @@ class AuthServiceUnitTest {
     }
 
     @Test
+    @DisplayName("Дублирующий email вызывает исключение")
     void createUserWithVerificationCode_duplicateEmail() {
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(new User()));
         assertThatThrownBy(() -> authService.createUserWithVerificationCode(1L, "user", "user@mail.com", "pass"))
@@ -76,6 +79,7 @@ class AuthServiceUnitTest {
     }
 
     @Test
+    @DisplayName("Дублирующий chatId вызывает исключение")
     void createUserWithVerificationCode_duplicateChatId() {
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
         when(userRepository.existsByChatId(anyLong())).thenReturn(true);
@@ -85,6 +89,7 @@ class AuthServiceUnitTest {
     }
 
     @Test
+    @DisplayName("Дублирующий username вызывает исключение")
     void createUserWithVerificationCode_duplicateUsername() {
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
         when(userRepository.existsByChatId(anyLong())).thenReturn(false);
