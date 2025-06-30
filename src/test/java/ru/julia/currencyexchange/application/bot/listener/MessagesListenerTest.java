@@ -51,4 +51,47 @@ class MessagesListenerTest {
         listener.process(List.of(update));
         verify(executor, never()).execute(any());
     }
+
+    @Test
+    @DisplayName("CallbackQuery: handleCallback возвращает true — executor не вызывается")
+    void process_callbackQuery_handleCallbackTrue_noExecute() {
+        MessagesListener spyListener = spy(listener);
+        Update update = mock(Update.class);
+        when(update.callbackQuery()).thenReturn(mock(com.pengrad.telegrambot.model.CallbackQuery.class));
+        doReturn(true).when(spyListener).handleCallback(update);
+        spyListener.process(List.of(update));
+        verify(executor, never()).execute(any());
+    }
+
+    @Test
+    @DisplayName("executor.execute выбрасывает исключение — процесс не падает")
+    void process_executorThrows_noCrash() {
+        Update update = mock(Update.class);
+        SendMessage sendMessage = mock(SendMessage.class);
+        when(update.callbackQuery()).thenReturn(null);
+        when(defaultMessages.sendMessage(update)).thenReturn(sendMessage);
+        when(sendMessage.getParameters()).thenReturn(Map.of());
+        doThrow(new RuntimeException("fail")).when(executor).execute(sendMessage);
+        listener.process(List.of(update));
+        // тест пройдет, если не выброшено исключение
+    }
+
+    @Test
+    @DisplayName("Пустой список update — executor не вызывается")
+    void process_emptyList_noExecute() {
+        listener.process(List.of());
+        verify(executor, never()).execute(any());
+    }
+
+    @Test
+    @DisplayName("CallbackQuery: если callbackData == null — executor не вызывается")
+    void process_callbackQuery_callbackDataNull_noExecute() {
+        Update update = mock(Update.class);
+        com.pengrad.telegrambot.model.CallbackQuery callbackQuery = mock(com.pengrad.telegrambot.model.CallbackQuery.class);
+        when(update.callbackQuery()).thenReturn(callbackQuery);
+        when(callbackQuery.data()).thenReturn(null);
+
+        listener.process(List.of(update));
+        verify(executor, never()).execute(any());
+    }
 } 
