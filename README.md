@@ -491,6 +491,7 @@ src/test/java/ru/julia/currencyexchange/
 - `application/util/` — unit-тесты утилит (например, ValidationUtil, DtoMapper)
 - `application/bot/` — unit-тесты настроек telegram-бота
 - `infrastructure/repository/jpa/` — интеграционные тесты репозиториев
+    - `infrastructure/bot/command/` — unit- и интеграционные тесты команд telegram-бота
 - `utils/annotation/`, `utils/configuration/` — вспомогательные классы для тестирования
 
 ### 🏃 Запуск тестов
