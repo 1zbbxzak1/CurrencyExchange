@@ -37,6 +37,7 @@ class RoleRepositoryTest {
         roleRepository.save(role);
 
         Optional<Role> found = roleRepository.findById(role.getId());
+
         assertThat(found).isPresent();
         assertThat(found.get().getRoleName()).isEqualTo("ADMIN");
     }
@@ -49,6 +50,7 @@ class RoleRepositoryTest {
         roleRepository.save(role);
 
         Optional<Role> found = roleRepository.findByRoleName("USER");
+
         assertThat(found).isPresent();
         assertThat(found.get().getRoleName()).isEqualTo("USER");
     }
@@ -65,8 +67,10 @@ class RoleRepositoryTest {
     void deleteRole() {
         Role role = new Role();
         role.setRoleName("TO_DELETE");
+
         roleRepository.save(role);
         roleRepository.deleteById(role.getId());
+
         assertThat(roleRepository.findById(role.getId())).isEmpty();
     }
 
@@ -78,7 +82,9 @@ class RoleRepositoryTest {
         roleRepository.save(role);
         role.setRoleName("UPDATED");
         roleRepository.save(role);
+
         Optional<Role> found = roleRepository.findById(role.getId());
+
         assertThat(found).isPresent();
         assertThat(found.get().getRoleName()).isEqualTo("UPDATED");
     }
@@ -88,11 +94,15 @@ class RoleRepositoryTest {
     void findAllReturnsAllRoles() {
         Role role1 = new Role();
         role1.setRoleName("ADMIN");
+
         Role role2 = new Role();
         role2.setRoleName("USER");
+
         roleRepository.save(role1);
         roleRepository.save(role2);
+
         Iterable<Role> roles = roleRepository.findAll();
+
         assertThat(roles).extracting(Role::getRoleName).contains("ADMIN", "USER");
     }
 }

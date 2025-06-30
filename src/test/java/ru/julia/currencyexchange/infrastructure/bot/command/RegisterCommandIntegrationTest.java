@@ -21,6 +21,8 @@ import ru.julia.currencyexchange.utils.annotation.PostgresTestcontainers;
 import ru.julia.currencyexchange.utils.configuration.DatabaseCleaner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ActiveProfile
@@ -70,19 +72,22 @@ class RegisterCommandIntegrationTest {
         msg = command.handle(update);
         assertThat(msg.getParameters().get("text")).isEqualTo(messageConverter.resolve("command.register.success"));
         assertThat(registrationStateService.getState(chatId)).isEqualTo(RegistrationState.NONE);
+
         User user = userService.findUserByChatId(chatId);
         assertThat(user.isVerified()).isTrue();
     }
 
     private Update mockUpdate(Long chatId, String username, String text) {
-        Update update = org.mockito.Mockito.mock(Update.class);
-        Message message = org.mockito.Mockito.mock(Message.class);
-        Chat chat = org.mockito.Mockito.mock(Chat.class);
-        org.mockito.Mockito.when(update.message()).thenReturn(message);
-        org.mockito.Mockito.when(message.chat()).thenReturn(chat);
-        org.mockito.Mockito.when(chat.id()).thenReturn(chatId);
-        org.mockito.Mockito.when(chat.username()).thenReturn(username);
-        org.mockito.Mockito.when(message.text()).thenReturn(text);
+        Update update = mock(Update.class);
+        Message message = mock(Message.class);
+        Chat chat = mock(Chat.class);
+
+        when(update.message()).thenReturn(message);
+        when(message.chat()).thenReturn(chat);
+        when(chat.id()).thenReturn(chatId);
+        when(chat.username()).thenReturn(username);
+        when(message.text()).thenReturn(text);
+
         return update;
     }
 
@@ -92,9 +97,12 @@ class RegisterCommandIntegrationTest {
         Long chatId = 101L;
         Update update = mockUpdate(chatId, "user101", "/register");
         command.handle(update);
+
         update = mockUpdate(chatId, "user101", "bademail");
+
         SendMessage msg = command.handle(update);
         assertThat(msg.getParameters().get("text")).isEqualTo(messageConverter.resolve("command.register.invalid_email"));
+
         assertThat(registrationStateService.getState(chatId)).isEqualTo(RegistrationState.WAITING_EMAIL);
     }
 
@@ -104,11 +112,15 @@ class RegisterCommandIntegrationTest {
         Long chatId = 102L;
         Update update = mockUpdate(chatId, "user102", "/register");
         command.handle(update);
+
         update = mockUpdate(chatId, "user102", "test102@mail.com");
         command.handle(update);
+
         update = mockUpdate(chatId, "user102", "123");
+
         SendMessage msg = command.handle(update);
         assertThat(msg.getParameters().get("text")).isEqualTo(messageConverter.resolve("command.register.password_too_short"));
+
         assertThat(registrationStateService.getState(chatId)).isEqualTo(RegistrationState.WAITING_PASSWORD);
     }
 
@@ -121,11 +133,15 @@ class RegisterCommandIntegrationTest {
 
         Update update = mockUpdate(chatId, username, "/register");
         command.handle(update);
+
         update = mockUpdate(chatId, username, "test103@mail.com");
         command.handle(update);
+
         update = mockUpdate(chatId, username, "123456");
+
         SendMessage msg = command.handle(update);
         assertThat(msg.getParameters().get("text")).asString().contains(messageConverter.resolve("command.register.error"));
+
         assertThat(registrationStateService.getState(chatId)).isEqualTo(RegistrationState.NONE);
     }
 
@@ -137,14 +153,18 @@ class RegisterCommandIntegrationTest {
 
         Update update = mockUpdate(chatId, username, "/register");
         command.handle(update);
+
         update = mockUpdate(chatId, username, "test104@mail.com");
         command.handle(update);
+
         update = mockUpdate(chatId, username, "123456");
         command.handle(update);
 
         update = mockUpdate(chatId, username, "wrongcode");
+
         SendMessage msg = command.handle(update);
         assertThat(msg.getParameters().get("text")).isEqualTo(messageConverter.resolve("command.register.invalid_code"));
+
         assertThat(registrationStateService.getState(chatId)).isEqualTo(RegistrationState.WAITING_VERIFICATION_CODE);
     }
 
@@ -156,15 +176,19 @@ class RegisterCommandIntegrationTest {
 
         Update update = mockUpdate(chatId, username, "/register");
         command.handle(update);
+
         update = mockUpdate(chatId, username, "test105@mail.com");
         command.handle(update);
+
         update = mockUpdate(chatId, username, "123456");
         command.handle(update);
 
         registrationStateService.getData(chatId).setEmail(null);
         update = mockUpdate(chatId, username, "anycode");
+
         SendMessage msg = command.handle(update);
         assertThat(msg.getParameters().get("text")).isEqualTo(messageConverter.resolve("command.register.invalid_code"));
+
         assertThat(registrationStateService.getState(chatId)).isEqualTo(RegistrationState.WAITING_VERIFICATION_CODE);
     }
 
@@ -172,13 +196,18 @@ class RegisterCommandIntegrationTest {
     @DisplayName("matches, getCommand, getDescription")
     void metaMethods() {
         Long chatId = 106L;
+
         Update update = mockUpdate(chatId, "user106", "/register");
         assertThat(command.matches(update)).isTrue();
+
         command.handle(update);
+
         Update update2 = mockUpdate(chatId, "user106", "test106@mail.com");
         assertThat(command.matches(update2)).isTrue();
-        Update update3 = org.mockito.Mockito.mock(Update.class);
-        org.mockito.Mockito.when(update3.message()).thenReturn(null);
+
+        Update update3 = mock(Update.class);
+        when(update3.message()).thenReturn(null);
+
         assertThat(command.matches(update3)).isFalse();
         assertThat(command.getCommand()).isEqualTo("/register");
         assertThat(command.getDescription()).isEqualTo("command.register.description");

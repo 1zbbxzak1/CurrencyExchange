@@ -21,6 +21,8 @@ import ru.julia.currencyexchange.utils.configuration.DatabaseCleaner;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ActiveProfile
@@ -49,19 +51,22 @@ class StartCommandIntegrationTest {
     void newUser() {
         Update update = mockUpdate(1L, "user", "Имя");
         SendMessage msg = command.handle(update);
+        
         assertThat(msg.getParameters().get("text")).isEqualTo(
                 messageConverter.resolve("command.start.start_message", Map.of("user_name", "Имя")));
     }
 
     private Update mockUpdate(Long chatId, String username, String firstName) {
-        Update update = org.mockito.Mockito.mock(Update.class);
-        Message message = org.mockito.Mockito.mock(Message.class);
-        Chat chat = org.mockito.Mockito.mock(Chat.class);
-        org.mockito.Mockito.when(update.message()).thenReturn(message);
-        org.mockito.Mockito.when(message.chat()).thenReturn(chat);
-        org.mockito.Mockito.when(chat.id()).thenReturn(chatId);
-        org.mockito.Mockito.when(chat.username()).thenReturn(username);
-        org.mockito.Mockito.when(chat.firstName()).thenReturn(firstName);
+        Update update = mock(Update.class);
+        Message message = mock(Message.class);
+        Chat chat = mock(Chat.class);
+
+        when(update.message()).thenReturn(message);
+        when(message.chat()).thenReturn(chat);
+        when(chat.id()).thenReturn(chatId);
+        when(chat.username()).thenReturn(username);
+        when(chat.firstName()).thenReturn(firstName);
+
         return update;
     }
 
@@ -69,13 +74,17 @@ class StartCommandIntegrationTest {
     @DisplayName("Верифицированный пользователь")
     void verifiedUser() {
         createUser(2L, "user2", "Имя2", true, false, false);
+
         Update update = mockUpdate(2L, "user2", "Имя2");
         SendMessage msg = command.handle(update);
+
         assertThat(msg.getParameters().get("text")).isEqualTo(
                 messageConverter.resolve("command.start.welcome_back_message", Map.of("user_name", "Имя2")));
     }
 
-    private User createUser(Long chatId, String username, String firstName, boolean verified, boolean deleted, boolean banned) {
+    private User createUser(Long chatId, String username,
+                            String firstName, boolean verified,
+                            boolean deleted, boolean banned) {
         User user = new User();
         user.setChatId(chatId);
         user.setUsername(username);
@@ -84,6 +93,7 @@ class StartCommandIntegrationTest {
         user.setVerified(verified);
         user.setDeleted(deleted);
         user.setBanned(banned);
+
         return userRepository.save(user);
     }
 
@@ -91,8 +101,10 @@ class StartCommandIntegrationTest {
     @DisplayName("Пользователь не верифицирован")
     void notVerifiedUser() {
         createUser(3L, "user3", "Имя3", false, false, false);
+
         Update update = mockUpdate(3L, "user3", "Имя3");
         SendMessage msg = command.handle(update);
+
         assertThat(msg.getParameters().get("text")).isEqualTo(
                 messageConverter.resolve("command.start.not_verified_message"));
     }
@@ -101,8 +113,10 @@ class StartCommandIntegrationTest {
     @DisplayName("Пользователь забанен")
     void bannedUser() {
         createUser(4L, "user4", "Имя4", true, false, true);
+
         Update update = mockUpdate(4L, "user4", "Имя4");
         SendMessage msg = command.handle(update);
+
         assertThat(msg.getParameters().get("text")).isEqualTo(
                 messageConverter.resolve("command.start.banned_message"));
     }
@@ -111,8 +125,10 @@ class StartCommandIntegrationTest {
     @DisplayName("Пользователь удалён")
     void deletedUser() {
         createUser(5L, "user5", "Имя5", true, true, false);
+
         Update update = mockUpdate(5L, "user5", "Имя5");
         SendMessage msg = command.handle(update);
+
         assertThat(msg.getParameters().get("text")).isEqualTo(
                 messageConverter.resolve("command.start.deleted_message"));
     }

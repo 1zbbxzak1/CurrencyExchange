@@ -28,6 +28,8 @@ import ru.julia.currencyexchange.utils.configuration.DatabaseCleaner;
 import java.math.BigDecimal;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ActiveProfile
@@ -63,8 +65,9 @@ class ConvertCommandIntegrationTest {
         @Test
         @DisplayName("/convert: нет валют")
         void noCurrencies() {
-            User user = createUser(1L, "user", "user@mail.com", true, false, false);
-            Update update = mockUpdate(1L, "user", "/convert");
+            User user = createUser(1L, "user@mail.com", false);
+            Update update = mockUpdate(1L, "/convert");
+
             SendMessage msg = command.handle(update);
             assertThat(msg.getParameters().get("text")).asString().contains("Нет доступных валют");
         }
@@ -72,10 +75,12 @@ class ConvertCommandIntegrationTest {
         @Test
         @DisplayName("/convert: есть валюты, выбор валюты")
         void showFromCurrencySelection() {
-            User user = createUser(2L, "user", "user2@mail.com", true, false, false);
+            User user = createUser(2L, "user2@mail.com", false);
             currencyRepository.save(new Currency("USD", "Доллар", BigDecimal.valueOf(100)));
             currencyRepository.save(new Currency("EUR", "Евро", BigDecimal.valueOf(90)));
-            Update update = mockUpdate(2L, "user", "/convert");
+
+            Update update = mockUpdate(2L, "/convert");
+
             SendMessage msg = command.handle(update);
             assertThat(msg.getParameters().get("text")).asString().contains("Конвертация валют");
             assertThat(msg.getParameters().get("reply_markup")).isInstanceOf(InlineKeyboardMarkup.class);
@@ -84,8 +89,9 @@ class ConvertCommandIntegrationTest {
         @Test
         @DisplayName("/convert USD: несуществующая валюта")
         void handleSingleCurrency_notFound() {
-            User user = createUser(3L, "user", "user3@mail.com", true, false, false);
-            Update update = mockUpdate(3L, "user", "/convert USD");
+            User user = createUser(3L, "user3@mail.com", false);
+            Update update = mockUpdate(3L, "/convert USD");
+
             SendMessage msg = command.handle(update);
             assertThat(msg.getParameters().get("text")).asString().contains("не найдена");
         }
@@ -93,9 +99,11 @@ class ConvertCommandIntegrationTest {
         @Test
         @DisplayName("/convert USD EUR: несуществующая валюта")
         void handleCurrencySelection_notFound() {
-            User user = createUser(4L, "user", "user4@mail.com", true, false, false);
+            User user = createUser(4L, "user4@mail.com", false);
             currencyRepository.save(new Currency("USD", "Доллар", BigDecimal.valueOf(100)));
-            Update update = mockUpdate(4L, "user", "/convert USD EUR");
+
+            Update update = mockUpdate(4L, "/convert USD EUR");
+
             SendMessage msg = command.handle(update);
             assertThat(msg.getParameters().get("text")).asString().contains("не найдена");
         }
@@ -103,23 +111,26 @@ class ConvertCommandIntegrationTest {
         @Test
         @DisplayName("/convert USD EUR 100: успешная конвертация")
         void handleFullConvert_success() {
-            User user = createUser(5L, "user", "user5@mail.com", true, false, false);
+            User user = createUser(5L, "user5@mail.com", false);
             currencyRepository.save(new Currency("USD", "Доллар", BigDecimal.valueOf(100)));
             currencyRepository.save(new Currency("EUR", "Евро", BigDecimal.valueOf(90)));
-            Update update = mockUpdate(5L, "user", "/convert USD EUR 100");
+
+            Update update = mockUpdate(5L, "/convert USD EUR 100");
+
             SendMessage msg = command.handle(update);
             assertThat(msg.getParameters().get("text")).asString().contains("Конвертация валют");
             assertThat(msg.getParameters().get("reply_markup")).isInstanceOf(InlineKeyboardMarkup.class);
-            // Историю можно проверить через отдельный тест или репозиторий
         }
 
         @Test
         @DisplayName("/convert USD EUR 100: невалидная сумма")
         void handleFullConvert_invalidAmount() {
-            User user = createUser(6L, "user", "user6@mail.com", true, false, false);
+            User user = createUser(6L, "user6@mail.com", false);
             currencyRepository.save(new Currency("USD", "Доллар", BigDecimal.valueOf(100)));
             currencyRepository.save(new Currency("EUR", "Евро", BigDecimal.valueOf(90)));
-            Update update = mockUpdate(6L, "user", "/convert USD EUR -1");
+
+            Update update = mockUpdate(6L, "/convert USD EUR -1");
+
             SendMessage msg = command.handle(update);
             assertThat(msg.getParameters().get("text")).asString().contains("Неверная сумма");
         }
@@ -127,7 +138,8 @@ class ConvertCommandIntegrationTest {
         @Test
         @DisplayName("/convert: пользователь не найден")
         void userNotFound() {
-            Update update = mockUpdate(7L, "user", "/convert");
+            Update update = mockUpdate(7L, "/convert");
+
             SendMessage msg = command.handle(update);
             assertThat(msg.getParameters().get("text")).asString().contains("Ошибка");
         }
@@ -135,9 +147,11 @@ class ConvertCommandIntegrationTest {
         @Test
         @DisplayName("/convert: пользователь забанен")
         void userBanned() {
-            User user = createUser(8L, "user", "user8@mail.com", true, false, true);
+            User user = createUser(8L, "user8@mail.com", true);
             currencyRepository.save(new Currency("USD", "Доллар", BigDecimal.valueOf(100)));
-            Update update = mockUpdate(8L, "user", "/convert");
+
+            Update update = mockUpdate(8L, "/convert");
+
             SendMessage msg = command.handle(update);
             assertThat(msg.getParameters().get("text")).asString().contains("Ошибка");
         }
@@ -146,50 +160,57 @@ class ConvertCommandIntegrationTest {
     @Test
     @DisplayName("isAccessible: все ветки")
     void isAccessibleVariants() {
-        User user = createUser(9L, "user", "user9@mail.com", true, false, false);
+        User user = createUser(9L, "user9@mail.com", false);
         assertThat(command.isAccessible(user)).isTrue();
+
         user.setDeleted(true);
         assertThat(command.isAccessible(user)).isFalse();
+
         user.setDeleted(false);
         user.setVerified(false);
         assertThat(command.isAccessible(user)).isFalse();
         assertThat(command.isAccessible(null)).isFalse();
     }
 
-    private User createUser(Long chatId, String username, String email, boolean verified, boolean deleted, boolean banned) {
+    private User createUser(Long chatId, String email, boolean banned) {
         User user = new User();
         user.setChatId(chatId);
-        user.setUsername(username);
+        user.setUsername("user");
         user.setEmail(email);
         user.setPassword("pass");
-        user.setVerified(verified);
-        user.setDeleted(deleted);
+        user.setVerified(true);
+        user.setDeleted(false);
         user.setBanned(banned);
+
         return userRepository.save(user);
     }
 
     @Test
     @DisplayName("matches: все ветки")
     void matchesVariants() {
-        Update update = mockUpdate(10L, "user", "/convert");
+        Update update = mockUpdate(10L, "/convert");
         assertThat(command.matches(update)).isTrue();
-        Update update2 = mockUpdate(11L, "user", "any");
+
+        Update update2 = mockUpdate(11L, "any");
         currencyConvertService.setState(11L, ConversionState.WAITING_AMOUNT);
         assertThat(command.matches(update2)).isTrue();
-        Update update3 = org.mockito.Mockito.mock(Update.class);
-        org.mockito.Mockito.when(update3.message()).thenReturn(null);
+
+        Update update3 = mock(Update.class);
+        when(update3.message()).thenReturn(null);
         assertThat(command.matches(update3)).isFalse();
     }
 
-    private Update mockUpdate(Long chatId, String username, String text) {
-        Update update = org.mockito.Mockito.mock(Update.class);
-        Message message = org.mockito.Mockito.mock(Message.class);
-        Chat chat = org.mockito.Mockito.mock(Chat.class);
-        org.mockito.Mockito.when(update.message()).thenReturn(message);
-        org.mockito.Mockito.when(message.chat()).thenReturn(chat);
-        org.mockito.Mockito.when(chat.id()).thenReturn(chatId);
-        org.mockito.Mockito.when(chat.username()).thenReturn(username);
-        org.mockito.Mockito.when(message.text()).thenReturn(text);
+    private Update mockUpdate(Long chatId, String text) {
+        Update update = mock(Update.class);
+        Message message = mock(Message.class);
+        Chat chat = mock(Chat.class);
+
+        when(update.message()).thenReturn(message);
+        when(message.chat()).thenReturn(chat);
+        when(chat.id()).thenReturn(chatId);
+        when(chat.username()).thenReturn("user");
+        when(message.text()).thenReturn(text);
+
         return update;
     }
 } 

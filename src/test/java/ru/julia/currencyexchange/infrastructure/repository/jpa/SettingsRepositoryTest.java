@@ -37,6 +37,7 @@ class SettingsRepositoryTest {
         settingsRepository.save(settings);
 
         Optional<Settings> found = settingsRepository.findById(settings.getId());
+
         assertThat(found).isPresent();
         assertThat(found.get().getConversionFeePercent()).isEqualTo(0.05);
     }
@@ -49,6 +50,7 @@ class SettingsRepositoryTest {
         settingsRepository.save(settings);
 
         Optional<Settings> found = settingsRepository.findFirst();
+
         assertThat(found).isPresent();
         assertThat(found.get().getConversionFeePercent()).isEqualTo(0.1);
     }
@@ -65,8 +67,10 @@ class SettingsRepositoryTest {
     void deleteSettings() {
         Settings settings = new Settings();
         settings.setConversionFeePercent(0.01);
+
         settingsRepository.save(settings);
         settingsRepository.deleteById(settings.getId());
+
         assertThat(settingsRepository.findById(settings.getId())).isEmpty();
     }
 
@@ -78,7 +82,9 @@ class SettingsRepositoryTest {
         settingsRepository.save(settings);
         settings.setConversionFeePercent(0.02);
         settingsRepository.save(settings);
+
         Optional<Settings> found = settingsRepository.findById(settings.getId());
+
         assertThat(found).isPresent();
         assertThat(found.get().getConversionFeePercent()).isEqualTo(0.02);
     }
@@ -88,11 +94,15 @@ class SettingsRepositoryTest {
     void findAllReturnsAllSettings() {
         Settings settings1 = new Settings();
         settings1.setConversionFeePercent(0.01);
+
         Settings settings2 = new Settings();
         settings2.setConversionFeePercent(0.02);
+        
         settingsRepository.save(settings1);
         settingsRepository.save(settings2);
+
         Iterable<Settings> settingsList = settingsRepository.findAll();
+
         assertThat(settingsList).extracting(Settings::getConversionFeePercent).contains(0.01, 0.02);
     }
 }

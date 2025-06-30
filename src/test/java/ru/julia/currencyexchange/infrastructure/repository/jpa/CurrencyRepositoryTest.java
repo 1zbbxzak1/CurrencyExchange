@@ -10,6 +10,7 @@ import ru.julia.currencyexchange.utils.annotation.ActiveProfile;
 import ru.julia.currencyexchange.utils.annotation.PostgresTestcontainers;
 import ru.julia.currencyexchange.utils.configuration.DatabaseCleaner;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,10 +36,11 @@ class CurrencyRepositoryTest {
         Currency currency = new Currency();
         currency.setCode("USD");
         currency.setName("US Dollar");
-        currency.setExchangeRate(java.math.BigDecimal.valueOf(90.0));
+        currency.setExchangeRate(BigDecimal.valueOf(90.0));
         currencyRepository.save(currency);
 
         Optional<Currency> found = currencyRepository.findById(currency.getId());
+
         assertThat(found).isPresent();
         assertThat(found.get().getName()).isEqualTo("US Dollar");
     }
@@ -49,10 +51,11 @@ class CurrencyRepositoryTest {
         Currency currency = new Currency();
         currency.setCode("EUR");
         currency.setName("Euro");
-        currency.setExchangeRate(java.math.BigDecimal.valueOf(100.0));
+        currency.setExchangeRate(BigDecimal.valueOf(100.0));
         currencyRepository.save(currency);
 
         Optional<Currency> found = currencyRepository.findByCode("EUR");
+
         assertThat(found).isPresent();
         assertThat(found.get().getName()).isEqualTo("Euro");
     }
@@ -70,9 +73,10 @@ class CurrencyRepositoryTest {
         Currency currency = new Currency();
         currency.setCode("TO_DELETE");
         currency.setName("To Delete");
-        currency.setExchangeRate(java.math.BigDecimal.valueOf(1));
+        currency.setExchangeRate(BigDecimal.valueOf(1));
         currencyRepository.save(currency);
         currencyRepository.deleteById(currency.getId());
+
         assertThat(currencyRepository.findById(currency.getId())).isEmpty();
     }
 
@@ -82,11 +86,13 @@ class CurrencyRepositoryTest {
         Currency currency = new Currency();
         currency.setCode("TO_UPDATE");
         currency.setName("To Update");
-        currency.setExchangeRate(java.math.BigDecimal.valueOf(1));
+        currency.setExchangeRate(BigDecimal.valueOf(1));
         currencyRepository.save(currency);
         currency.setName("Updated");
         currencyRepository.save(currency);
+
         Optional<Currency> found = currencyRepository.findById(currency.getId());
+
         assertThat(found).isPresent();
         assertThat(found.get().getName()).isEqualTo("Updated");
     }
@@ -97,13 +103,16 @@ class CurrencyRepositoryTest {
         Currency currency1 = new Currency();
         currency1.setCode("USD");
         currency1.setName("US Dollar");
-        currency1.setExchangeRate(java.math.BigDecimal.valueOf(90.0));
+        currency1.setExchangeRate(BigDecimal.valueOf(90.0));
+
         Currency currency2 = new Currency();
         currency2.setCode("EUR");
         currency2.setName("Euro");
-        currency2.setExchangeRate(java.math.BigDecimal.valueOf(100.0));
+        currency2.setExchangeRate(BigDecimal.valueOf(100.0));
+
         currencyRepository.save(currency1);
         currencyRepository.save(currency2);
+
         Iterable<Currency> currencies = currencyRepository.findAll();
         assertThat(currencies).extracting(Currency::getCode).contains("USD", "EUR");
     }

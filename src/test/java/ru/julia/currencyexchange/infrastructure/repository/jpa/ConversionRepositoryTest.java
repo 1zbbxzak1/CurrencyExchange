@@ -63,8 +63,9 @@ class ConversionRepositoryTest {
         conversionRepository.save(conversion);
 
         List<CurrencyConversion> found = conversionRepository.findByCurrencyDate(LocalDate.now(), user.getId());
+
         assertThat(found).isNotEmpty();
-        assertThat(found.get(0).getUser().getUsername()).isEqualTo("convuser");
+        assertThat(found.getFirst().getUser().getUsername()).isEqualTo("convuser");
     }
 
     @Test
@@ -93,8 +94,9 @@ class ConversionRepositoryTest {
         conversionRepository.save(conversion);
 
         List<CurrencyConversion> found = conversionRepository.findConversionByUserId(user.getId());
+
         assertThat(found).isNotEmpty();
-        assertThat(found.get(0).getUser().getUsername()).isEqualTo("convuser2");
+        assertThat(found.getFirst().getUser().getUsername()).isEqualTo("convuser2");
     }
 
     @Test
@@ -113,11 +115,13 @@ class ConversionRepositoryTest {
         user.setChatId(123123L);
         user.setPassword("pass");
         userRepository.save(user);
+
         Currency currency = new Currency();
         currency.setCode("DEL");
         currency.setName("DelCurr");
         currency.setExchangeRate(BigDecimal.valueOf(1));
         currencyRepository.save(currency);
+
         CurrencyConversion conv = new CurrencyConversion();
         conv.setUser(user);
         conv.setSourceCurrency(currency);
@@ -127,6 +131,7 @@ class ConversionRepositoryTest {
         conv.setConversionRate(BigDecimal.valueOf(1));
         conversionRepository.save(conv);
         conversionRepository.deleteById(conv.getId());
+
         assertThat(conversionRepository.findById(conv.getId())).isEmpty();
     }
 
@@ -139,11 +144,13 @@ class ConversionRepositoryTest {
         user.setChatId(321321L);
         user.setPassword("pass");
         userRepository.save(user);
+
         Currency currency = new Currency();
         currency.setCode("UPD");
         currency.setName("UpdCurr");
         currency.setExchangeRate(BigDecimal.valueOf(1));
         currencyRepository.save(currency);
+
         CurrencyConversion conv = new CurrencyConversion();
         conv.setUser(user);
         conv.setSourceCurrency(currency);
@@ -154,7 +161,9 @@ class ConversionRepositoryTest {
         conversionRepository.save(conv);
         conv.setAmount(BigDecimal.valueOf(2));
         conversionRepository.save(conv);
+
         Optional<CurrencyConversion> found = conversionRepository.findById(conv.getId());
+
         assertThat(found).isPresent();
         assertThat(found.get().getAmount()).isEqualTo(BigDecimal.valueOf(2));
     }
@@ -168,11 +177,13 @@ class ConversionRepositoryTest {
         user.setChatId(77777L);
         user.setPassword("testpass");
         userRepository.save(user);
+
         Currency currency = new Currency();
         currency.setCode("CHF");
         currency.setName("Franc");
         currency.setExchangeRate(BigDecimal.valueOf(95.0));
         currencyRepository.save(currency);
+
         CurrencyConversion conv1 = new CurrencyConversion();
         conv1.setUser(user);
         conv1.setSourceCurrency(currency);
@@ -180,6 +191,7 @@ class ConversionRepositoryTest {
         conv1.setAmount(BigDecimal.valueOf(10));
         conv1.setConvertedAmount(BigDecimal.valueOf(950));
         conv1.setConversionRate(BigDecimal.valueOf(95.0));
+
         CurrencyConversion conv2 = new CurrencyConversion();
         conv2.setUser(user);
         conv2.setSourceCurrency(currency);
@@ -187,9 +199,12 @@ class ConversionRepositoryTest {
         conv2.setAmount(BigDecimal.valueOf(20));
         conv2.setConvertedAmount(BigDecimal.valueOf(1900));
         conv2.setConversionRate(BigDecimal.valueOf(95.0));
+
         conversionRepository.save(conv1);
         conversionRepository.save(conv2);
+
         Iterable<CurrencyConversion> conversions = conversionRepository.findAll();
+        
         assertThat(conversions).anyMatch(c -> c.getAmount().intValue() == 10 || c.getAmount().intValue() == 20);
     }
 }

@@ -40,6 +40,7 @@ class UserRepositoryTest {
         userRepository.save(user);
 
         Optional<User> found = userRepository.findById(user.getId());
+
         assertThat(found).isPresent();
         assertThat(found.get().getUsername()).isEqualTo("testuser");
     }
@@ -55,6 +56,7 @@ class UserRepositoryTest {
         userRepository.save(user);
 
         Optional<User> found = userRepository.findByEmail("another@example.com");
+
         assertThat(found).isPresent();
         assertThat(found.get().getUsername()).isEqualTo("anotheruser");
     }
@@ -70,6 +72,7 @@ class UserRepositoryTest {
         userRepository.save(user);
 
         Boolean exists = userRepository.existsByUsername("uniqueuser");
+
         assertThat(exists).isTrue();
     }
 
@@ -84,6 +87,7 @@ class UserRepositoryTest {
         userRepository.save(user);
 
         Boolean exists = userRepository.existsByChatId(22222L);
+
         assertThat(exists).isTrue();
     }
 
@@ -104,6 +108,7 @@ class UserRepositoryTest {
         user.setPassword("pass");
         userRepository.save(user);
         userRepository.deleteById(user.getId());
+
         assertThat(userRepository.findById(user.getId())).isEmpty();
     }
 
@@ -118,7 +123,9 @@ class UserRepositoryTest {
         userRepository.save(user);
         user.setEmail("updated@example.com");
         userRepository.save(user);
+
         Optional<User> found = userRepository.findById(user.getId());
+
         assertThat(found).isPresent();
         assertThat(found.get().getEmail()).isEqualTo("updated@example.com");
     }
@@ -131,14 +138,18 @@ class UserRepositoryTest {
         user1.setEmail("user1@example.com");
         user1.setChatId(10001L);
         user1.setPassword("pass1");
+
         User user2 = new User();
         user2.setUsername("user2");
         user2.setEmail("user2@example.com");
         user2.setChatId(10002L);
         user2.setPassword("pass2");
+
         userRepository.save(user1);
         userRepository.save(user2);
+
         Iterable<User> users = userRepository.findAll();
+        
         assertThat(users).extracting(User::getUsername).contains("user1", "user2");
     }
 }

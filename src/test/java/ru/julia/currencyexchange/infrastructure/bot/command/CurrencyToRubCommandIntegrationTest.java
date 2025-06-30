@@ -23,6 +23,7 @@ import ru.julia.currencyexchange.utils.annotation.PostgresTestcontainers;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -63,58 +64,67 @@ class CurrencyToRubCommandIntegrationTest {
     @Test
     @DisplayName("Пользователь не найден")
     void userNotFound() {
-        var update = mockUpdate(1L, "user", "/currencyToRub USD");
+        var update = mockUpdate(1L, "/currencyToRub USD");
+
         SendMessage msg = command.handle(update);
         assertThat(msg.getParameters().get("text")).isEqualTo(messageConverter.resolve("command.currencyToRub.error"));
     }
 
-    private Update mockUpdate(Long chatId, String username, String text) {
+    private Update mockUpdate(Long chatId, String text) {
         Update update = mock(Update.class);
         Message message = mock(Message.class);
         Chat chat = mock(Chat.class);
+
         when(update.message()).thenReturn(message);
         when(message.chat()).thenReturn(chat);
         when(chat.id()).thenReturn(chatId);
-        when(chat.username()).thenReturn(username);
+        when(chat.username()).thenReturn("user");
         when(message.text()).thenReturn(text);
+
         return update;
     }
 
     @Test
     @DisplayName("Нет кода валюты — показать клавиатуру выбора, валют нет")
     void noCurrencyCode_noCurrencies() {
-        createUser(3L, false, false, true);
-        var update = mockUpdate(3L, "user", "/currencyToRub");
+        createUser(3L);
+
+        var update = mockUpdate(3L, "/currencyToRub");
+
         SendMessage msg = command.handle(update);
         assertThat(msg.getParameters().get("text")).isEqualTo(messageConverter.resolve("command.currencyToRub.no_currencies"));
     }
 
-    private User createUser(Long chatId, boolean banned, boolean deleted, boolean verified) {
+    private User createUser(Long chatId) {
         User user = new User();
         user.setChatId(chatId);
         user.setUsername("user" + chatId);
-        user.setBanned(banned);
-        user.setDeleted(deleted);
-        user.setVerified(verified);
+        user.setBanned(false);
+        user.setDeleted(false);
+        user.setVerified(true);
         user.setEmail("user" + chatId + "@mail.com");
         user.setPassword("testpassword");
+
         return userRepository.save(user);
     }
 
     @Test
     @DisplayName("Нет кода валюты — показать клавиатуру выбора, валюты есть")
     void noCurrencyCode_withCurrencies() {
-        createUser(4L, false, false, true);
-        createCurrency("USD", "Доллар", BigDecimal.valueOf(100));
-        var update = mockUpdate(4L, "user", "/currencyToRub");
+        createUser(4L);
+        createCurrency(BigDecimal.valueOf(100));
+
+        var update = mockUpdate(4L, "/currencyToRub");
+
         SendMessage msg = command.handle(update);
         assertThat(msg.getParameters().get("text")).asString().contains(messageConverter.resolve("command.currencyToRub.selection.title"));
         assertThat(msg.getParameters().get("reply_markup")).isNotNull();
     }
 
-    private Currency createCurrency(String code, String name, BigDecimal rate) {
-        Currency currency = new Currency(code, name, rate);
+    private Currency createCurrency(BigDecimal rate) {
+        Currency currency = new Currency("USD", "Доллар", rate);
         setLastUpdated(currency, LocalDateTime.now());
+
         return currencyRepository.save(currency);
     }
 
@@ -131,9 +141,11 @@ class CurrencyToRubCommandIntegrationTest {
     @Test
     @DisplayName("Валюта не найдена")
     void currencyNotFound() {
-        createUser(5L, false, false, true);
-        var update = mockUpdate(5L, "user", "/currencyToRub XXX");
-        String expected = messageConverter.resolve("command.currencyToRub.not_found", java.util.Map.of("currency_code", "XXX"));
+        createUser(5L);
+
+        var update = mockUpdate(5L, "/currencyToRub XXX");
+        String expected = messageConverter.resolve("command.currencyToRub.not_found", Map.of("currency_code", "XXX"));
+
         SendMessage msg = command.handle(update);
         assertThat(msg.getParameters().get("text")).isEqualTo(expected);
     }
@@ -141,9 +153,11 @@ class CurrencyToRubCommandIntegrationTest {
     @Test
     @DisplayName("Успешный сценарий — валюта найдена")
     void success() {
-        createUser(6L, false, false, true);
-        Currency currency = createCurrency("USD", "Доллар", BigDecimal.valueOf(100));
-        var update = mockUpdate(6L, "user", "/currencyToRub USD");
+        createUser(6L);
+
+        Currency currency = createCurrency(BigDecimal.valueOf(100));
+        var update = mockUpdate(6L, "/currencyToRub USD");
+
         SendMessage msg = command.handle(update);
         assertThat(msg.getParameters().get("text")).asString().contains(currency.getCode());
         assertThat(msg.getParameters().get("reply_markup")).isNotNull();
@@ -152,9 +166,12 @@ class CurrencyToRubCommandIntegrationTest {
     @Test
     @DisplayName("handle: Exception — возвращает ошибку")
     void handle_exception() {
-        createUser(7L, false, false, true);
-        var update = mockUpdate(7L, "user", "/currencyToRub USD");
+        createUser(7L);
+
+        var update = mockUpdate(7L, "/currencyToRub USD");
+
         userRepository.deleteAll();
+
         SendMessage msg = command.handle(update);
         assertThat(msg.getParameters().get("text")).isEqualTo(messageConverter.resolve("command.currencyToRub.error"));
     }
