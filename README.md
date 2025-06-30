@@ -767,7 +767,7 @@ git clone https://github.com/1zbbxzak1/CurrencyExchange.git
 ## 📞 Контакты
 
 - **Email**: [Iu.A.Poliakova@gmail.com](mailto:Iu.A.Poliakova@gmail.com)
-- **Telegram**: [@your_username](https://t.me/zbbxzak)
+- **Telegram**: [@zbbxzak](https://t.me/zbbxzak)
 - **GitHub**: [@1zbbxzak1](https://github.com/1zbbxzak1)
 
 ---
