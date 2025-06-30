@@ -36,8 +36,10 @@ class SettingsServiceIntegrationTest {
     void setAndGetGlobalConversionFee_noSettings() {
         settingsService.setGlobalConversionFee(0.12);
         Settings settings = settingsRepository.findFirst().orElseThrow();
+
         assertThat(settings.getConversionFeePercent()).isEqualTo(0.12);
         assertThat(settings.getUser()).isNull();
+
         double fee = settingsService.getGlobalConversionFeePercent();
         assertThat(fee).isEqualTo(0.12);
     }
@@ -50,6 +52,7 @@ class SettingsServiceIntegrationTest {
         settingsRepository.save(settings);
         settingsService.setGlobalConversionFee(0.25);
         Settings updated = settingsRepository.findFirst().orElseThrow();
+
         assertThat(updated.getConversionFeePercent()).isEqualTo(0.25);
         assertThat(updated.getUser()).isNull();
     }

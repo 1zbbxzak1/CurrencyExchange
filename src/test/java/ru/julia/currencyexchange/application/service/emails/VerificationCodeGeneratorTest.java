@@ -1,7 +1,7 @@
 package ru.julia.currencyexchange.application.service.emails;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -12,6 +12,7 @@ class VerificationCodeGeneratorTest {
     @DisplayName("Генерация кода: длина и формат")
     void generateCode_shouldReturnCodeOfCorrectLengthAndFormat() {
         String code = generator.generateCode();
+        
         assertThat(code).hasSize(6);
         assertThat(code).matches("[A-Za-z0-9]{6}");
     }

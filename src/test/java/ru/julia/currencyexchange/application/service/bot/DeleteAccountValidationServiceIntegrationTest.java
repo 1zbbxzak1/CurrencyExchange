@@ -36,6 +36,7 @@ class DeleteAccountValidationServiceIntegrationTest {
     @DisplayName("Пользователь не найден (not_registered)")
     void userNotFound() {
         ValidationResult result = service.validateUserForDeletion(100L);
+
         assertThat(result.isValid()).isFalse();
         assertThat(result.getErrorMessage()).startsWith("❌ Вы не зарегистрированы");
         assertThat(result.getUser()).isNull();
@@ -50,7 +51,9 @@ class DeleteAccountValidationServiceIntegrationTest {
         user.setBanned(false);
         user.setDeleted(false);
         userRepository.save(user);
+
         ValidationResult result = service.validateUserForDeletion(101L);
+
         assertThat(result.isValid()).isTrue();
         assertThat(result.getUser()).isNotNull();
         assertThat(result.getUser().getChatId()).isEqualTo(101L);
@@ -66,7 +69,9 @@ class DeleteAccountValidationServiceIntegrationTest {
         user.setBanned(true);
         user.setDeleted(false);
         userRepository.save(user);
+
         ValidationResult result = service.validateUserForDeletion(102L);
+
         assertThat(result.isValid()).isFalse();
         assertThat(result.getErrorMessage()).startsWith("❌ Ваш аккаунт заблокирован");
         assertThat(result.getUser()).isNull();
@@ -81,7 +86,9 @@ class DeleteAccountValidationServiceIntegrationTest {
         user.setBanned(false);
         user.setDeleted(true);
         userRepository.save(user);
+
         ValidationResult result = service.validateUserForDeletion(103L);
+
         assertThat(result.isValid()).isFalse();
         assertThat(result.getErrorMessage()).startsWith("❌ Ваш аккаунт уже помечен как удаленный");
         assertThat(result.getUser()).isNull();
@@ -91,6 +98,7 @@ class DeleteAccountValidationServiceIntegrationTest {
     @DisplayName("UserService кидает исключение (error)")
     void userServiceThrows() {
         ValidationResult result = service.validateUserForDeletion(null);
+        
         assertThat(result.isValid()).isFalse();
         assertThat(result.getErrorMessage()).startsWith("⚠️ Произошла ошибка при удалении аккаунта");
         assertThat(result.getUser()).isNull();

@@ -5,7 +5,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import ru.julia.currencyexchange.domain.model.Settings;
 import ru.julia.currencyexchange.infrastructure.repository.jpa.SettingsRepository;
 
@@ -14,6 +13,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.openMocks;
 
 class SettingsServiceUnitTest {
     @Mock
@@ -24,7 +24,7 @@ class SettingsServiceUnitTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        openMocks(this);
     }
 
     @Test
@@ -67,6 +67,7 @@ class SettingsServiceUnitTest {
     @DisplayName("Получение глобальной комиссии, когда настроек нет")
     void getGlobalConversionFeePercent_noSettings() {
         when(settingsRepository.findFirst()).thenReturn(Optional.empty());
+        
         double fee = settingsService.getGlobalConversionFeePercent();
         assertThat(fee).isEqualTo(0.0);
     }

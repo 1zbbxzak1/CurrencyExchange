@@ -64,10 +64,12 @@ class CurrencyExchangeServiceIntegrationTest {
         user.setPassword("pass");
         user.setUsername("testuser");
         userRepository.save(user);
+
         Currency from = currencyRepository.save(new Currency("USD", "Доллар", BigDecimal.valueOf(100)));
         Currency to = currencyRepository.save(new Currency("RUB", "Рубль", BigDecimal.valueOf(50)));
         CurrencyConversion conv = conversionRepository.save(new CurrencyConversion(user, from, to, BigDecimal.TEN, BigDecimal.ONE, BigDecimal.ONE));
         List<CurrencyConversion> result = service.getUserHistory(user.getId());
+
         assertThat(result).extracting("id").contains(conv.getId());
     }
 
@@ -87,11 +89,13 @@ class CurrencyExchangeServiceIntegrationTest {
         user.setPassword("pass");
         user.setUsername("testuser");
         userRepository.save(user);
+
         Currency from = currencyRepository.save(new Currency("USD", "Доллар", BigDecimal.valueOf(100)));
         Currency to = currencyRepository.save(new Currency("RUB", "Рубль", BigDecimal.valueOf(50)));
         CurrencyConversion conv = conversionRepository.save(new CurrencyConversion(user, from, to, BigDecimal.TEN, BigDecimal.ONE, BigDecimal.ONE));
         String today = LocalDate.now().toString();
         List<CurrencyConversion> result = service.findByCurrencyDate(user.getId(), today);
+
         assertThat(result).extracting("id").contains(conv.getId());
     }
 
@@ -104,6 +108,7 @@ class CurrencyExchangeServiceIntegrationTest {
         user.setPassword("pass");
         user.setUsername("testuser");
         userRepository.save(user);
+
         assertThatThrownBy(() -> service.findByCurrencyDate(user.getId(), "bad-date"))
                 .isInstanceOf(InvalidDateFormatException.class);
     }
@@ -111,7 +116,6 @@ class CurrencyExchangeServiceIntegrationTest {
     @Test
     @DisplayName("Обновление курсов делегируется CurrencyService (Smoke)")
     void updateCurrencyRates_delegates() {
-        // Просто smoke-тест, что метод не падает
         service.updateCurrencyRates("any");
     }
 
@@ -121,6 +125,7 @@ class CurrencyExchangeServiceIntegrationTest {
         Currency c1 = currencyRepository.save(new Currency("USD", "Доллар", BigDecimal.ONE));
         Currency c2 = currencyRepository.save(new Currency("RUB", "Рубль", BigDecimal.TEN));
         List<Currency> result = service.getAllCurrencies();
+
         assertThat(result).extracting("code").containsExactlyInAnyOrder("USD", "RUB");
     }
 
@@ -129,6 +134,7 @@ class CurrencyExchangeServiceIntegrationTest {
     void getCurrencyByCode_found() {
         Currency c = currencyRepository.save(new Currency("USD", "Доллар", BigDecimal.ONE));
         Currency result = service.getCurrencyByCode("USD");
+        
         assertThat(result).isNotNull();
         assertThat(result.getCode()).isEqualTo("USD");
     }

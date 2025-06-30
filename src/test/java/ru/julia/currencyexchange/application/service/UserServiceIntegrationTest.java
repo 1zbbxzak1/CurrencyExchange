@@ -43,7 +43,9 @@ class UserServiceIntegrationTest {
         user.setChatId(100L);
         user.setUsername("ituser");
         userRepository.save(user);
+
         User found = userService.findUserByChatId(100L);
+
         assertThat(found.getEmail()).isEqualTo("ituser@mail.com");
         assertThat(found.getUsername()).isEqualTo("ituser");
     }
@@ -56,9 +58,12 @@ class UserServiceIntegrationTest {
         user.setUsername("deluser");
         user = userRepository.save(user);
         User deleted = userService.deleteUserById(user.getId());
+
         assertThat(deleted.isDeleted()).isTrue();
         assertThat(deleted.isVerified()).isFalse();
+
         Optional<User> fromDb = userRepository.findById(user.getId());
+
         assertThat(fromDb).isPresent();
         assertThat(fromDb.get().isDeleted()).isTrue();
     }
@@ -72,6 +77,7 @@ class UserServiceIntegrationTest {
         userRepository.save(user);
         userService.softDeleteUserByChatId(300L);
         User fromDb = userRepository.findByChatId(300L).orElseThrow();
+
         assertThat(fromDb.isDeleted()).isTrue();
         assertThat(fromDb.isVerified()).isFalse();
     }
@@ -85,7 +91,9 @@ class UserServiceIntegrationTest {
         user.setVerificationCode("1234");
         userRepository.save(user);
         boolean result = userService.verifyUserCode(400L, "verif@mail.com", "1234");
+
         assertThat(result).isTrue();
+
         User fromDb = userRepository.findByEmail("verif@mail.com").orElseThrow();
         assertThat(fromDb.isVerified()).isTrue();
     }
@@ -99,6 +107,7 @@ class UserServiceIntegrationTest {
         userRepository.save(user);
         userService.updateUsernameIfChanged(500L, "newname");
         User fromDb = userRepository.findByChatId(500L).orElseThrow();
+
         assertThat(fromDb.getUsername()).isEqualTo("newname");
     }
 
@@ -108,12 +117,16 @@ class UserServiceIntegrationTest {
         User user1 = new User("a@mail.com", "p1");
         user1.setChatId(600L);
         user1.setUsername("a");
+
         User user2 = new User("b@mail.com", "p2");
         user2.setChatId(601L);
         user2.setUsername("b");
+
         userRepository.save(user1);
         userRepository.save(user2);
+
         List<User> users = userService.findAllUsers(null);
+        
         assertThat(users).extracting(User::getEmail).contains("a@mail.com", "b@mail.com");
     }
 

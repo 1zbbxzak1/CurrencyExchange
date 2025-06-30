@@ -8,7 +8,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import ru.julia.currencyexchange.application.bot.messages.converter.interfaces.MessageConverter;
 import ru.julia.currencyexchange.application.bot.settings.enums.RegistrationState;
 import ru.julia.currencyexchange.application.service.UserService;
@@ -20,6 +19,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.openMocks;
 
 class DefaultMessagesTest {
     @Mock
@@ -36,13 +36,21 @@ class DefaultMessagesTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        openMocks(this);
         defaultMessages = new DefaultMessages(
                 messageConverter,
                 registrationStateService,
                 userService,
                 List.of(registerCommand, otherCommand),
-                null, null, null, null, null, null, null, null, null
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
         );
     }
 
@@ -50,7 +58,9 @@ class DefaultMessagesTest {
     @DisplayName("Если update.message() == null, возвращается null")
     void sendMessage_messageNull_returnsNull() {
         Update update = mock(Update.class);
+
         when(update.message()).thenReturn(null);
+
         assertThat(defaultMessages.sendMessage(update)).isNull();
     }
 
@@ -60,12 +70,15 @@ class DefaultMessagesTest {
         Update update = mock(Update.class);
         Message message = mock(Message.class);
         Chat chat = mock(Chat.class);
+
         when(update.message()).thenReturn(message);
         when(message.chat()).thenReturn(chat);
         when(chat.id()).thenReturn(1L);
         when(registrationStateService.getState(1L)).thenReturn(RegistrationState.WAITING_EMAIL);
+
         SendMessage expected = new SendMessage(1L, "reg");
         when(registerCommand.handle(update)).thenReturn(expected);
+
         SendMessage result = defaultMessages.sendMessage(update);
         assertThat(result).isEqualTo(expected);
     }
@@ -76,6 +89,7 @@ class DefaultMessagesTest {
         Update update = mock(Update.class);
         Message message = mock(Message.class);
         Chat chat = mock(Chat.class);
+
         when(update.message()).thenReturn(message);
         when(message.chat()).thenReturn(chat);
         when(chat.id()).thenReturn(2L);
@@ -85,6 +99,7 @@ class DefaultMessagesTest {
         when(userService.existsByChatId(2L)).thenReturn(false);
         when(otherCommand.isAccessible(null)).thenReturn(false);
         when(messageConverter.resolve("command.access_denied")).thenReturn("Нет доступа");
+
         SendMessage result = defaultMessages.sendMessage(update);
         assertThat(result.getParameters().toString()).contains("Нет доступа");
     }
@@ -95,6 +110,7 @@ class DefaultMessagesTest {
         Update update = mock(Update.class);
         Message message = mock(Message.class);
         Chat chat = mock(Chat.class);
+
         when(update.message()).thenReturn(message);
         when(message.chat()).thenReturn(chat);
         when(chat.id()).thenReturn(3L);
@@ -102,6 +118,7 @@ class DefaultMessagesTest {
         when(registrationStateService.getState(3L)).thenReturn(RegistrationState.NONE);
         when(otherCommand.matches(update)).thenReturn(false);
         when(messageConverter.resolve(eq("message.unknown_command"), any())).thenReturn("Неизвестная команда");
+
         SendMessage result = defaultMessages.sendMessage(update);
         assertThat(result.getParameters().toString()).contains("Неизвестная команда");
     }
@@ -112,6 +129,7 @@ class DefaultMessagesTest {
         Update update = mock(Update.class);
         Message message = mock(Message.class);
         Chat chat = mock(Chat.class);
+
         when(update.message()).thenReturn(message);
         when(message.chat()).thenReturn(chat);
         when(chat.id()).thenReturn(4L);
@@ -120,8 +138,10 @@ class DefaultMessagesTest {
         when(otherCommand.matches(update)).thenReturn(true);
         when(userService.existsByChatId(4L)).thenReturn(false);
         when(otherCommand.isAccessible(null)).thenReturn(true);
+
         SendMessage expected = new SendMessage(4L, "Добро пожаловать!");
         when(otherCommand.handle(update)).thenReturn(expected);
+
         SendMessage result = defaultMessages.sendMessage(update);
         assertThat(result).isEqualTo(expected);
     }
@@ -132,6 +152,7 @@ class DefaultMessagesTest {
         Update update = mock(Update.class);
         Message message = mock(Message.class);
         Chat chat = mock(Chat.class);
+
         when(update.message()).thenReturn(message);
         when(message.chat()).thenReturn(chat);
         when(chat.id()).thenReturn(5L);
@@ -141,6 +162,7 @@ class DefaultMessagesTest {
         when(userService.existsByChatId(5L)).thenReturn(false);
         when(otherCommand.isAccessible(null)).thenReturn(false);
         when(messageConverter.resolve("command.access_denied")).thenReturn("");
+
         SendMessage result = defaultMessages.sendMessage(update);
         assertThat(result.getParameters().toString()).contains("У вас нет доступа к этой команде");
     }
@@ -151,6 +173,7 @@ class DefaultMessagesTest {
         Update update = mock(Update.class);
         Message message = mock(Message.class);
         Chat chat = mock(Chat.class);
+
         when(update.message()).thenReturn(message);
         when(message.chat()).thenReturn(chat);
         when(chat.id()).thenReturn(6L);
@@ -158,6 +181,7 @@ class DefaultMessagesTest {
         when(registrationStateService.getState(6L)).thenReturn(RegistrationState.NONE);
         when(otherCommand.matches(update)).thenReturn(false);
         when(messageConverter.resolve(eq("message.unknown_command"), any())).thenReturn("");
+
         SendMessage result = defaultMessages.sendMessage(update);
         assertThat(result.getParameters().toString()).contains("Неизвестная команда. Посмотрите список доступных команд, написав /help.");
     }

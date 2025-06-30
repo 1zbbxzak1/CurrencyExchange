@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import ru.julia.currencyexchange.application.bot.settings.enums.ConversionState;
+import ru.julia.currencyexchange.application.exceptions.UserNotFoundException;
 import ru.julia.currencyexchange.application.service.SettingsService;
 import ru.julia.currencyexchange.domain.model.Currency;
 import ru.julia.currencyexchange.domain.model.CurrencyConversion;
@@ -51,7 +52,9 @@ class CurrencyConvertServiceIntegrationTest {
     @DisplayName("hasCurrencies: true/false")
     void hasCurrencies() {
         assertThat(service.hasCurrencies()).isFalse();
+
         currencyRepository.save(new Currency("USD", "Доллар", BigDecimal.ONE));
+
         assertThat(service.hasCurrencies()).isTrue();
     }
 
@@ -61,8 +64,10 @@ class CurrencyConvertServiceIntegrationTest {
         currencyRepository.save(new Currency("USD", "Доллар", BigDecimal.ONE));
         currencyRepository.save(new Currency("RUB", "Рубль", BigDecimal.TEN));
         currencyRepository.save(new Currency("ABC", "Тест", BigDecimal.ONE));
+
         List<Currency> all = service.getAllCurrencies();
         List<Currency> popular = service.getPopularCurrencies();
+
         assertThat(all).hasSize(3);
         assertThat(popular).extracting(Currency::getCode).contains("USD", "RUB").doesNotContain("ABC");
     }
@@ -77,13 +82,15 @@ class CurrencyConvertServiceIntegrationTest {
         Currency from = currencyRepository.save(new Currency("USD", "Доллар", BigDecimal.valueOf(100)));
         Currency to = currencyRepository.save(new Currency("RUB", "Рубль", BigDecimal.valueOf(50)));
         CurrencyConversion conv = service.convertCurrency(1L, "USD", "RUB", BigDecimal.TEN);
+
         assertThat(conv.getUser().getId()).isEqualTo(user.getId());
         assertThat(conv.getSourceCurrency().getCode()).isEqualTo("USD");
         assertThat(conv.getTargetCurrency().getCode()).isEqualTo("RUB");
         assertThat(conv.getAmount()).isEqualByComparingTo(BigDecimal.TEN);
         assertThat(conv.getConvertedAmount()).isPositive();
+
         assertThatThrownBy(() -> service.convertCurrency(999L, "USD", "RUB", BigDecimal.ONE))
-                .isInstanceOf(ru.julia.currencyexchange.application.exceptions.UserNotFoundException.class)
+                .isInstanceOf(UserNotFoundException.class)
                 .hasMessageContaining("999");
     }
 
@@ -91,6 +98,7 @@ class CurrencyConvertServiceIntegrationTest {
     @DisplayName("getCurrencyByCode: found/not found")
     void getCurrencyByCode() {
         currencyRepository.save(new Currency("USD", "Доллар", BigDecimal.ONE));
+
         assertThat(service.getCurrencyByCode("USD")).isNotNull();
         assertThat(service.getCurrencyByCode("XXX")).isNull();
     }
@@ -107,10 +115,13 @@ class CurrencyConvertServiceIntegrationTest {
         settingsService.setGlobalConversionFee(0.0);
         CurrencyConversion conv = service.convertCurrency(2L, "USD", "RUB", BigDecimal.TEN);
         String msg = service.buildConversionMessage(conv);
+
         assertThat(msg).contains("Конвертация валют");
+
         settingsService.setGlobalConversionFee(2.5);
         CurrencyConversion conv2 = service.convertCurrency(2L, "USD", "RUB", BigDecimal.TEN);
         String msg2 = service.buildConversionMessage(conv2);
+
         assertThat(msg2).contains("Комиссия");
     }
 
@@ -143,12 +154,15 @@ class CurrencyConvertServiceIntegrationTest {
     void stateAndData() {
         Long chatId = 10L;
         assertThat(service.getState(chatId)).isEqualTo(ConversionState.NONE);
+
         service.setState(chatId, ConversionState.WAITING_AMOUNT);
         assertThat(service.getState(chatId)).isEqualTo(ConversionState.WAITING_AMOUNT);
+
         service.setData(chatId, "USD", "RUB");
         var data = service.getData(chatId);
         assertThat(data.fromCurrency()).isEqualTo("USD");
         assertThat(data.toCurrency()).isEqualTo("RUB");
+
         service.clearData(chatId);
         assertThat(service.getData(chatId)).isNull();
         assertThat(service.getState(chatId)).isEqualTo(ConversionState.NONE);

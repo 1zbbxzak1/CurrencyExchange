@@ -12,6 +12,7 @@ class ValidationUtilTest {
         assertThatThrownBy(() -> ValidationUtil.validateNotEmpty(null, "param"))
                 .isInstanceOf(InvalidParameterException.class)
                 .hasMessageContaining("param");
+
         assertThatThrownBy(() -> ValidationUtil.validateNotEmpty("   ", "param"))
                 .isInstanceOf(InvalidParameterException.class)
                 .hasMessageContaining("param");
@@ -71,8 +72,10 @@ class ValidationUtilTest {
     void validateChatId_throwsOnNullOrZeroOrNegative() {
         assertThatThrownBy(() -> ValidationUtil.validateChatId(null))
                 .isInstanceOf(InvalidParameterException.class);
+
         assertThatThrownBy(() -> ValidationUtil.validateChatId(0L))
                 .isInstanceOf(InvalidParameterException.class);
+
         assertThatThrownBy(() -> ValidationUtil.validateChatId(-1L))
                 .isInstanceOf(InvalidParameterException.class);
     }
@@ -86,9 +89,12 @@ class ValidationUtilTest {
     void validateUsername_throwsOnNullBlankOrTooLong() {
         assertThatThrownBy(() -> ValidationUtil.validateUsername(null))
                 .isInstanceOf(InvalidParameterException.class);
+
         assertThatThrownBy(() -> ValidationUtil.validateUsername("   "))
                 .isInstanceOf(InvalidParameterException.class);
+
         String longName = "a".repeat(65);
+
         assertThatThrownBy(() -> ValidationUtil.validateUsername(longName))
                 .isInstanceOf(InvalidParameterException.class);
     }

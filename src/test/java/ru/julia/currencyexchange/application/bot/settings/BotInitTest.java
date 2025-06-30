@@ -4,13 +4,13 @@ import com.pengrad.telegrambot.TelegramBot;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.InOrder;
+import org.mockito.Mock;
 import ru.julia.currencyexchange.application.bot.listener.MessagesListener;
 import ru.julia.currencyexchange.application.service.bot.CommandRegistryService;
 
 import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.openMocks;
 
 class BotInitTest {
     @Mock
@@ -23,7 +23,7 @@ class BotInitTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        openMocks(this);
         botInit = new BotInit(bot, messagesListener, commandRegistryService);
     }
 
@@ -32,8 +32,10 @@ class BotInitTest {
     void start_callsInitAndSetUpdatesListener_inOrder() {
         botInit.start();
         InOrder inOrder = inOrder(commandRegistryService, bot);
+
         inOrder.verify(commandRegistryService).init();
         inOrder.verify(bot).setUpdatesListener(messagesListener);
+
         verify(bot, times(1)).setUpdatesListener(messagesListener);
         verify(commandRegistryService, times(1)).init();
         verifyNoMoreInteractions(bot, commandRegistryService);
@@ -43,6 +45,7 @@ class BotInitTest {
     @DisplayName("close вызывает shutdown и больше ничего")
     void close_callsOnlyShutdown() {
         botInit.close();
+
         verify(bot, times(1)).shutdown();
         verifyNoMoreInteractions(bot, messagesListener, commandRegistryService);
     }

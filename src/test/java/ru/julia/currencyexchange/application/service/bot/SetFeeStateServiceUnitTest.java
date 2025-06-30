@@ -5,7 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.julia.currencyexchange.application.bot.settings.enums.SetFeeState;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class SetFeeStateServiceUnitTest {
     private SetFeeStateService service;
@@ -28,8 +28,10 @@ class SetFeeStateServiceUnitTest {
         service.setState(chat1, SetFeeState.WAITING_MANUAL_FEE);
         assertThat(service.getState(chat1)).isEqualTo(SetFeeState.WAITING_MANUAL_FEE);
         assertThat(service.getState(chat2)).isEqualTo(SetFeeState.NONE);
+
         service.setState(chat2, SetFeeState.WAITING_MANUAL_FEE);
         assertThat(service.getState(chat2)).isEqualTo(SetFeeState.WAITING_MANUAL_FEE);
+
         service.clearState(chat1);
         assertThat(service.getState(chat1)).isEqualTo(SetFeeState.NONE);
         assertThat(service.getState(chat2)).isEqualTo(SetFeeState.WAITING_MANUAL_FEE);
@@ -41,6 +43,7 @@ class SetFeeStateServiceUnitTest {
         Long chat1 = 10L, chat2 = 11L;
         service.setState(chat1, SetFeeState.WAITING_MANUAL_FEE);
         service.setState(chat2, SetFeeState.WAITING_MANUAL_FEE);
+
         service.clearState(chat1);
         assertThat(service.getState(chat1)).isEqualTo(SetFeeState.NONE);
         assertThat(service.getState(chat2)).isEqualTo(SetFeeState.WAITING_MANUAL_FEE);
@@ -52,6 +55,7 @@ class SetFeeStateServiceUnitTest {
         Long chat1 = 20L, chat2 = 21L;
         service.setState(chat1, SetFeeState.WAITING_MANUAL_FEE);
         service.setState(chat2, SetFeeState.NONE);
+
         assertThat(service.getState(chat1)).isEqualTo(SetFeeState.WAITING_MANUAL_FEE);
         assertThat(service.getState(chat2)).isEqualTo(SetFeeState.NONE);
     }
@@ -62,6 +66,7 @@ class SetFeeStateServiceUnitTest {
         Long chatId = 30L;
         service.setState(chatId, SetFeeState.WAITING_MANUAL_FEE);
         service.clearState(chatId);
+        
         assertThat(service.getState(chatId)).isEqualTo(SetFeeState.NONE);
     }
 } 

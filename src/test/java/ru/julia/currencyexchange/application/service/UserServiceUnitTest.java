@@ -5,7 +5,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import ru.julia.currencyexchange.application.exceptions.UserNotFoundException;
 import ru.julia.currencyexchange.domain.model.User;
 import ru.julia.currencyexchange.infrastructure.repository.jpa.UserRepository;
@@ -19,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.openMocks;
 
 class UserServiceUnitTest {
     @Mock
@@ -29,7 +29,7 @@ class UserServiceUnitTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        openMocks(this);
     }
 
     @Test
@@ -37,8 +37,11 @@ class UserServiceUnitTest {
     void findUserByChatId_success() {
         User user = new User("test@mail.com", "pass");
         user.setChatId(1L);
+
         when(userRepository.findByChatId(1L)).thenReturn(Optional.of(user));
+
         User result = userService.findUserByChatId(1L);
+
         assertThat(result).isEqualTo(user);
     }
 
@@ -46,6 +49,7 @@ class UserServiceUnitTest {
     @DisplayName("Пользователь не найден по chatId")
     void findUserByChatId_notFound() {
         when(userRepository.findByChatId(2L)).thenReturn(Optional.empty());
+
         assertThatThrownBy(() -> userService.findUserByChatId(2L))
                 .isInstanceOf(UserNotFoundException.class)
                 .hasMessageContaining("2");
@@ -70,11 +74,15 @@ class UserServiceUnitTest {
     void deleteUserById_success() {
         User user = new User("test@mail.com", "pass");
         setUserId(user, "id1");
+
         when(userRepository.findById("id1")).thenReturn(Optional.of(user));
         when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+
         User deleted = userService.deleteUserById("id1");
+
         assertThat(deleted.isDeleted()).isTrue();
         assertThat(deleted.isVerified()).isFalse();
+
         verify(userRepository).save(user);
     }
 
@@ -92,6 +100,7 @@ class UserServiceUnitTest {
     @DisplayName("Пользователь с id не найден для удаления")
     void deleteUserById_notFound() {
         when(userRepository.findById("id2")).thenReturn(Optional.empty());
+
         assertThatThrownBy(() -> userService.deleteUserById("id2"))
                 .isInstanceOf(UserNotFoundException.class)
                 .hasMessageContaining("id2");
@@ -102,10 +111,14 @@ class UserServiceUnitTest {
     void softDeleteUserByChatId_success() {
         User user = new User("test@mail.com", "pass");
         user.setChatId(1L);
+
         when(userRepository.findByChatId(1L)).thenReturn(Optional.of(user));
+
         userService.softDeleteUserByChatId(1L);
+
         assertThat(user.isDeleted()).isTrue();
         assertThat(user.isVerified()).isFalse();
+
         verify(userRepository).save(user);
     }
 
@@ -113,6 +126,7 @@ class UserServiceUnitTest {
     @DisplayName("Пользователь с chatId не найден для мягкого удаления")
     void softDeleteUserByChatId_notFound() {
         when(userRepository.findByChatId(2L)).thenReturn(Optional.empty());
+
         assertThatThrownBy(() -> userService.softDeleteUserByChatId(2L))
                 .isInstanceOf(UserNotFoundException.class)
                 .hasMessageContaining("2");
@@ -137,10 +151,14 @@ class UserServiceUnitTest {
     void findAllUsers_returnsAll() {
         User user1 = new User("a@mail.com", "p1");
         setUserId(user1, "1");
+
         User user2 = new User("b@mail.com", "p2");
         setUserId(user2, "2");
+
         when(userRepository.findAll()).thenReturn(Arrays.asList(user1, user2));
+
         List<User> users = userService.findAllUsers(null);
+
         assertThat(users).containsExactly(user1, user2);
     }
 
@@ -149,11 +167,15 @@ class UserServiceUnitTest {
     void verifyUserCode_success() {
         User user = new User("test@mail.com", "pass");
         user.setVerificationCode("1234");
+
         when(userRepository.findByEmail("test@mail.com")).thenReturn(Optional.of(user));
         when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+
         boolean result = userService.verifyUserCode(1L, "test@mail.com", "1234");
+
         assertThat(result).isTrue();
         assertThat(user.isVerified()).isTrue();
+
         verify(userRepository).save(user);
     }
 
@@ -162,9 +184,13 @@ class UserServiceUnitTest {
     void verifyUserCode_wrongCode() {
         User user = new User("test@mail.com", "pass");
         user.setVerificationCode("1234");
+
         when(userRepository.findByEmail("test@mail.com")).thenReturn(Optional.of(user));
+
         boolean result = userService.verifyUserCode(1L, "test@mail.com", "0000");
+
         assertThat(result).isFalse();
+
         verify(userRepository, never()).save(any());
     }
 
@@ -174,8 +200,11 @@ class UserServiceUnitTest {
         User user = new User("test@mail.com", "pass");
         user.setChatId(1L);
         setUserId(user, "id1");
+
         when(userRepository.findByChatId(1L)).thenReturn(Optional.of(user));
+
         String id = userService.getUserIdByChatId(1L);
+
         assertThat(id).isEqualTo("id1");
     }
 
@@ -183,6 +212,7 @@ class UserServiceUnitTest {
     @DisplayName("Пользователь с chatId не найден для получения id")
     void getUserIdByChatId_notFound() {
         when(userRepository.findByChatId(2L)).thenReturn(Optional.empty());
+
         assertThatThrownBy(() -> userService.getUserIdByChatId(2L))
                 .isInstanceOf(UserNotFoundException.class)
                 .hasMessageContaining("2");
@@ -194,9 +224,13 @@ class UserServiceUnitTest {
         User user = new User("test@mail.com", "pass");
         user.setChatId(1L);
         user.setUsername("old");
+
         when(userRepository.findByChatId(1L)).thenReturn(Optional.of(user));
+
         userService.updateUsernameIfChanged(1L, "new");
+
         assertThat(user.getUsername()).isEqualTo("new");
+
         verify(userRepository).save(user);
     }
 
@@ -206,8 +240,11 @@ class UserServiceUnitTest {
         User user = new User("test@mail.com", "pass");
         user.setChatId(1L);
         user.setUsername("same");
+
         when(userRepository.findByChatId(1L)).thenReturn(Optional.of(user));
+
         userService.updateUsernameIfChanged(1L, "same");
+
         verify(userRepository, never()).save(any());
     }
 
@@ -215,8 +252,11 @@ class UserServiceUnitTest {
     @DisplayName("Успешный поиск пользователя по email")
     void findUserByEmail_success() {
         User user = new User("test@mail.com", "pass");
+
         when(userRepository.findByEmail("test@mail.com")).thenReturn(Optional.of(user));
+
         User result = userService.findUserByEmail("test@mail.com");
+
         assertThat(result).isEqualTo(user);
     }
 
@@ -224,6 +264,7 @@ class UserServiceUnitTest {
     @DisplayName("Пользователь не найден по email")
     void findUserByEmail_notFound() {
         when(userRepository.findByEmail("none@mail.com")).thenReturn(Optional.empty());
+
         assertThatThrownBy(() -> userService.findUserByEmail("none@mail.com"))
                 .isInstanceOf(UserNotFoundException.class)
                 .hasMessageContaining("none@mail.com");
@@ -234,8 +275,10 @@ class UserServiceUnitTest {
     void saveUser_delegates() {
         User user = new User("test@mail.com", "pass");
         when(userRepository.save(user)).thenReturn(user);
+
         User result = userService.saveUser(user);
         assertThat(result).isEqualTo(user);
+        
         verify(userRepository).save(user);
     }
 } 

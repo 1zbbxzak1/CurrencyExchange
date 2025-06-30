@@ -3,7 +3,6 @@ package ru.julia.currencyexchange.application.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,6 +21,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 
 @SpringBootTest
@@ -56,18 +57,20 @@ class AuthServiceIntegrationTest {
         Long chatId = 123456L;
         String password = "itpass";
         String code = verificationCodeGenerator.generateCode();
-        Mockito.doNothing().when(emailService).sendVerificationCode(Mockito.anyString(), Mockito.anyString());
+        doNothing().when(emailService).sendVerificationCode(anyString(), anyString());
 
         authService.createUserWithVerificationCode(chatId, username, email, password);
 
         Optional<User> userOpt = userRepository.findByEmail(email);
         assertThat(userOpt).isPresent();
+
         User user = userOpt.get();
         assertThat(user.getUsername()).isEqualTo(username);
         assertThat(user.getChatId()).isEqualTo(chatId);
         assertThat(passwordEncoder.matches(password, user.getPassword())).isTrue();
         assertThat(user.getVerificationCode()).isNotBlank();
         assertThat(user.getRoles()).anySatisfy(ur -> assertThat(ur.getRole().getRoleName()).isEqualTo("ROLE_USER"));
+
         verify(emailService).sendVerificationCode(email, user.getVerificationCode());
     }
 
@@ -78,10 +81,12 @@ class AuthServiceIntegrationTest {
         String username = "ituser2";
         Long chatId = 123457L;
         String password = "itpass2";
+
         User user = new User(email, passwordEncoder.encode(password));
         user.setChatId(999999L);
         user.setUsername("someUniqueUsername");
         userRepository.save(user);
+
         assertThatThrownBy(() -> authService.createUserWithVerificationCode(chatId, username, email, password))
                 .isInstanceOf(UserCreationException.class)
                 .hasMessageContaining("email");
@@ -94,10 +99,12 @@ class AuthServiceIntegrationTest {
         String username = "ituser3";
         Long chatId = 123458L;
         String password = "itpass3";
+
         User user = new User("other@mail.com", passwordEncoder.encode("otherpass"));
         user.setChatId(chatId);
         user.setUsername("otheruser");
         userRepository.save(user);
+
         assertThatThrownBy(() -> authService.createUserWithVerificationCode(chatId, username, email, password))
                 .isInstanceOf(UserCreationException.class)
                 .hasMessageContaining("chatId");
@@ -110,12 +117,14 @@ class AuthServiceIntegrationTest {
         String username = "ituser4";
         Long chatId = 123459L;
         String password = "itpass4";
+
         User user = new User("other2@mail.com", passwordEncoder.encode("otherpass2"));
         user.setUsername(username);
         user.setChatId(999999L);
         userRepository.save(user);
+        
         assertThatThrownBy(() -> authService.createUserWithVerificationCode(chatId, username, email, password))
                 .isInstanceOf(UserCreationException.class)
                 .hasMessageContaining("username");
     }
-} 
+}

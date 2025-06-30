@@ -39,6 +39,7 @@ class CurrencyToRubServiceIntegrationTest {
     @DisplayName("getCurrencyByCode: найдено и не найдено")
     void getCurrencyByCode_foundAndNotFound() {
         currencyRepository.save(new Currency("USD", "Доллар", BigDecimal.ONE));
+
         assertThat(service.getCurrencyByCode("USD")).isNotNull();
         assertThat(service.getCurrencyByCode("XXX")).isNull();
     }
@@ -47,7 +48,9 @@ class CurrencyToRubServiceIntegrationTest {
     @DisplayName("hasCurrencies: true, false, null")
     void hasCurrencies_variants() {
         assertThat(service.hasCurrencies()).isFalse();
+
         currencyRepository.save(new Currency("USD", "Доллар", BigDecimal.ONE));
+
         assertThat(service.hasCurrencies()).isTrue();
     }
 
@@ -55,7 +58,9 @@ class CurrencyToRubServiceIntegrationTest {
     @DisplayName("getAllCurrencies: список и пусто")
     void getAllCurrencies_variants() {
         assertThat(service.getAllCurrencies()).isEmpty();
+
         currencyRepository.save(new Currency("USD", "Доллар", BigDecimal.ONE));
+
         assertThat(service.getAllCurrencies()).hasSize(1);
     }
 
@@ -67,9 +72,10 @@ class CurrencyToRubServiceIntegrationTest {
         currencyRepository.save(new Currency("USD", "Доллар", BigDecimal.ONE));
         currencyRepository.save(new Currency("RUB", "Рубль", BigDecimal.TEN));
         currencyRepository.save(new Currency("ABC", "Тест", BigDecimal.ONE));
+
         List<Currency> popular = service.getPopularCurrencies();
         assertThat(popular).extracting(Currency::getCode).contains("USD", "RUB").doesNotContain("ABC");
-        
+
         currencyRepository.deleteAll();
         currencyRepository.save(new Currency("ZZZ", "NoPopular", BigDecimal.ONE));
         assertThat(service.getPopularCurrencies()).isEmpty();
@@ -80,6 +86,7 @@ class CurrencyToRubServiceIntegrationTest {
     void buildCurrencyToRubMessage_valid() {
         Currency usd = currencyRepository.save(new Currency("USD", "Доллар", BigDecimal.valueOf(100)));
         String msg = service.buildCurrencyToRubMessage(usd);
+
         assertThat(msg).contains("Курс валюты к рублю");
         assertThat(msg).contains("USD");
     }

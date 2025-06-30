@@ -17,8 +17,10 @@ class DtoMapperTest {
         Currency currency = new Currency("USD", "Доллар", BigDecimal.valueOf(75.5));
         currency.setExchangeRate(BigDecimal.valueOf(75.5));
         LocalDateTime now = LocalDateTime.now();
-        currency.setName("Доллар"); // обновит lastUpdated
+        currency.setName("Доллар");
+
         CurrencyResponse response = DtoMapper.mapToCurrencyResponse(currency);
+
         assertThat(response.getCode()).isEqualTo("USD");
         assertThat(response.getName()).isEqualTo("Доллар");
         assertThat(response.getExchangeRate()).isEqualByComparingTo(BigDecimal.valueOf(75.5));
@@ -31,10 +33,12 @@ class DtoMapperTest {
         user.setChatId(123L);
         user.setUsername("testuser");
         user.setEmail("test@mail.com");
+
         Currency from = new Currency("USD", "Доллар", BigDecimal.valueOf(75.5));
         Currency to = new Currency("RUB", "Рубль", BigDecimal.valueOf(1.0));
         CurrencyConversion conversion = new CurrencyConversion(user, from, to, BigDecimal.TEN, BigDecimal.valueOf(750), BigDecimal.valueOf(75));
         CurrencyConversionResponse response = DtoMapper.mapToCurrencyConversionResponse(conversion);
+
         assertThat(response.getUserId()).isEqualTo(user.getId());
         assertThat(response.getSourceCurrency()).isEqualTo("USD");
         assertThat(response.getTargetCurrency()).isEqualTo("RUB");
@@ -55,7 +59,9 @@ class DtoMapperTest {
         Role role = new Role("USER");
         UserRole userRole = new UserRole(user, role);
         user.getRoles().add(userRole);
+
         UserResponse response = DtoMapper.mapToUserResponse(user);
+        
         assertThat(response.getId()).isEqualTo(user.getId());
         assertThat(response.getChatId()).isEqualTo(123L);
         assertThat(response.getUsername()).isEqualTo("testuser");
