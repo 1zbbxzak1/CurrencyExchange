@@ -40,4 +40,6 @@ public class Constants {
 
     public static final String CALLBACK_CONFIRM = "delete_account_confirm";
     public static final String CALLBACK_CANCEL = "delete_account_cancel";
+
+    public static final String TRACE_ID_KEY = "traceId";
 }
