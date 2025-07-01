@@ -1,0 +1,76 @@
+package ru.julia.currencyexchange.infrastructure.bot.command.builder;
+
+import org.springframework.stereotype.Component;
+import ru.julia.currencyexchange.application.bot.messages.converter.interfaces.MessageConverter;
+import ru.julia.currencyexchange.domain.model.Currency;
+import ru.julia.currencyexchange.infrastructure.bot.command.utils.CurrencyEmojiUtils;
+import ru.julia.currencyexchange.infrastructure.bot.command.utils.CurrencyFormatUtils;
+import ru.julia.currencyexchange.infrastructure.configuration.Constants;
+
+import java.util.List;
+import java.util.Map;
+
+@Component
+public class CurrencyMessageBuilder {
+    private final MessageConverter messageConverter;
+    private final CurrencyEmojiUtils currencyEmojiUtils;
+    private final CurrencyFormatUtils currencyFormatUtils;
+
+    public CurrencyMessageBuilder(MessageConverter messageConverter,
+                                  CurrencyEmojiUtils currencyEmojiUtils,
+                                  CurrencyFormatUtils currencyFormatUtils) {
+        this.messageConverter = messageConverter;
+        this.currencyEmojiUtils = currencyEmojiUtils;
+        this.currencyFormatUtils = currencyFormatUtils;
+    }
+
+    public String buildCurrenciesMessage(List<Currency> currencies, int page, boolean useCompactFormat, int currenciesPerPage) {
+        StringBuilder message = new StringBuilder();
+
+        message.append(messageConverter.resolve("command.currencies.title")).append(Constants.LINE_SEPARATOR);
+        message.append(messageConverter.resolve("command.currencies.subtitle")).append(Constants.LINE_SEPARATOR);
+        message.append(Constants.LINE_SEPARATOR);
+
+        int startIndex = page * currenciesPerPage;
+        int endIndex = Math.min(startIndex + currenciesPerPage, currencies.size());
+        int totalPages = (currencies.size() - 1) / currenciesPerPage + 1;
+
+        for (int i = startIndex; i < endIndex; i++) {
+            Currency currency = currencies.get(i);
+
+            String currencyLine;
+            if (useCompactFormat) {
+                currencyLine = messageConverter.resolve("command.currencies.currency_format_compact",
+                        Map.of(
+                                "code", currencyEmojiUtils.getCurrencyEmoji(currency.getCode()) + " *" + currency.getCode() + "*",
+                                "name", currency.getName(),
+                                "rate", currencyFormatUtils.formatExchangeRate(currency.getExchangeRate())
+                        ));
+            } else {
+                currencyLine = messageConverter.resolve("command.currencies.currency_format",
+                        Map.of(
+                                "code", currencyEmojiUtils.getCurrencyEmoji(currency.getCode()) + " *" + currency.getCode() + "*",
+                                "name", currency.getName(),
+                                "rate", currencyFormatUtils.formatExchangeRate(currency.getExchangeRate())
+                        ));
+            }
+            message.append(currencyLine).append(Constants.LINE_SEPARATOR);
+
+            if (!useCompactFormat && i < endIndex - 1) {
+                message.append(Constants.LINE_SEPARATOR);
+            }
+        }
+
+        message.append(Constants.LINE_SEPARATOR).append(Constants.LINE_SEPARATOR);
+        message.append(messageConverter.resolve("command.currencies.pagination.page_info",
+                Map.of("current", String.valueOf(page + 1), "total", String.valueOf(totalPages))));
+        message.append(" | ").append(messageConverter.resolve("command.currencies.pagination.total_currencies",
+                Map.of("count", String.valueOf(currencies.size()))));
+
+        if (useCompactFormat) {
+            message.append(" | ").append(messageConverter.resolve("command.currencies.pagination.compact_mode"));
+        }
+
+        return message.toString();
+    }
+} 

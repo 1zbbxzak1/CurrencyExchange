@@ -22,7 +22,7 @@ public class Currency {
     private BigDecimal exchangeRate;
 
     @Column(nullable = false)
-    private final LocalDateTime lastUpdated = LocalDateTime.now();
+    private LocalDateTime lastUpdated = LocalDateTime.now();
 
     public Currency() {
     }
@@ -31,6 +31,7 @@ public class Currency {
         this.code = code;
         this.name = name;
         this.exchangeRate = exchangeRate;
+        this.lastUpdated = LocalDateTime.now();
     }
 
     public String getId() {
@@ -51,6 +52,7 @@ public class Currency {
 
     public void setName(String name) {
         this.name = name;
+        this.lastUpdated = LocalDateTime.now();
     }
 
     public BigDecimal getExchangeRate() {
@@ -59,6 +61,7 @@ public class Currency {
 
     public void setExchangeRate(BigDecimal exchangeRate) {
         this.exchangeRate = exchangeRate;
+        this.lastUpdated = LocalDateTime.now();
     }
 
     public LocalDateTime getLastUpdated() {
