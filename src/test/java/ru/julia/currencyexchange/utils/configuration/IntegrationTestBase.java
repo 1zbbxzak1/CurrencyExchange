@@ -24,7 +24,7 @@ import java.sql.SQLException;
 
 @SpringBootTest
 @Testcontainers
-@Import({TestMailConfig.class, DatabaseCleanerConfig.class})
+@Import({TestMailConfig.class, DatabaseCleanerConfig.class, TestTelegramBotConfig.class})
 public abstract class IntegrationTestBase {
     public static PostgreSQLContainer<?> POSTGRES;
 
