@@ -11,7 +11,7 @@ import liquibase.resource.ClassLoaderResourceAccessor;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.JdbcDatabaseContainer;
@@ -22,10 +22,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-import static org.mockito.Mockito.mock;
-
 @SpringBootTest
 @Testcontainers
+@Import({TestMailConfig.class, DatabaseCleanerConfig.class})
 public abstract class IntegrationTestBase {
     public static PostgreSQLContainer<?> POSTGRES;
 
@@ -58,14 +57,6 @@ public abstract class IntegrationTestBase {
         registry.add("spring.datasource.url", POSTGRES::getJdbcUrl);
         registry.add("spring.datasource.username", POSTGRES::getUsername);
         registry.add("spring.datasource.password", POSTGRES::getPassword);
-    }
-
-    @TestConfiguration(proxyBeanMethods = false)
-    static class MockMailConfig {
-        @Bean
-        public JavaMailSender javaMailSender() {
-            return mock(JavaMailSender.class);
-        }
     }
 
     @TestConfiguration(proxyBeanMethods = false)
