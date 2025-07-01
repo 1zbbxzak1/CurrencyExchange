@@ -2,6 +2,7 @@ package ru.julia.currencyexchange.infrastructure.data;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import ru.julia.currencyexchange.domain.enums.RoleEnum;
@@ -11,6 +12,7 @@ import ru.julia.currencyexchange.domain.model.UserRole;
 import ru.julia.currencyexchange.infrastructure.repository.jpa.RoleRepository;
 import ru.julia.currencyexchange.infrastructure.repository.jpa.UserRepository;
 
+@Profile("!test")
 @Component
 public class DataSeeder implements CommandLineRunner {
     @Value("${admin.chat-id}")

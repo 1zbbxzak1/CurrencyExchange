@@ -14,6 +14,26 @@ env:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    env:
+      TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+      MAIL_HOST: ${{ secrets.MAIL_HOST }}
+      MAIL_PORT: ${{ secrets.MAIL_PORT }}
+      MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+      MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+      MAIL_CONNECTION_TIMEOUT: ${{ secrets.MAIL_CONNECTION_TIMEOUT }}
+      MAIL_TIMEOUT: ${{ secrets.MAIL_TIMEOUT }}
+      MAIL_WRITE_TIMEOUT: ${{ secrets.MAIL_WRITE_TIMEOUT }}
+      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+      ADMIN_CHAT_ID: ${{ secrets.ADMIN_CHAT_ID }}
+      ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
+      ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+      ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+      USER_CHAT_ID: ${{ secrets.USER_CHAT_ID }}
+      USER_USERNAME: ${{ secrets.USER_USERNAME }}
+      USER_EMAIL: ${{ secrets.USER_EMAIL }}
+      USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
     steps:
       - uses: actions/checkout@v3
 
