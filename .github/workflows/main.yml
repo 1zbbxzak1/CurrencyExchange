@@ -26,9 +26,16 @@ jobs:
 
       - name: Check Docker version
         run: docker version
-        
-      - name: Build and verify with Maven
-        run: mvn -B verify --file pom.xml
+
+      - name: Build and verify with Maven (detailed logs)
+        run: mvn -B verify --file pom.xml -e -Dsurefire.useFile=false
+
+      - name: Upload surefire reports
+        if: always()  # Всегда пытаться, даже если job упал
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: target/surefire-reports
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
