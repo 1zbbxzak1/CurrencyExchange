@@ -21,7 +21,7 @@ public class ComponentLoggingAspect extends AbstractLoggingAspect {
     private static final String COMPLETED_MSG = "[traceId={}] [user={}] Completed: {} in {} ms, result: {}";
     private static final String DEBUG_EXIT_MSG = "[traceId={}] [user={}] Exiting: {} with result type: {}, value: {}";
 
-    @Around("@within(org.springframework.stereotype.Component)")
+    @Around("@within(org.springframework.stereotype.Component) && !within(org.springframework.web.filter.GenericFilterBean+)")
     public Object logComponentMethod(ProceedingJoinPoint joinPoint) throws Throwable {
         String traceId = getOrCreateTraceId();
         boolean isTraceIdNew = !traceId.equals(MDC.get("traceId"));
