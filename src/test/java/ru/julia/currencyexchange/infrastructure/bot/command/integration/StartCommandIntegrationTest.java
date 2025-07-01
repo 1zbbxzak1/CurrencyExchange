@@ -16,8 +16,8 @@ import ru.julia.currencyexchange.domain.model.User;
 import ru.julia.currencyexchange.infrastructure.bot.command.StartCommand;
 import ru.julia.currencyexchange.infrastructure.repository.jpa.UserRepository;
 import ru.julia.currencyexchange.utils.annotation.ActiveProfile;
-import ru.julia.currencyexchange.utils.annotation.PostgresTestcontainers;
 import ru.julia.currencyexchange.utils.configuration.DatabaseCleaner;
+import ru.julia.currencyexchange.utils.configuration.IntegrationTestBase;
 
 import java.util.Map;
 
@@ -27,9 +27,8 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ActiveProfile
-@PostgresTestcontainers
 @Transactional
-class StartCommandIntegrationTest {
+class StartCommandIntegrationTest extends IntegrationTestBase {
     @Autowired
     private UserService userService;
     @Autowired

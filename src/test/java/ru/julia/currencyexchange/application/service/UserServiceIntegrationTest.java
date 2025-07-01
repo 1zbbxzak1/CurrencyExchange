@@ -10,8 +10,8 @@ import ru.julia.currencyexchange.application.exceptions.UserNotFoundException;
 import ru.julia.currencyexchange.domain.model.User;
 import ru.julia.currencyexchange.infrastructure.repository.jpa.UserRepository;
 import ru.julia.currencyexchange.utils.annotation.ActiveProfile;
-import ru.julia.currencyexchange.utils.annotation.PostgresTestcontainers;
 import ru.julia.currencyexchange.utils.configuration.DatabaseCleaner;
+import ru.julia.currencyexchange.utils.configuration.IntegrationTestBase;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,9 +21,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @ActiveProfile
-@PostgresTestcontainers
 @Transactional
-class UserServiceIntegrationTest {
+class UserServiceIntegrationTest extends IntegrationTestBase {
     @Autowired
     private UserService userService;
     @Autowired
@@ -126,7 +125,7 @@ class UserServiceIntegrationTest {
         userRepository.save(user2);
 
         List<User> users = userService.findAllUsers(null);
-        
+
         assertThat(users).extracting(User::getEmail).contains("a@mail.com", "b@mail.com");
     }
 

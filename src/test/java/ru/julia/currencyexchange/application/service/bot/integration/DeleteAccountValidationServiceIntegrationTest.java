@@ -11,16 +11,15 @@ import ru.julia.currencyexchange.application.service.bot.DeleteAccountValidation
 import ru.julia.currencyexchange.domain.model.User;
 import ru.julia.currencyexchange.infrastructure.repository.jpa.UserRepository;
 import ru.julia.currencyexchange.utils.annotation.ActiveProfile;
-import ru.julia.currencyexchange.utils.annotation.PostgresTestcontainers;
 import ru.julia.currencyexchange.utils.configuration.DatabaseCleaner;
+import ru.julia.currencyexchange.utils.configuration.IntegrationTestBase;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @ActiveProfile
-@PostgresTestcontainers
 @Transactional
-class DeleteAccountValidationServiceIntegrationTest {
+class DeleteAccountValidationServiceIntegrationTest extends IntegrationTestBase {
     @Autowired
     private DeleteAccountValidationService service;
     @Autowired

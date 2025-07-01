@@ -26,13 +26,7 @@ jobs:
 
       - name: Check Docker version
         run: docker version
-
-      - name: Set up Testcontainers environment
-        run: |
-          echo "TESTCONTAINERS_RYUK_DISABLED=true" >> $GITHUB_ENV
-          echo "TESTCONTAINERS_CHECKS_DISABLE=true" >> $GITHUB_ENV
-          echo "DOCKER_HOST=unix:///var/run/docker.sock" >> $GITHUB_ENV
-
+        
       - name: Build and verify with Maven
         run: mvn -B verify --file pom.xml
 

@@ -15,8 +15,8 @@ import ru.julia.currencyexchange.infrastructure.repository.jpa.ConversionReposit
 import ru.julia.currencyexchange.infrastructure.repository.jpa.CurrencyRepository;
 import ru.julia.currencyexchange.infrastructure.repository.jpa.UserRepository;
 import ru.julia.currencyexchange.utils.annotation.ActiveProfile;
-import ru.julia.currencyexchange.utils.annotation.PostgresTestcontainers;
 import ru.julia.currencyexchange.utils.configuration.DatabaseCleaner;
+import ru.julia.currencyexchange.utils.configuration.IntegrationTestBase;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -27,9 +27,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @ActiveProfile
-@PostgresTestcontainers
 @Transactional
-class CurrencyExchangeServiceIntegrationTest {
+class CurrencyExchangeServiceIntegrationTest extends IntegrationTestBase {
     @Autowired
     private CurrencyExchangeService service;
     @Autowired
@@ -134,7 +133,7 @@ class CurrencyExchangeServiceIntegrationTest {
     void getCurrencyByCode_found() {
         Currency c = currencyRepository.save(new Currency("USD", "Доллар", BigDecimal.ONE));
         Currency result = service.getCurrencyByCode("USD");
-        
+
         assertThat(result).isNotNull();
         assertThat(result.getCode()).isEqualTo("USD");
     }

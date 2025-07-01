@@ -20,7 +20,7 @@ import ru.julia.currencyexchange.infrastructure.bot.command.builder.CurrencyToRu
 import ru.julia.currencyexchange.infrastructure.repository.jpa.CurrencyRepository;
 import ru.julia.currencyexchange.infrastructure.repository.jpa.UserRepository;
 import ru.julia.currencyexchange.utils.annotation.ActiveProfile;
-import ru.julia.currencyexchange.utils.annotation.PostgresTestcontainers;
+import ru.julia.currencyexchange.utils.configuration.IntegrationTestBase;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -30,11 +30,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@PostgresTestcontainers
-@ActiveProfile
 @SpringBootTest
+@ActiveProfile
 @Transactional
-class CurrencyToRubCommandIntegrationTest {
+class CurrencyToRubCommandIntegrationTest extends IntegrationTestBase {
     @Autowired
     private UserService userService;
     @Autowired

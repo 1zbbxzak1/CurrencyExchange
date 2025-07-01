@@ -27,8 +27,8 @@ import ru.julia.currencyexchange.infrastructure.repository.jpa.RoleRepository;
 import ru.julia.currencyexchange.infrastructure.repository.jpa.UserRepository;
 import ru.julia.currencyexchange.infrastructure.repository.jpa.UserRoleRepository;
 import ru.julia.currencyexchange.utils.annotation.ActiveProfile;
-import ru.julia.currencyexchange.utils.annotation.PostgresTestcontainers;
 import ru.julia.currencyexchange.utils.configuration.DatabaseCleaner;
+import ru.julia.currencyexchange.utils.configuration.IntegrationTestBase;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -37,9 +37,8 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ActiveProfile
-@PostgresTestcontainers
 @Transactional
-class BanUserCommandIntegrationTest {
+class BanUserCommandIntegrationTest extends IntegrationTestBase {
     @Autowired
     private UserService userService;
     @Autowired

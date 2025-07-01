@@ -18,8 +18,8 @@ import ru.julia.currencyexchange.application.service.bot.RegistrationStateServic
 import ru.julia.currencyexchange.domain.model.User;
 import ru.julia.currencyexchange.infrastructure.bot.command.RegisterCommand;
 import ru.julia.currencyexchange.utils.annotation.ActiveProfile;
-import ru.julia.currencyexchange.utils.annotation.PostgresTestcontainers;
 import ru.julia.currencyexchange.utils.configuration.DatabaseCleaner;
+import ru.julia.currencyexchange.utils.configuration.IntegrationTestBase;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -27,9 +27,8 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ActiveProfile
-@PostgresTestcontainers
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-class RegisterCommandIntegrationTest {
+class RegisterCommandIntegrationTest extends IntegrationTestBase {
     @Autowired
     private MessageConverter messageConverter;
     @Autowired

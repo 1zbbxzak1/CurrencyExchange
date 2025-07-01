@@ -10,8 +10,8 @@ import ru.julia.currencyexchange.application.service.bot.CurrencyToRubService;
 import ru.julia.currencyexchange.domain.model.Currency;
 import ru.julia.currencyexchange.infrastructure.repository.jpa.CurrencyRepository;
 import ru.julia.currencyexchange.utils.annotation.ActiveProfile;
-import ru.julia.currencyexchange.utils.annotation.PostgresTestcontainers;
 import ru.julia.currencyexchange.utils.configuration.DatabaseCleaner;
+import ru.julia.currencyexchange.utils.configuration.IntegrationTestBase;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -21,9 +21,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @ActiveProfile
-@PostgresTestcontainers
 @Transactional
-class CurrencyToRubServiceIntegrationTest {
+class CurrencyToRubServiceIntegrationTest extends IntegrationTestBase {
     @Autowired
     private CurrencyToRubService service;
     @Autowired

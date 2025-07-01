@@ -2,11 +2,10 @@ package ru.julia.currencyexchange;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.julia.currencyexchange.utils.annotation.PostgresTestcontainers;
+import ru.julia.currencyexchange.utils.configuration.IntegrationTestBase;
 
 @SpringBootTest
-@PostgresTestcontainers
-public class CurrencyExchangeApplicationTests {
+public class CurrencyExchangeApplicationTests extends IntegrationTestBase {
     @Test
     public void contextLoads() {
     }

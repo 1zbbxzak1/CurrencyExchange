@@ -1,14 +1,14 @@
 package ru.julia.currencyexchange.infrastructure.repository.jpa;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import ru.julia.currencyexchange.domain.model.CurrencyConversion;
 
 import java.time.LocalDate;
 import java.util.List;
 
-public interface ConversionRepository extends CrudRepository<CurrencyConversion, String> {
+public interface ConversionRepository extends JpaRepository<CurrencyConversion, String> {
     // Поиск по дате и пользователю
     @Query("SELECT c FROM CurrencyConversion c WHERE FUNCTION('DATE', c.timestamp) = :date AND c.user.id = :userId")
     List<CurrencyConversion> findByCurrencyDate(

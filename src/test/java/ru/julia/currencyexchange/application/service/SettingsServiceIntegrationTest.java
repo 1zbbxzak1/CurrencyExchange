@@ -9,16 +9,15 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.julia.currencyexchange.domain.model.Settings;
 import ru.julia.currencyexchange.infrastructure.repository.jpa.SettingsRepository;
 import ru.julia.currencyexchange.utils.annotation.ActiveProfile;
-import ru.julia.currencyexchange.utils.annotation.PostgresTestcontainers;
 import ru.julia.currencyexchange.utils.configuration.DatabaseCleaner;
+import ru.julia.currencyexchange.utils.configuration.IntegrationTestBase;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @ActiveProfile
-@PostgresTestcontainers
 @Transactional
-class SettingsServiceIntegrationTest {
+class SettingsServiceIntegrationTest extends IntegrationTestBase {
     @Autowired
     private SettingsService settingsService;
     @Autowired

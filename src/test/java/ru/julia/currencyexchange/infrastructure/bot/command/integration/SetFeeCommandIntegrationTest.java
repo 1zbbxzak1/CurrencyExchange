@@ -25,8 +25,8 @@ import ru.julia.currencyexchange.infrastructure.repository.jpa.RoleRepository;
 import ru.julia.currencyexchange.infrastructure.repository.jpa.UserRepository;
 import ru.julia.currencyexchange.infrastructure.repository.jpa.UserRoleRepository;
 import ru.julia.currencyexchange.utils.annotation.ActiveProfile;
-import ru.julia.currencyexchange.utils.annotation.PostgresTestcontainers;
 import ru.julia.currencyexchange.utils.configuration.DatabaseCleaner;
+import ru.julia.currencyexchange.utils.configuration.IntegrationTestBase;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -34,9 +34,8 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ActiveProfile
-@PostgresTestcontainers
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-class SetFeeCommandIntegrationTest {
+class SetFeeCommandIntegrationTest extends IntegrationTestBase {
     @Autowired
     private MessageConverter messageConverter;
     @Autowired

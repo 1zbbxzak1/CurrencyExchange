@@ -1,25 +1,27 @@
 package ru.julia.currencyexchange.infrastructure.repository.jpa;
 
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 import ru.julia.currencyexchange.domain.model.Role;
 import ru.julia.currencyexchange.domain.model.User;
 import ru.julia.currencyexchange.domain.model.UserRole;
 import ru.julia.currencyexchange.utils.annotation.ActiveProfile;
-import ru.julia.currencyexchange.utils.annotation.PostgresTestcontainers;
 import ru.julia.currencyexchange.utils.configuration.DatabaseCleaner;
+import ru.julia.currencyexchange.utils.configuration.IntegrationTestBase;
 
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest
+@SpringBootTest
 @ActiveProfile
-@PostgresTestcontainers
-class UserRoleRepositoryIntegrationTest {
+@Transactional
+class UserRoleRepositoryIntegrationTest extends IntegrationTestBase {
     @Autowired
     private UserRoleRepository userRoleRepository;
     @Autowired
@@ -28,6 +30,8 @@ class UserRoleRepositoryIntegrationTest {
     private RoleRepository roleRepository;
     @Autowired
     private DatabaseCleaner databaseCleaner;
+    @Autowired
+    private EntityManager entityManager;
 
     @BeforeEach
     void cleanDb() {
@@ -82,6 +86,9 @@ class UserRoleRepositoryIntegrationTest {
         UserRole userRole = new UserRole(user, role);
         userRoleRepository.save(userRole);
         userRoleRepository.deleteById(userRole.getId());
+
+        entityManager.flush();
+        entityManager.clear();
 
         assertThat(userRoleRepository.findById(userRole.getId())).isEmpty();
     }

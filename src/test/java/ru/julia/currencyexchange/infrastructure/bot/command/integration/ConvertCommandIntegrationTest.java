@@ -23,8 +23,8 @@ import ru.julia.currencyexchange.infrastructure.bot.command.builder.CurrencyConv
 import ru.julia.currencyexchange.infrastructure.repository.jpa.CurrencyRepository;
 import ru.julia.currencyexchange.infrastructure.repository.jpa.UserRepository;
 import ru.julia.currencyexchange.utils.annotation.ActiveProfile;
-import ru.julia.currencyexchange.utils.annotation.PostgresTestcontainers;
 import ru.julia.currencyexchange.utils.configuration.DatabaseCleaner;
+import ru.julia.currencyexchange.utils.configuration.IntegrationTestBase;
 
 import java.math.BigDecimal;
 
@@ -34,9 +34,8 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ActiveProfile
-@PostgresTestcontainers
 @Transactional
-class ConvertCommandIntegrationTest {
+class ConvertCommandIntegrationTest extends IntegrationTestBase {
     @Autowired
     private UserService userService;
     @Autowired

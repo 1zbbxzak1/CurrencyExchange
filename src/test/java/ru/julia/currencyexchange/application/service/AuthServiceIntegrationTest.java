@@ -14,8 +14,8 @@ import ru.julia.currencyexchange.application.service.emails.VerificationCodeGene
 import ru.julia.currencyexchange.domain.model.User;
 import ru.julia.currencyexchange.infrastructure.repository.jpa.UserRepository;
 import ru.julia.currencyexchange.utils.annotation.ActiveProfile;
-import ru.julia.currencyexchange.utils.annotation.PostgresTestcontainers;
 import ru.julia.currencyexchange.utils.configuration.DatabaseCleaner;
+import ru.julia.currencyexchange.utils.configuration.IntegrationTestBase;
 
 import java.util.Optional;
 
@@ -27,9 +27,8 @@ import static org.mockito.Mockito.verify;
 
 @SpringBootTest
 @ActiveProfile
-@PostgresTestcontainers
 @Transactional
-class AuthServiceIntegrationTest {
+class AuthServiceIntegrationTest extends IntegrationTestBase {
     @Autowired
     private AuthService authService;
     @Autowired
@@ -122,7 +121,7 @@ class AuthServiceIntegrationTest {
         user.setUsername(username);
         user.setChatId(999999L);
         userRepository.save(user);
-        
+
         assertThatThrownBy(() -> authService.createUserWithVerificationCode(chatId, username, email, password))
                 .isInstanceOf(UserCreationException.class)
                 .hasMessageContaining("username");
