@@ -78,6 +78,8 @@
 - **Мониторинг**: Prometheus, Grafana, Actuator
 - **Логирование**: Loki, Logstash и Promtail
 - **Тестирование**: JUnit, AssertJ, Mockito, Testcontainers
+- **Контейнеризация**: Docker
+- **CI/CD**: Github Actions
 - **Дополнительные зависимости**: BCrypt, Spring Mail, Gmail SMTP, Jackson, Telegram Bot API
 
 ## 🎴 Установка проекта
